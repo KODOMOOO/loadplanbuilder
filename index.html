@@ -1,0 +1,2364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>LPB 1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg: #F4F0E4;
+    --panel: #FCFAF3;
+    --panel-2: #EFE9D8;
+    --ink: #1E2A2E;
+    --ink-soft: #55605F;
+    --line: #C9C0A6;
+    --amber: #C8862A;
+    --amber-ink: #6b4413;
+    --teal: #235248;
+    --teal-soft: #E1EBE6;
+    --red: #A6412C;
+    --red-soft: #F4E1DB;
+    --shadow: none;
+    --scroll-track: #E7E0CC;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #10181C;
+      --panel: #17232A;
+      --panel-2: #1E2E36;
+      --ink: #E9F0EC;
+      --ink-soft: #9AACA9;
+      --line: #2E4048;
+      --amber: #E3A552;
+      --amber-ink: #F4D9AC;
+      --teal: #5FA893;
+      --teal-soft: #1B322F;
+      --red: #E08066;
+      --red-soft: #3A2019;
+      --scroll-track: #1E2E36;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #10181C;
+    --panel: #17232A;
+    --panel-2: #1E2E36;
+    --ink: #E9F0EC;
+    --ink-soft: #9AACA9;
+    --line: #2E4048;
+    --amber: #E3A552;
+    --amber-ink: #F4D9AC;
+    --teal: #5FA893;
+    --teal-soft: #1B322F;
+    --red: #E08066;
+    --red-soft: #3A2019;
+    --scroll-track: #1E2E36;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Space Grotesk', ui-sans-serif, sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 34px 34px;
+    background-attachment: fixed;
+    background-position: -1px -1px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  h1,h2,h3{font-family:'Space Grotesk', ui-sans-serif, sans-serif; margin:0; letter-spacing:-0.01em;}
+  .mono, table, input, select, textarea, button, .stamp, .stat .v, .hint, .n, .flagbadge{ font-family:'IBM Plex Mono', ui-monospace, monospace; }
+
+  .wrap{max-width:1360px; margin:0 auto; padding:20px 20px 60px;}
+
+  header.top{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+    padding:18px 22px; margin-bottom:18px;
+    background:var(--panel); border:1px solid var(--line);
+  }
+  header.top .tag{
+    font-size:11px; color:var(--ink-soft); letter-spacing:.05em; font-family:'IBM Plex Mono',monospace;
+  }
+  header.top h1{font-size:25px; color:var(--ink);}
+  .projectNameInput{
+    font-family:'Space Grotesk',sans-serif; font-size:25px; font-weight:700; color:var(--ink);
+    background:transparent; border:none; padding:2px 0; width:100%; max-width:480px;
+  }
+  .projectNameInput::placeholder{ color:var(--ink-soft); opacity:0.55; }
+  .projectNameInput:focus{ outline:none; border-bottom:2px solid var(--amber); }
+  header.top .stamp{
+    text-align:right; font-size:11px; color:var(--ink-soft); line-height:1.7; max-width:420px;
+  }
+  .stamp b{color:var(--amber-ink); font-weight:600;}
+
+  .grid{
+    display:grid;
+    grid-template-columns: 360px 1fr;
+    gap: 18px;
+    align-items:start;
+  }
+  @media (max-width: 880px){
+    .grid{grid-template-columns: 1fr;}
+  }
+  @media (max-width: 600px){
+    .wrap{padding:12px 10px 40px;}
+    header.top{flex-direction:column; align-items:flex-start; padding:14px 16px; gap:8px;}
+    header.top .stamp{text-align:left; max-width:100%;}
+    .projectNameInput{font-size:20px;}
+    .panel{padding:14px 14px;}
+    .row3{grid-template-columns:1fr 1fr 1fr; gap:6px;}
+    .row2{gap:8px;}
+    #canvasHost{height:300px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .btnrow button{flex:1 1 auto;}
+    .tab{padding:8px 10px; font-size:11.5px;}
+    body{font-size:13px;}
+  }
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line);
+    padding:16px 18px;
+    margin-bottom:18px;
+  }
+  .panel > h2{
+    font-size:14.5px; font-weight:600; color:var(--ink);
+    border-bottom:1px solid var(--line); padding-bottom:9px; margin-bottom:13px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .panel > h2 span.n{
+    font-size:11px; color:var(--ink-soft); font-weight:400;
+  }
+
+  label{display:block; font-size:11.5px; font-weight:500; color:var(--ink-soft); margin:11px 0 4px;}
+  select, input[type=number], input[type=text], input[type=password], textarea{
+    width:100%; background:var(--panel-2); color:var(--ink); border:1px solid var(--line);
+    padding:9px 10px; font-size:13px; font-family:'IBM Plex Mono',monospace;
+  }
+  select:focus, input:focus, textarea:focus{ outline:2px solid var(--amber); outline-offset:1px; }
+  textarea{resize:vertical; min-height:96px;}
+
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+
+  .checks{display:flex; gap:18px; margin-top:13px;}
+  .chk{display:flex; align-items:center; gap:7px; font-size:12.5px; font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0; cursor:pointer;}
+  .chk input{width:auto; margin:0; accent-color:var(--amber);}
+
+  button{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13.5px;
+    background:var(--ink); color:var(--panel); border:1px solid var(--ink);
+    padding:10px 15px; cursor:pointer;
+  }
+  button:hover{ filter:brightness(1.12); }
+  button:active{ transform: translateY(1px); }
+  button.secondary{
+    background:transparent; color:var(--ink); border:1px solid var(--line);
+  }
+  button.accent{
+    background:var(--amber); color:#241505; border:1px solid var(--amber);
+  }
+  button:disabled{opacity:.45; cursor:not-allowed;}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+
+  .filebtn{display:inline-block; position:relative; overflow:hidden;}
+  .filebtn input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer;}
+
+  .hint{font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.6;}
+
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{color:var(--ink-soft); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em;}
+  .tablewrap{overflow-x:auto; border:1px solid var(--line);}
+
+  #itemsPanel .tablewrap{ max-height:420px; overflow-y:auto; }
+  table.wide-table td input[type=text]{ width:170px; padding:6px 7px; font-size:12.5px; }
+  table.wide-table td input[type=number]{ width:64px; padding:6px 7px; font-size:12.5px; text-align:right; }
+  table.wide-table td input[type=checkbox]{ width:auto; accent-color:var(--amber); transform:scale(1.15); }
+  table.wide-table td{ vertical-align:middle; }
+  .rmBtn{ padding:7px 12px; font-size:12px; white-space:nowrap; }
+  .rmBtn:hover{ background:var(--red-soft); border-color:var(--red); color:var(--red); }
+
+  .error{background:var(--red-soft); color:var(--red); border:1px solid var(--red); padding:9px 11px; font-size:12px; margin-top:8px;}
+  .ok{background:var(--teal-soft); color:var(--teal); border:1px solid var(--teal); padding:9px 11px; font-size:12px; margin-top:8px;}
+
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .stat{background:var(--panel); padding:15px 15px;}
+  .stat .v{font-family:'Space Grotesk',sans-serif; font-size:27px; font-weight:700; color:var(--ink);}
+  .stat .l{font-size:10.5px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); margin-top:3px; letter-spacing:.02em;}
+  .stat.warn .v{color:var(--red);}
+  .stat.good .v{color:var(--teal);}
+
+  .tabs{display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid var(--line); margin-bottom:0;}
+  .tab{
+    padding:9px 15px; font-size:12.5px; font-family:'Space Grotesk',sans-serif; font-weight:500; cursor:pointer; color:var(--ink-soft);
+    border:1px solid var(--line); border-bottom:none; background:var(--panel-2);
+    margin-right:4px; margin-bottom:-1px;
+  }
+  .tab.active{background:var(--panel); color:var(--ink); font-weight:700; border-bottom:1px solid var(--panel);}
+
+  .viewer{
+    background:var(--panel); border:1px solid var(--line); border-top:none;
+    padding:0; position:relative;
+  }
+  #canvasHost{ width:100%; height:440px; display:block; touch-action:none; cursor:grab; }
+  #canvasHost:active{cursor:grabbing;}
+  .viewerbar{
+    display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+    padding:11px 15px; border-top:1px solid var(--line); font-size:11.5px; font-family:'Space Grotesk',sans-serif; color:var(--ink-soft);
+  }
+  .legend{display:flex; gap:12px; flex-wrap:wrap;}
+  .legend .item{display:flex; align-items:center; gap:6px;}
+  .swatch{width:11px; height:11px; display:inline-block; border:1px solid rgba(0,0,0,.25);}
+  .viewerDim{
+    padding:9px 15px; border-bottom:1px solid var(--line); font-size:12px; font-family:'IBM Plex Mono',monospace;
+    color:var(--ink); background:var(--panel-2); font-weight:600;
+  }
+  .dragHint{ font-family:'Space Grotesk',sans-serif; }
+  .colorSwatch{ width:22px; height:22px; border-radius:5px; border:1px solid var(--line); flex-shrink:0; display:inline-block; cursor:pointer; padding:0; }
+  #logoPreviewWrap{ background:#fff; border:1px solid var(--line); padding:8px; display:inline-block; }
+  #logoPreview{ display:block; max-width:160px; max-height:70px; }
+  .colorSwatch:hover{ outline:2px solid var(--amber); outline-offset:1px; }
+
+  .colorPopover{
+    position:fixed; z-index:9999; background:var(--panel); border:1px solid var(--line);
+    box-shadow:0 8px 24px rgba(0,0,0,.28); padding:14px; width:200px;
+  }
+  .colorPopover .wheelWrap{ position:relative; width:150px; height:150px; margin:0 auto 10px; }
+  .colorPopover canvas{ display:block; cursor:crosshair; touch-action:none; }
+  .colorPopover .wheelDot{
+    position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%;
+    border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.5); pointer-events:none;
+  }
+  .colorPopover .pickerRow{ margin-bottom:9px; }
+  .colorPopover .pickerRow label{ font-size:10.5px; color:var(--ink-soft); margin:0 0 4px; display:block; }
+  .colorPopover input[type=range]{ width:100%; accent-color:var(--amber); }
+  .colorPopover input[type=text]{ font-family:'IBM Plex Mono',monospace; text-transform:uppercase; }
+  .presetRow{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
+  .presetSwatch{
+    width:18px; height:18px; border-radius:4px; border:1px solid var(--line); cursor:pointer; padding:0;
+  }
+  .presetSwatch:hover{ outline:2px solid var(--amber); outline-offset:1px; }
+
+  .qtyEdit{width:56px; padding:4px 5px;}
+  .flagbadge{display:inline-block; font-size:9.5px; padding:2px 6px; border:1px solid var(--line); color:var(--ink-soft); margin-right:3px; border-radius:2px;}
+
+  .fleetRow{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; border:1px solid var(--line); background:var(--panel-2); margin-bottom:6px; font-size:12px;}
+  .fleetRow .fnum{font-family:'IBM Plex Mono',monospace; color:var(--amber-ink); font-weight:600; margin-right:6px;}
+  .fleetRow .fmeta{color:var(--ink-soft); font-size:10.5px; display:block; margin-top:2px;}
+  .fleetRow button{padding:5px 9px; font-size:11px; flex-shrink:0;}
+
+  footer.note{
+    font-size:10.5px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); text-align:center; margin-top:26px; line-height:1.8;
+  }
+
+  ::-webkit-scrollbar{height:10px; width:10px;}
+  ::-webkit-scrollbar-track{background:var(--scroll-track);}
+  ::-webkit-scrollbar-thumb{background:var(--line);}
+
+  .loginGate{
+    position:fixed; inset:0; z-index:99999; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 34px 34px;
+  }
+  .loginCard{
+    background:var(--panel); border:1px solid var(--line); padding:32px 30px; width:300px; max-width:100%;
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+  }
+  .loginTitle{ font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:700; color:var(--ink); text-align:center; }
+  .loginSub{ font-size:12px; color:var(--ink-soft); text-align:center; margin:4px 0 20px; }
+  .loginCard label{ margin-top:12px; }
+  .loginCard input{ font-family:'IBM Plex Mono',monospace; }
+  .loginError{ font-size:11.5px; color:var(--red); min-height:16px; margin-top:10px; text-align:center; }
+</style>
+</head>
+<body>
+<div id="loginGate" class="loginGate">
+  <div class="loginCard">
+    <div class="loginTitle">RUJHAK MENTAI</div>
+    <div class="loginSub">Sign in to continue</div>
+    <label for="loginUser">Username</label>
+    <input type="text" id="loginUser" autocomplete="username">
+    <label for="loginPass">Password</label>
+    <input type="password" id="loginPass" autocomplete="current-password">
+    <div id="loginError" class="loginError"></div>
+    <button type="button" class="accent" id="loginBtn" style="width:100%; margin-top:12px;">Sign In</button>
+  </div>
+</div>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="tag">Name of the Project</div>
+      <input type="text" id="projectName" class="projectNameInput" placeholder="Untitled Project" maxlength="80">
+    </div>
+    <div class="stamp">LPB (Load Plan Builder) by KODOMOOO</b></div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: SETUP -->
+    <div>
+      <div class="panel">
+        <h2>Letterhead <span class="n">for PDF report</span></h2>
+        <label for="companyName">Company Name</label>
+        <input type="text" id="companyName" placeholder="Your Company Name">
+        <label for="companyAddress">Company Description</label>
+        <textarea id="companyAddress" placeholder="Street address, city, country&#10;Phone / email / website" style="min-height:52px;"></textarea>
+        <div class="hint"></div>
+        <label style="margin-top:12px;">Company Logo</label>
+        <div class="btnrow">
+          <button type="button" class="secondary" id="uploadLogoBtn">Upload Logo</button>
+          <input type="file" id="logoInput" accept="image/png,image/jpeg" style="display:none;">
+          <button type="button" class="secondary" id="removeLogoBtn" style="display:none;">Remove</button>
+        </div>
+        <div id="logoPreviewWrap" style="display:none; margin-top:10px;">
+          <img id="logoPreview" alt="Logo preview">
+        </div>
+        <div id="logoMsg"></div>
+        <div class="hint"></div>
+      </div>
+
+      <div class="panel">
+        <h2>1. Container</h2>
+        <div class="checks" style="margin-top:0; margin-bottom:12px;">
+          <label class="chk"><input type="radio" name="cmode" id="modeUniform" value="uniform" checked> Single type (uniform)</label>
+          <label class="chk"><input type="radio" name="cmode" id="modeFleet" value="fleet"> Custom fleet</label>
+        </div>
+
+        <div id="uniformSettings">
+          <label for="ctype">Container type</label>
+          <select id="ctype">
+            <option value="20GP">20' GP — 589×235×239 cm</option>
+            <option value="40GP">40' GP — 1203×235×239 cm</option>
+            <option value="40HQ" selected>40' HQ — 1203×235×269 cm</option>
+            <option value="CUSTOM">Custom — enter your own size</option>
+          </select>
+
+          <div id="customDims" style="display:none;">
+            <div class="row2">
+              <div>
+                <label for="cLen">Length (cm)</label>
+                <input type="number" id="cLen" value="1203">
+              </div>
+              <div>
+                <label for="cWid">Width (cm)</label>
+                <input type="number" id="cWid" value="235">
+              </div>
+            </div>
+            <div>
+              <label for="cHei">Height (cm)</label>
+              <input type="number" id="cHei" value="269">
+            </div>
+            <label for="customLabel">Container name/label</label>
+            <input type="text" id="customLabel" value="Custom Container">
+          </div>
+
+          <div class="row2">
+            <div>
+              <label for="maxpayload">Max weight/container (kg)</label>
+              <input type="number" id="maxpayload" value="28580">
+            </div>
+            <div>
+              <label for="maxcontainers">Container count limit</label>
+              <input type="number" id="maxcontainers" value="60">
+            </div>
+          </div>
+          <div class="hint"></div>
+        </div>
+
+        <div id="fleetSettings" style="display:none;">
+          <label for="fcType">Container type to add</label>
+          <select id="fcType">
+            <option value="20GP">20' GP — 589×235×239 cm</option>
+            <option value="40GP">40' GP — 1203×235×239 cm</option>
+            <option value="40HQ" selected>40' HQ — 1203×235×269 cm</option>
+            <option value="CUSTOM">Custom</option>
+          </select>
+          <div id="fcCustomDims" style="display:none;">
+            <div class="row2">
+              <div><label for="fcLen">Length (cm)</label><input type="number" id="fcLen" value="1203"></div>
+              <div><label for="fcWid">Width (cm)</label><input type="number" id="fcWid" value="235"></div>
+            </div>
+            <div><label for="fcHei">Height (cm)</label><input type="number" id="fcHei" value="269"></div>
+            <label for="fcCustomLabel">Name/label</label>
+            <input type="text" id="fcCustomLabel" value="Custom Container">
+          </div>
+          <label for="fcPayload">Max weight for this container (kg)</label>
+          <input type="number" id="fcPayload" value="28580">
+          <button type="button" class="accent" id="fcAddBtn" style="width:100%; margin-top:10px;">+ Add to Fleet List</button>
+
+          <div class="hint" style="margin-top:14px; margin-bottom:2px;">Container list (filled in order starting from #1):</div>
+          <div id="fleetList"></div>
+          <div class="hint" id="fleetEmptyHint">No containers added to the fleet yet.</div>
+        </div>
+
+        <div class="hint"></div>
+      </div>
+
+      <div class="panel">
+        <h2>2. Add Item</h2>
+        <div class="row2">
+          <div>
+            <label for="miName">Product name</label>
+            <input type="text" id="miName" placeholder="Wooden Crate A">
+          </div>
+          <div>
+            <label for="miQty">Qty</label>
+            <input type="number" id="miQty" value="1" min="1">
+          </div>
+        </div>
+        <div class="row3">
+          <div>
+            <label for="miL">L (cm)</label>
+            <input type="number" id="miL" placeholder="120">
+          </div>
+          <div>
+            <label for="miW">W (cm)</label>
+            <input type="number" id="miW" placeholder="80">
+          </div>
+          <div>
+            <label for="miH">H (cm)</label>
+            <input type="number" id="miH" placeholder="100">
+          </div>
+        </div>
+        <div class="row2">
+          <div>
+            <label for="miWeight">Weight/unit (kg)</label>
+            <input type="number" id="miWeight" placeholder="150">
+          </div>
+          <div>
+            <label for="miMaxStack">Max stack</label>
+            <input type="number" id="miMaxStack" placeholder="blank = ∞">
+          </div>
+        </div>
+        <div class="row2">
+          <div>
+            <label for="miPriority">Priority</label>
+            <input type="number" id="miPriority" value="1">
+          </div>
+          <div>
+            <label for="miTolerance">Tolerance (cm)</label>
+            <input type="number" id="miTolerance" value="0">
+          </div>
+        </div>
+        <div class="checks">
+          <label class="chk"><input type="checkbox" id="miCylinder"> Cylinder</label>
+          <label class="chk"><input type="checkbox" id="miUpright"> Upright only</label>
+        </div>
+        <div id="miMsg"></div>
+        <button type="button" class="accent" id="miAddBtn" style="width:100%; margin-top:10px;">+ Add Item</button>
+      </div>
+
+      <div class="panel">
+        <h2>Bulk CSV Import <span class="n">optional</span></h2>
+        <label for="sampleTemplate">Sample Template</label>
+        <select id="sampleTemplate">
+          <option value="mixed">Mixed Cargo</option>
+          <option value="pallets">Palletized Goods</option>
+          <option value="furniture">Furniture Shipment</option>
+        </select>
+        <div class="btnrow" style="margin-top:8px;">
+          <button type="button" class="secondary" id="downloadSampleBtn">↓ Download Example CSV File</button>
+        </div>
+        <div class="hint" style="margin-top:2px;"></div>
+        <label for="csvInput" style="margin-top:12px;">Paste CSV data</label>
+        <textarea id="csvInput" placeholder="Product Name,Length cm,Width cm,Height cm,Unit Weight kg,Quantity,Cylinder,Upright Only,Max Stack,Priority,Tolerance cm
+Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
+        <div class="btnrow">
+          <button type="button" class="secondary" id="uploadCsvBtn">Upload CSV File</button>
+          <input type="file" id="fileInput" accept=".csv,text/csv" style="display:none;">
+          <button type="button" class="secondary" id="importCsvBtn">Import to List</button>
+          <button type="button" class="secondary" id="sampleBtn">Add Sample Data</button>
+        </div>
+        <div id="parseMsg"></div>
+      </div>
+
+      <div class="hint" style="text-align:center; margin-top:4px;"></div>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div>
+      <div id="emptyState" class="panel" style="text-align:center; padding:60px 20px; color:var(--ink-soft);">
+        <div style="font-size:34px; margin-bottom:8px;">▦</div>
+        Add an item on the left — the 3D preview and container summary will appear <b style="color:var(--ink)">automatically here</b>.
+      </div>
+
+      <div id="results" style="display:none;">
+        <div class="stats" id="statsRow"></div>
+
+        <div style="margin-top:18px;">
+          <div class="tabs" id="tabs"></div>
+          <div class="viewer">
+            <div class="viewerDim" id="containerDimBadge"></div>
+            <div id="canvasHost"></div>
+            <div class="viewerbar">
+              <div class="legend" id="legend"></div>
+              <div class="dragHint">drag = rotate · scroll = zoom</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:18px;" id="unplacedPanel" style="display:none;"></div>
+
+        <div class="panel" style="margin-top:18px;">
+          <h2>Breakdown per container <span class="n" id="detailN"></span></h2>
+          <div class="tablewrap"><table id="detailTable"><thead></thead><tbody></tbody></table></div>
+          <div class="btnrow">
+            <button type="button" class="secondary" id="exportBtn">Export Breakdown (CSV)</button>
+            <button type="button" class="accent" id="exportPdfBtn">Export PDF Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="itemsPanel">
+    <h2>Item List <span class="n" id="itemCount">0 items</span></h2>
+    <div class="tablewrap"><table id="itemsTable" class="wide-table">
+      <thead><tr>
+        <th style="min-width:180px;">Name</th>
+        <th>Color</th>
+        <th>L (cm)</th><th>W (cm)</th><th>H (cm)</th>
+        <th>Weight (kg)</th><th>Qty</th>
+        <th>Max stack</th><th>Priority</th>
+        <th>Cyl.</th><th>Upright</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="itemsBody"></tbody>
+    </table></div>
+    <div class="hint" id="itemsEmptyHint">No items added yet — use the form on the left or import a CSV.</div>
+    <div class="btnrow">
+      <button type="button" class="secondary" id="saveListBtn">Save Item List (CSV)</button>
+    </div>
+    <div class="hint"></div>
+  </div>
+
+  <footer class="note">© 2021 - 2026 KODOMOOO. All rights reserved.<br>Results are indicative for planning purposes; re-validate for high-value or irregular loads.</footer>
+
+  <div class="colorPopover" id="colorPopover" style="display:none;">
+    <div class="wheelWrap">
+      <canvas id="colorWheelCanvas" width="150" height="150"></canvas>
+      <div class="wheelDot" id="wheelDot"></div>
+    </div>
+    <div class="pickerRow">
+      <label>Brightness</label>
+      <input type="range" id="brightnessSlider" min="5" max="100" value="85">
+    </div>
+    <div class="pickerRow">
+      <label>Hex code</label>
+      <input type="text" id="hexInput" maxlength="7" placeholder="#RRGGBB">
+    </div>
+    <div class="pickerRow">
+      <label>Presets</label>
+      <div class="presetRow" id="presetRow"></div>
+    </div>
+    <button type="button" class="accent" id="colorPickerDone" style="width:100%;">Done</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // =====================================================================
+  // ACCESS GATE — edit the two lines below to change the sign-in username
+  // and password. This runs entirely in the browser (no server), so it's a
+  // simple front door, not real security — anyone opening dev tools/view
+  // source can see or bypass it. Good enough to keep casual/accidental
+  // access out, not for protecting sensitive data.
+  // =====================================================================
+  var APP_USERNAME = "admin";
+  var APP_PASSWORD = "admin";
+  var APP_USERNAME = "dany";
+  var APP_PASSWORD = "dany";
+  // =====================================================================
+
+  (function loginGate(){
+    var gate = document.getElementById('loginGate');
+    var userInput = document.getElementById('loginUser');
+    var passInput = document.getElementById('loginPass');
+    var errorEl = document.getElementById('loginError');
+    var btn = document.getElementById('loginBtn');
+    var MAX_ATTEMPTS = 3;
+    var LOCK_MS = 30000;
+    var lockTimer = null;
+
+    function getFailCount(){ try{ return parseInt(localStorage.getItem('lpb_failcount')||'0',10) || 0; }catch(e){ return 0; } }
+    function setFailCount(n){ try{ localStorage.setItem('lpb_failcount', String(n)); }catch(e){} }
+    function getLockUntil(){ try{ return parseInt(localStorage.getItem('lpb_lockuntil')||'0',10) || 0; }catch(e){ return 0; } }
+    function setLockUntil(ts){ try{ localStorage.setItem('lpb_lockuntil', String(ts)); }catch(e){} }
+
+    // Checks (and displays) the lockout state — including right after a page
+    // refresh, since the lock timestamp lives in localStorage, not memory.
+    function updateLockUI(){
+      var remain = getLockUntil() - Date.now();
+      if(remain > 0){
+        btn.disabled = true; userInput.disabled = true; passInput.disabled = true;
+        errorEl.textContent = 'Too many attempts. Try again in ' + Math.ceil(remain/1000) + 's.';
+        if(!lockTimer){
+          lockTimer = setInterval(function(){
+            var r = getLockUntil() - Date.now();
+            if(r <= 0){
+              clearInterval(lockTimer); lockTimer = null;
+              btn.disabled = false; userInput.disabled = false; passInput.disabled = false;
+              errorEl.textContent = '';
+              setFailCount(0); setLockUntil(0);
+            } else {
+              errorEl.textContent = 'Too many attempts. Try again in ' + Math.ceil(r/1000) + 's.';
+            }
+          }, 250);
+        }
+        return true;
+      }
+      btn.disabled = false; userInput.disabled = false; passInput.disabled = false;
+      return false;
+    }
+
+    function tryLogin(){
+      if(updateLockUI()) return;
+      if(userInput.value === APP_USERNAME && passInput.value === APP_PASSWORD){
+        setFailCount(0); setLockUntil(0);
+        try{ sessionStorage.setItem('lpb_authed','1'); }catch(e){}
+        gate.style.display = 'none';
+      } else {
+        var fails = getFailCount() + 1;
+        if(fails >= MAX_ATTEMPTS){
+          setFailCount(0);
+          setLockUntil(Date.now() + LOCK_MS);
+          updateLockUI();
+        } else {
+          setFailCount(fails);
+          errorEl.textContent = 'Incorrect username or password. (' + fails + '/' + MAX_ATTEMPTS + ' attempts)';
+        }
+        passInput.value = '';
+        passInput.focus();
+      }
+    }
+
+    btn.addEventListener('click', tryLogin);
+    passInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryLogin(); });
+    userInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') passInput.focus(); });
+
+    var isLocked = updateLockUI();
+    var isAuthed = false;
+    try{ isAuthed = sessionStorage.getItem('lpb_authed') === '1'; }catch(e){}
+    if(isAuthed && !isLocked){
+      gate.style.display = 'none';
+    } else if(!isLocked){
+      userInput.focus();
+    }
+  })();
+
+  var CONTAINER_TYPES = {
+    '20GP': {label:"20' GP", L:589, W:235, H:239, payload:28080},
+    '40GP': {label:"40' GP", L:1203, W:235, H:239, payload:26280},
+    '40HQ': {label:"40' HQ", L:1203, W:235, H:269, payload:28580}
+  };
+
+  var els = {
+    ctype: document.getElementById('ctype'),
+    customDims: document.getElementById('customDims'),
+    cLen: document.getElementById('cLen'),
+    cWid: document.getElementById('cWid'),
+    cHei: document.getElementById('cHei'),
+    customLabel: document.getElementById('customLabel'),
+    maxpayload: document.getElementById('maxpayload'),
+    maxcontainers: document.getElementById('maxcontainers'),
+    modeUniform: document.getElementById('modeUniform'),
+    modeFleet: document.getElementById('modeFleet'),
+    uniformSettings: document.getElementById('uniformSettings'),
+    fleetSettings: document.getElementById('fleetSettings'),
+    fcType: document.getElementById('fcType'),
+    fcCustomDims: document.getElementById('fcCustomDims'),
+    fcLen: document.getElementById('fcLen'),
+    fcWid: document.getElementById('fcWid'),
+    fcHei: document.getElementById('fcHei'),
+    fcCustomLabel: document.getElementById('fcCustomLabel'),
+    fcPayload: document.getElementById('fcPayload'),
+    fcAddBtn: document.getElementById('fcAddBtn'),
+    fleetList: document.getElementById('fleetList'),
+    fleetEmptyHint: document.getElementById('fleetEmptyHint'),
+    csvInput: document.getElementById('csvInput'),
+    fileInput: document.getElementById('fileInput'),
+    uploadCsvBtn: document.getElementById('uploadCsvBtn'),
+    sampleBtn: document.getElementById('sampleBtn'),
+    sampleTemplate: document.getElementById('sampleTemplate'),
+    downloadSampleBtn: document.getElementById('downloadSampleBtn'),
+    importCsvBtn: document.getElementById('importCsvBtn'),
+    saveListBtn: document.getElementById('saveListBtn'),
+    parseMsg: document.getElementById('parseMsg'),
+    projectName: document.getElementById('projectName'),
+    companyName: document.getElementById('companyName'),
+    companyAddress: document.getElementById('companyAddress'),
+    uploadLogoBtn: document.getElementById('uploadLogoBtn'),
+    logoInput: document.getElementById('logoInput'),
+    removeLogoBtn: document.getElementById('removeLogoBtn'),
+    logoPreviewWrap: document.getElementById('logoPreviewWrap'),
+    logoPreview: document.getElementById('logoPreview'),
+    logoMsg: document.getElementById('logoMsg'),
+    colorPopover: document.getElementById('colorPopover'),
+    colorWheelCanvas: document.getElementById('colorWheelCanvas'),
+    wheelDot: document.getElementById('wheelDot'),
+    brightnessSlider: document.getElementById('brightnessSlider'),
+    hexInput: document.getElementById('hexInput'),
+    presetRow: document.getElementById('presetRow'),
+    colorPickerDone: document.getElementById('colorPickerDone'),
+    containerDimBadge: document.getElementById('containerDimBadge'),
+    itemCount: document.getElementById('itemCount'),
+    itemsBody: document.getElementById('itemsBody'),
+    itemsEmptyHint: document.getElementById('itemsEmptyHint'),
+    miName: document.getElementById('miName'),
+    miQty: document.getElementById('miQty'),
+    miL: document.getElementById('miL'),
+    miW: document.getElementById('miW'),
+    miH: document.getElementById('miH'),
+    miWeight: document.getElementById('miWeight'),
+    miMaxStack: document.getElementById('miMaxStack'),
+    miPriority: document.getElementById('miPriority'),
+    miTolerance: document.getElementById('miTolerance'),
+    miCylinder: document.getElementById('miCylinder'),
+    miUpright: document.getElementById('miUpright'),
+    miMsg: document.getElementById('miMsg'),
+    miAddBtn: document.getElementById('miAddBtn'),
+    emptyState: document.getElementById('emptyState'),
+    results: document.getElementById('results'),
+    statsRow: document.getElementById('statsRow'),
+    tabs: document.getElementById('tabs'),
+    canvasHost: document.getElementById('canvasHost'),
+    legend: document.getElementById('legend'),
+    unplacedPanel: document.getElementById('unplacedPanel'),
+    detailTable: document.getElementById('detailTable'),
+    detailN: document.getElementById('detailN'),
+    exportBtn: document.getElementById('exportBtn'),
+    exportPdfBtn: document.getElementById('exportPdfBtn')
+  };
+
+  // ---------- Project name ----------
+  try{
+    var savedName = localStorage.getItem('lpb_projectname');
+    if(savedName) els.projectName.value = savedName;
+  }catch(e){}
+  els.projectName.addEventListener('input', function(){
+    try{ localStorage.setItem('lpb_projectname', els.projectName.value); }catch(e){}
+  });
+
+  // ---------- Letterhead: company name / address / logo (used in the PDF report) ----------
+  var companyLogo = null; // {dataUrl, format:'PNG'|'JPEG', width, height}
+
+  try{
+    var savedCompanyName = localStorage.getItem('lpb_companyname');
+    if(savedCompanyName) els.companyName.value = savedCompanyName;
+    var savedCompanyAddress = localStorage.getItem('lpb_companyaddress');
+    if(savedCompanyAddress) els.companyAddress.value = savedCompanyAddress;
+    var savedLogo = localStorage.getItem('lpb_logo');
+    if(savedLogo){ companyLogo = JSON.parse(savedLogo); showLogoPreview(); }
+  }catch(e){}
+
+  els.companyName.addEventListener('input', function(){
+    try{ localStorage.setItem('lpb_companyname', els.companyName.value); }catch(e){}
+  });
+  els.companyAddress.addEventListener('input', function(){
+    try{ localStorage.setItem('lpb_companyaddress', els.companyAddress.value); }catch(e){}
+  });
+
+  function showLogoPreview(){
+    if(!companyLogo) return;
+    els.logoPreview.src = companyLogo.dataUrl;
+    els.logoPreviewWrap.style.display = 'inline-block';
+    els.removeLogoBtn.style.display = 'inline-block';
+  }
+
+  els.uploadLogoBtn.addEventListener('click', function(){ els.logoInput.click(); });
+
+  els.logoInput.addEventListener('change', function(e){
+    var f = e.target.files && e.target.files[0];
+    if(!f) return;
+    if(!/^image\/(png|jpeg)$/.test(f.type)){
+      els.logoMsg.innerHTML = '<div class="error">Please choose a PNG or JPG image.</div>';
+      return;
+    }
+    if(f.size > 3*1024*1024){
+      els.logoMsg.innerHTML = '<div class="error">That image is a bit large (max ~3 MB) — try a smaller/compressed file.</div>';
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var dataUrl = ev.target.result;
+      var img = new Image();
+      img.onload = function(){
+        companyLogo = {
+          dataUrl: dataUrl,
+          format: f.type === 'image/png' ? 'PNG' : 'JPEG',
+          width: img.naturalWidth,
+          height: img.naturalHeight
+        };
+        showLogoPreview();
+        els.logoMsg.innerHTML = '<div class="ok">Logo added.</div>';
+        try{ localStorage.setItem('lpb_logo', JSON.stringify(companyLogo)); }
+        catch(err){ els.logoMsg.innerHTML = '<div class="error">Logo added for this session, but is too large to save for next time.</div>'; }
+      };
+      img.onerror = function(){ els.logoMsg.innerHTML = '<div class="error">Could not read that image file.</div>'; };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(f);
+  });
+
+  els.removeLogoBtn.addEventListener('click', function(){
+    companyLogo = null;
+    els.logoPreviewWrap.style.display = 'none';
+    els.removeLogoBtn.style.display = 'none';
+    els.logoInput.value = '';
+    els.logoMsg.innerHTML = '';
+    try{ localStorage.removeItem('lpb_logo'); }catch(e){}
+  });
+
+  // ---------- CSV upload trigger (hidden input, real button so sizing matches its siblings) ----------
+  els.uploadCsvBtn.addEventListener('click', function(){ els.fileInput.click(); });
+
+  els.ctype.addEventListener('change', function(){
+    if(els.ctype.value === 'CUSTOM'){
+      els.customDims.style.display = 'block';
+    } else {
+      els.customDims.style.display = 'none';
+      var t = CONTAINER_TYPES[els.ctype.value];
+      els.maxpayload.value = t.payload;
+    }
+    scheduleRecompute();
+  });
+  ['cLen','cWid','cHei','maxpayload','maxcontainers'].forEach(function(id){
+    els[id].addEventListener('input', scheduleRecompute);
+  });
+
+  // ---------- Container mode toggle (uniform vs custom fleet) ----------
+  function updateModeVisibility(){
+    var fleetMode = els.modeFleet.checked;
+    els.uniformSettings.style.display = fleetMode ? 'none' : 'block';
+    els.fleetSettings.style.display = fleetMode ? 'block' : 'none';
+  }
+  els.modeUniform.addEventListener('change', function(){ updateModeVisibility(); scheduleRecompute(); });
+  els.modeFleet.addEventListener('change', function(){ updateModeVisibility(); scheduleRecompute(); });
+  updateModeVisibility();
+
+  els.fcType.addEventListener('change', function(){
+    if(els.fcType.value === 'CUSTOM'){
+      els.fcCustomDims.style.display = 'block';
+    } else {
+      els.fcCustomDims.style.display = 'none';
+      els.fcPayload.value = CONTAINER_TYPES[els.fcType.value].payload;
+    }
+  });
+
+  var containerFleet = [];
+  var fleetIdSeq = 1;
+
+  function renderFleetList(){
+    els.fleetEmptyHint.style.display = containerFleet.length ? 'none' : 'block';
+    els.fleetList.innerHTML = '';
+    containerFleet.forEach(function(f, idx){
+      var row = document.createElement('div');
+      row.className = 'fleetRow';
+      row.innerHTML =
+        '<div><span class="fnum">' + (idx+1) + '.</span>' + escapeHtml(f.label) +
+        '<span class="fmeta">' + f.L + '×' + f.W + '×' + f.H + ' cm · max ' + f.payload + ' kg</span></div>' +
+        '<button type="button" class="secondary rmFleetBtn" data-id="' + f.id + '">✕</button>';
+      els.fleetList.appendChild(row);
+    });
+  }
+
+  els.fleetList.addEventListener('click', function(e){
+    var btn = e.target.closest('.rmFleetBtn');
+    if(!btn) return;
+    var id = btn.getAttribute('data-id');
+    containerFleet = containerFleet.filter(function(f){ return f.id !== id; });
+    renderFleetList();
+    persistFleet();
+    scheduleRecompute();
+  });
+
+  els.fcAddBtn.addEventListener('click', function(){
+    var typeKey = els.fcType.value;
+    var label, L, W, H;
+    if(typeKey === 'CUSTOM'){
+      L = parseFloat(els.fcLen.value); W = parseFloat(els.fcWid.value); H = parseFloat(els.fcHei.value);
+      if(!L || !W || !H || L<=0 || W<=0 || H<=0){
+        els.parseMsg.innerHTML = '<div class="error">Custom container dimensions are invalid.</div>';
+        return;
+      }
+      label = els.fcCustomLabel.value || 'Custom Container';
+    } else {
+      var t = CONTAINER_TYPES[typeKey];
+      L = t.L; W = t.W; H = t.H; label = t.label;
+    }
+    var payload = parseFloat(els.fcPayload.value) || 26000;
+    containerFleet.push({id:'fc'+(fleetIdSeq++), label:label, L:L, W:W, H:H, payload:payload});
+    renderFleetList();
+    persistFleet();
+    scheduleRecompute();
+  });
+
+  function persistFleet(){
+    try{ localStorage.setItem('lpb_fleet', JSON.stringify(containerFleet)); }catch(e){}
+  }
+  try{
+    var savedFleet = localStorage.getItem('lpb_fleet');
+    if(savedFleet){
+      var farr = JSON.parse(savedFleet);
+      if(Array.isArray(farr)){ containerFleet = farr; fleetIdSeq = containerFleet.length+1; renderFleetList(); }
+    }
+    var savedMode = localStorage.getItem('lpb_mode');
+    if(savedMode === 'fleet'){ els.modeFleet.checked = true; updateModeVisibility(); }
+  }catch(e){}
+  [els.modeUniform, els.modeFleet].forEach(function(r){
+    r.addEventListener('change', function(){ try{ localStorage.setItem('lpb_mode', els.modeFleet.checked?'fleet':'uniform'); }catch(e){} });
+  });
+
+  // ---------- Sample CSV templates ----------
+  var SAMPLE_TEMPLATES = {
+    mixed: "Product Name,Length cm,Width cm,Height cm,Unit Weight kg,Quantity,Cylinder,Upright Only,Max Stack,Priority,Tolerance cm\n" +
+      "Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2\n" +
+      "Steel Drum,58,58,90,80,15,TRUE,TRUE,2,2,1\n" +
+      "Pallet Box B,100,100,60,60,30,FALSE,FALSE,4,1,2\n" +
+      "Long Pipe Bundle,300,40,40,120,10,FALSE,TRUE,1,3,1\n" +
+      "Machine Part Crate,150,100,120,400,5,FALSE,TRUE,1,1,3\n" +
+      "Carton Small,50,40,35,12,120,FALSE,FALSE,6,2,1",
+    pallets: "Product Name,Length cm,Width cm,Height cm,Unit Weight kg,Quantity,Cylinder,Upright Only,Max Stack,Priority,Tolerance cm\n" +
+      "Standard Pallet,120,100,150,300,40,FALSE,TRUE,1,1,2\n" +
+      "Half Pallet,100,60,140,180,25,FALSE,TRUE,1,1,2\n" +
+      "Shrink-Wrapped Case,80,60,60,45,60,FALSE,FALSE,3,2,1\n" +
+      "Drum Pallet,100,100,110,220,20,FALSE,TRUE,1,2,2",
+    furniture: "Product Name,Length cm,Width cm,Height cm,Unit Weight kg,Quantity,Cylinder,Upright Only,Max Stack,Priority,Tolerance cm\n" +
+      "Sofa Box,220,90,80,55,8,FALSE,TRUE,1,1,3\n" +
+      "Dining Table Box,160,90,20,40,10,FALSE,TRUE,2,1,2\n" +
+      "Chair Carton,60,60,90,15,40,FALSE,TRUE,3,2,2\n" +
+      "Mattress Roll,200,35,35,25,15,TRUE,TRUE,2,2,2\n" +
+      "Wardrobe Box,120,60,220,70,6,FALSE,TRUE,1,1,3"
+  };
+
+  els.sampleBtn.addEventListener('click', function(){
+    var key = els.sampleTemplate.value || 'mixed';
+    var parsed = parseCSV(SAMPLE_TEMPLATES[key]);
+    bulkAddItems(parsed.items);
+    els.parseMsg.innerHTML = '<div class="ok">' + parsed.items.length + ' sample item(s) added to the list.</div>';
+  });
+
+  els.downloadSampleBtn.addEventListener('click', function(){
+    var key = els.sampleTemplate.value || 'mixed';
+    var blob = new Blob([SAMPLE_TEMPLATES[key]], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'sample-' + key + '.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  els.importCsvBtn.addEventListener('click', function(){
+    var parsed = parseCSV(els.csvInput.value);
+    if(parsed.errors.length && parsed.items.length===0){
+      els.parseMsg.innerHTML = parsed.errors.map(function(e){ return '<div class="error">' + escapeHtml(e) + '</div>'; }).join('');
+      return;
+    }
+    bulkAddItems(parsed.items);
+    var msgHtml = '';
+    if(parsed.errors.length){
+      msgHtml += parsed.errors.map(function(e){ return '<div class="error">' + escapeHtml(e) + '</div>'; }).join('');
+    }
+    msgHtml += '<div class="ok">' + parsed.items.length + ' item(s) from CSV added to the list.</div>';
+    els.parseMsg.innerHTML = msgHtml;
+  });
+
+  els.fileInput.addEventListener('change', function(e){
+    var f = e.target.files && e.target.files[0];
+    if(!f) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      els.csvInput.value = ev.target.result;
+    };
+    reader.readAsText(f);
+  });
+
+  // ---------- Color system: HSV<->RGB<->Hex helpers + auto-generation ----------
+  function hsvToRgb(h,s,v){
+    var c=v*s, x=c*(1-Math.abs((h/60)%2-1)), m=v-c, r,g,b;
+    if(h<60){r=c;g=x;b=0;} else if(h<120){r=x;g=c;b=0;} else if(h<180){r=0;g=c;b=x;}
+    else if(h<240){r=0;g=x;b=c;} else if(h<300){r=x;g=0;b=c;} else {r=c;g=0;b=x;}
+    return [Math.round((r+m)*255), Math.round((g+m)*255), Math.round((b+m)*255)];
+  }
+  function rgbToHsv(r,g,b){
+    r/=255; g/=255; b/=255;
+    var max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+    var h=0;
+    if(d!==0){
+      if(max===r) h=60*(((g-b)/d)%6);
+      else if(max===g) h=60*((b-r)/d+2);
+      else h=60*((r-g)/d+4);
+    }
+    if(h<0) h+=360;
+    var s = max===0 ? 0 : d/max;
+    return [h, s, max];
+  }
+  function rgbToHex(rgb){
+    return '#' + rgb.map(function(v){ return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0'); }).join('');
+  }
+  function hexToRgb(hex){
+    hex = (hex||'').replace('#','').trim();
+    if(hex.length===3) hex = hex.split('').map(function(c){return c+c;}).join('');
+    if(!/^[0-9a-fA-F]{6}$/.test(hex)) return null;
+    return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+  }
+
+  // Auto-generate a distinct color per new item using the golden-angle hue
+  // sequence (maximizes visual separation as more items are added); every
+  // item can still be fine-tuned by hand through the color wheel picker.
+  function nextColor(){
+    var h = Math.random() * 360;
+    var s = 0.55 + Math.random() * 0.3;  // keep it reasonably vivid, not washed out
+    var v = 0.72 + Math.random() * 0.2;  // keep it reasonably bright, not muddy/dark
+    return rgbToHex(hsvToRgb(h, s, v));
+  }
+
+  // ---------- Item list state ----------
+  var items = [];
+  var itemIdSeq = 1;
+
+  function bulkAddItems(list){
+    list.forEach(function(it){
+      if(!it.color){
+        // migrate items saved by an older version that stored a bare hue number
+        if(typeof it.hue === 'number' && !isNaN(it.hue)){
+          it.color = rgbToHex(hsvToRgb(it.hue, 0.62, 0.85));
+        } else {
+          it.color = nextColor();
+        }
+      }
+      delete it.hue;
+      it.id = 'it' + (itemIdSeq++);
+      items.push(it);
+    });
+    renderItemsTable();
+    persistItems();
+    scheduleRecompute();
+  }
+
+  function renderItemsTable(){
+    els.itemCount.textContent = items.length + ' item' + (items.length===1?'':'s');
+    els.itemsEmptyHint.style.display = items.length ? 'none' : 'block';
+    els.itemsBody.innerHTML = '';
+    items.forEach(function(it){
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><input type="text" class="cellEdit" data-field="name" data-id="' + it.id + '" value="' + escapeHtml(it.name) + '"></td>' +
+        '<td><button type="button" class="colorSwatch" data-swatch-id="' + it.id + '" style="background:' + it.color + '" title="Click to change color"></button></td>' +
+        '<td><input type="number" class="cellEdit" data-field="L" data-id="' + it.id + '" value="' + it.L + '"></td>' +
+        '<td><input type="number" class="cellEdit" data-field="W" data-id="' + it.id + '" value="' + it.W + '"></td>' +
+        '<td><input type="number" class="cellEdit" data-field="H" data-id="' + it.id + '" value="' + it.H + '"></td>' +
+        '<td><input type="number" class="cellEdit" data-field="weight" data-id="' + it.id + '" value="' + it.weight + '"></td>' +
+        '<td><input type="number" class="cellEdit" data-field="qty" data-id="' + it.id + '" min="1" value="' + it.qty + '"></td>' +
+        '<td><input type="number" class="cellEdit" data-field="maxStack" data-id="' + it.id + '" placeholder="∞" value="' + (it.maxStack<9999 ? it.maxStack : '') + '"></td>' +
+        '<td><input type="number" class="cellEdit" data-field="priority" data-id="' + it.id + '" value="' + it.priority + '"></td>' +
+        '<td style="text-align:center;"><input type="checkbox" class="cellEdit" data-field="cylinder" data-id="' + it.id + '" ' + (it.cylinder?'checked':'') + '></td>' +
+        '<td style="text-align:center;"><input type="checkbox" class="cellEdit" data-field="uprightOnly" data-id="' + it.id + '" ' + (it.uprightOnly?'checked':'') + '></td>' +
+        '<td><button type="button" class="secondary rmBtn" data-id="' + it.id + '">✕ Remove</button></td>';
+      els.itemsBody.appendChild(tr);
+    });
+  }
+
+  els.itemsBody.addEventListener('click', function(e){
+    var rmBtn = e.target.closest('.rmBtn');
+    if(rmBtn){
+      var id = rmBtn.getAttribute('data-id');
+      items = items.filter(function(it){ return it.id !== id; });
+      renderItemsTable();
+      persistItems();
+      scheduleRecompute();
+      return;
+    }
+    var swatchBtn = e.target.closest('.colorSwatch');
+    if(swatchBtn){
+      openColorPicker(swatchBtn.getAttribute('data-swatch-id'), swatchBtn);
+    }
+  });
+
+  var colorRefreshTimer = null;
+  // Color edits never change geometry/packing, so we don't re-run the packer —
+  // instead, push the new color straight into the already-computed placements
+  // (matched by the item's stable id, not name, so duplicate-named items never
+  // cross-contaminate each other's color) and just redraw.
+  function syncColorIntoPlan(itemId, newColor){
+    if(!lastPlan) return;
+    lastPlan.containers.forEach(function(c){
+      c.placements.forEach(function(p){
+        if(p.piece && p.piece.itemId === itemId) p.piece.color = newColor;
+      });
+    });
+  }
+
+  function scheduleColorRefresh(itemId, newColor){
+    syncColorIntoPlan(itemId, newColor);
+    if(colorRefreshTimer) clearTimeout(colorRefreshTimer);
+    colorRefreshTimer = setTimeout(function(){
+      if(lastPlan && lastPlan.containers.length) selectTab(activeTab);
+    }, 90);
+  }
+
+  // ---------- Color wheel picker popover ----------
+  var pickerEditingId = null;
+  var pickerHSV = [0, 0.62, 0.85];
+  var PRESET_COLORS = ['#EF4444','#F97316','#F59E0B','#EAB308','#84CC16','#22C55E','#14B8A6','#06B6D4','#3B82F6','#6366F1','#A855F7','#EC4899','#78716C','#1F2937'];
+
+  els.presetRow.innerHTML = PRESET_COLORS.map(function(hex){
+    return '<button type="button" class="presetSwatch" style="background:' + hex + '" data-hex="' + hex + '"></button>';
+  }).join('');
+
+  function drawColorWheel(){
+    var canvas = els.colorWheelCanvas;
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width, h = canvas.height;
+    var cx=w/2, cy=h/2, radius=Math.min(cx,cy)-2;
+    var img = ctx.createImageData(w,h);
+    var v = pickerHSV[2];
+    for(var y=0;y<h;y++){
+      for(var x=0;x<w;x++){
+        var dx=x-cx, dy=y-cy;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        var idx=(y*w+x)*4;
+        if(dist<=radius){
+          var angle=(Math.atan2(dy,dx)*180/Math.PI+360)%360;
+          var sat=Math.min(1,dist/radius);
+          var rgb=hsvToRgb(angle,sat,v);
+          img.data[idx]=rgb[0]; img.data[idx+1]=rgb[1]; img.data[idx+2]=rgb[2]; img.data[idx+3]=255;
+        } else {
+          img.data[idx+3]=0;
+        }
+      }
+    }
+    ctx.putImageData(img,0,0);
+  }
+
+  function updateWheelDot(){
+    var canvas = els.colorWheelCanvas;
+    var cx = canvas.width/2, cy = canvas.height/2, radius = Math.min(cx,cy)-2;
+    var ang = pickerHSV[0]*Math.PI/180;
+    var r = pickerHSV[1]*radius;
+    els.wheelDot.style.left = (cx + Math.cos(ang)*r) + 'px';
+    els.wheelDot.style.top = (cy + Math.sin(ang)*r) + 'px';
+  }
+
+  function applyPickerColor(commit){
+    var hex = rgbToHex(hsvToRgb(pickerHSV[0], pickerHSV[1], pickerHSV[2]));
+    els.hexInput.value = hex;
+    updateWheelDot();
+    if(pickerEditingId){
+      var it = items.find(function(x){ return x.id === pickerEditingId; });
+      if(it){
+        it.color = hex;
+        var sw = els.itemsBody.querySelector('.colorSwatch[data-swatch-id="' + pickerEditingId + '"]');
+        if(sw) sw.style.background = hex;
+        if(commit){ persistItems(); }
+        scheduleColorRefresh(it.id, hex);
+      }
+    }
+  }
+
+  function openColorPicker(itemId, anchorEl){
+    pickerEditingId = itemId;
+    var it = items.find(function(x){ return x.id === itemId; });
+    var rgb = hexToRgb(it ? it.color : '#3B82F6') || [59,130,246];
+    pickerHSV = rgbToHsv(rgb[0], rgb[1], rgb[2]);
+    els.brightnessSlider.value = Math.round(pickerHSV[2]*100);
+    drawColorWheel();
+    updateWheelDot();
+    els.hexInput.value = rgbToHex(rgb);
+
+    var rect = anchorEl.getBoundingClientRect();
+    var popW = 200;
+    var left = Math.min(window.innerWidth - popW - 12, rect.left);
+    left = Math.max(8, left);
+    var top = rect.bottom + 8;
+    if(top + 340 > window.innerHeight){ top = Math.max(8, rect.top - 340); }
+    els.colorPopover.style.left = left + 'px';
+    els.colorPopover.style.top = top + 'px';
+    els.colorPopover.style.display = 'block';
+  }
+
+  function closeColorPicker(){
+    els.colorPopover.style.display = 'none';
+    pickerEditingId = null;
+  }
+
+  els.colorPickerDone.addEventListener('click', closeColorPicker);
+
+  document.addEventListener('mousedown', function(e){
+    if(els.colorPopover.style.display === 'none') return;
+    if(els.colorPopover.contains(e.target)) return;
+    if(e.target.closest && e.target.closest('.colorSwatch')) return;
+    closeColorPicker();
+  });
+
+  function wheelPointToHSV(clientX, clientY){
+    var canvas = els.colorWheelCanvas;
+    var rect = canvas.getBoundingClientRect();
+    var cx = rect.width/2, cy = rect.height/2, radius = Math.min(cx,cy)-2;
+    var x = clientX - rect.left - cx, y = clientY - rect.top - cy;
+    var dist = Math.sqrt(x*x+y*y);
+    var angle = (Math.atan2(y,x)*180/Math.PI+360)%360;
+    var sat = Math.min(1, dist/radius);
+    return [angle, sat];
+  }
+
+  var wheelDragging = false;
+  function handleWheelPoint(clientX, clientY){
+    var hs = wheelPointToHSV(clientX, clientY);
+    pickerHSV[0] = hs[0]; pickerHSV[1] = hs[1];
+    applyPickerColor(false);
+  }
+  els.colorWheelCanvas.addEventListener('mousedown', function(e){ wheelDragging=true; handleWheelPoint(e.clientX, e.clientY); });
+  window.addEventListener('mousemove', function(e){ if(wheelDragging) handleWheelPoint(e.clientX, e.clientY); });
+  window.addEventListener('mouseup', function(){ if(wheelDragging){ wheelDragging=false; persistItems(); } });
+  els.colorWheelCanvas.addEventListener('touchstart', function(e){ wheelDragging=true; var t=e.touches[0]; handleWheelPoint(t.clientX,t.clientY); }, {passive:true});
+  els.colorWheelCanvas.addEventListener('touchmove', function(e){ if(wheelDragging){ var t=e.touches[0]; handleWheelPoint(t.clientX,t.clientY); } }, {passive:true});
+  window.addEventListener('touchend', function(){ if(wheelDragging){ wheelDragging=false; persistItems(); } });
+
+  els.brightnessSlider.addEventListener('input', function(){
+    pickerHSV[2] = parseInt(els.brightnessSlider.value,10)/100;
+    drawColorWheel();
+    applyPickerColor(false);
+  });
+  els.brightnessSlider.addEventListener('change', function(){ persistItems(); });
+
+  els.hexInput.addEventListener('change', function(){
+    var rgb = hexToRgb(els.hexInput.value);
+    if(!rgb){ els.hexInput.value = rgbToHex(hsvToRgb(pickerHSV[0],pickerHSV[1],pickerHSV[2])); return; }
+    pickerHSV = rgbToHsv(rgb[0],rgb[1],rgb[2]);
+    els.brightnessSlider.value = Math.round(pickerHSV[2]*100);
+    drawColorWheel();
+    applyPickerColor(true);
+  });
+
+  els.presetRow.addEventListener('click', function(e){
+    var btn = e.target.closest('.presetSwatch');
+    if(!btn) return;
+    var rgb = hexToRgb(btn.getAttribute('data-hex'));
+    pickerHSV = rgbToHsv(rgb[0],rgb[1],rgb[2]);
+    els.brightnessSlider.value = Math.round(pickerHSV[2]*100);
+    drawColorWheel();
+    applyPickerColor(true);
+  });
+
+  function handleCellEdit(e){
+    var t = e.target;
+    if(!t.classList || !t.classList.contains('cellEdit')) return;
+    var id = t.getAttribute('data-id'), field = t.getAttribute('data-field');
+    var it = items.find(function(x){ return x.id === id; });
+    if(!it) return;
+    if(t.type === 'checkbox'){
+      it[field] = t.checked;
+    } else if(field === 'name'){
+      it[field] = t.value;
+    } else if(field === 'maxStack'){
+      it[field] = t.value !== '' ? (parseInt(t.value,10) || 9999) : 9999;
+    } else if(field === 'qty'){
+      var q = parseInt(t.value,10);
+      if(q && q>0) it.qty = q;
+    } else if(field === 'priority'){
+      var p = parseFloat(t.value);
+      if(!isNaN(p)) it.priority = p;
+    } else {
+      var v = parseFloat(t.value);
+      if(!isNaN(v) && v>0) it[field] = v;
+    }
+    persistItems();
+    scheduleRecompute();
+  }
+  els.itemsBody.addEventListener('input', handleCellEdit);
+  els.itemsBody.addEventListener('change', handleCellEdit);
+
+  els.miAddBtn.addEventListener('click', function(){
+    var name = (els.miName.value||'').trim();
+    var L = parseFloat(els.miL.value), W = parseFloat(els.miW.value), H = parseFloat(els.miH.value);
+    var weight = parseFloat(els.miWeight.value);
+    var qty = parseInt(els.miQty.value,10) || 1;
+    if(!name){ els.miMsg.innerHTML = '<div class="error">Product name is required.</div>'; return; }
+    if(!L || !W || !H || L<=0 || W<=0 || H<=0){ els.miMsg.innerHTML = '<div class="error">Length, width and height must be numbers greater than 0.</div>'; return; }
+    if(!weight || weight<=0){ els.miMsg.innerHTML = '<div class="error">Weight/unit must be a number greater than 0.</div>'; return; }
+    var maxStackVal = els.miMaxStack.value ? (parseInt(els.miMaxStack.value,10) || 9999) : 9999;
+    var priorityVal = els.miPriority.value !== '' ? (parseFloat(els.miPriority.value) || 999) : 1;
+    var toleranceVal = els.miTolerance.value !== '' ? (parseFloat(els.miTolerance.value) || 0) : 0;
+    bulkAddItems([{
+      name:name, L:L, W:W, H:H, weight:weight, qty:qty,
+      cylinder: els.miCylinder.checked, uprightOnly: els.miUpright.checked,
+      maxStack: maxStackVal, priority: priorityVal, tolerance: toleranceVal
+    }]);
+    els.miMsg.innerHTML = '<div class="ok">"' + escapeHtml(name) + '" added.</div>';
+    els.miName.value=''; els.miL.value=''; els.miW.value=''; els.miH.value=''; els.miWeight.value='';
+    els.miQty.value='1'; els.miMaxStack.value=''; els.miPriority.value='1'; els.miTolerance.value='0';
+    els.miCylinder.checked=false; els.miUpright.checked=false;
+    els.miName.focus();
+  });
+
+  function persistItems(){
+    try{ localStorage.setItem('lpb_items', JSON.stringify(items.map(function(it){
+      var c={}; for(var k in it){ if(k!=='id') c[k]=it[k]; } return c;
+    }))); }catch(e){}
+  }
+
+  try{
+    var savedItems = localStorage.getItem('lpb_items');
+    if(savedItems){
+      var arr = JSON.parse(savedItems);
+      if(Array.isArray(arr) && arr.length){ bulkAddItems(arr); }
+    }
+  }catch(e){}
+
+  // ---------- Save / re-import the item list as CSV (work-in-progress) ----------
+  // Same column layout the importer reads, plus a Color column, so this file can
+  // be re-uploaded later via "Upload CSV File" / "Import to List" to resume work.
+  els.saveListBtn.addEventListener('click', function(){
+    if(items.length === 0){
+      els.parseMsg.innerHTML = '<div class="error">The item list is empty — nothing to save yet.</div>';
+      return;
+    }
+    var rows = [['Product Name','Length cm','Width cm','Height cm','Unit Weight kg','Quantity','Cylinder','Upright Only','Max Stack','Priority','Tolerance cm','Color']];
+    items.forEach(function(it){
+      rows.push([
+        it.name, it.L, it.W, it.H, it.weight, it.qty,
+        it.cylinder ? 'TRUE' : 'FALSE',
+        it.uprightOnly ? 'TRUE' : 'FALSE',
+        it.maxStack < 9999 ? it.maxStack : '',
+        it.priority, it.tolerance, it.color
+      ]);
+    });
+    var csv = rows.map(function(r){
+      return r.map(function(v){
+        v = String(v===undefined||v===null?'':v);
+        return /[,"\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
+      }).join(',');
+    }).join('\n');
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = fileSafeName() + '-items.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    els.parseMsg.innerHTML = '<div class="ok">Item list saved as CSV — upload it again anytime via "Upload CSV File" or "Import to List" to continue where you left off.</div>';
+  });
+
+
+  function splitCSVLine(line){
+    var out = [], cur = '', inQ = false;
+    for(var i=0;i<line.length;i++){
+      var c = line[i];
+      if(c === '"'){ inQ = !inQ; continue; }
+      if(c === ',' && !inQ){ out.push(cur); cur=''; continue; }
+      cur += c;
+    }
+    out.push(cur);
+    return out.map(function(s){ return s.trim(); });
+  }
+
+  function boolish(v){
+    v = (v||'').toString().trim().toLowerCase();
+    return v==='true' || v==='1' || v==='yes' || v==='ya' || v==='y';
+  }
+
+  function findCol(headers, keywords){
+    for(var i=0;i<headers.length;i++){
+      var h = headers[i].toLowerCase();
+      for(var k=0;k<keywords.length;k++){
+        if(h.indexOf(keywords[k]) !== -1) return i;
+      }
+    }
+    return -1;
+  }
+
+  function parseCSV(text){
+    var lines = text.split(/\r?\n/).filter(function(l){ return l.trim().length>0; });
+    if(lines.length < 2) return {items:[], errors:['Not enough data — a header row plus at least one item row is required.']};
+    var headers = splitCSVLine(lines[0]);
+    var col = {
+      name: findCol(headers,['product','name','item']),
+      L: findCol(headers,['length']),
+      W: findCol(headers,['width']),
+      H: findCol(headers,['height']),
+      weight: findCol(headers,['weight']),
+      qty: findCol(headers,['qty','quantity']),
+      cyl: findCol(headers,['cylinder']),
+      upright: findCol(headers,['upright']),
+      stack: findCol(headers,['stack']),
+      priority: findCol(headers,['priority']),
+      tol: findCol(headers,['tolerance']),
+      color: findCol(headers,['color','hex'])
+    };
+    var missing = [];
+    ['name','L','W','H','weight','qty'].forEach(function(k){ if(col[k]===-1) missing.push(k); });
+    if(missing.length){
+      return {items:[], errors:['Required columns not found in header: ' + missing.join(', ') + '. Make sure the header includes Product Name, Length, Width, Height, Weight, Quantity.']};
+    }
+    var items = [], errors = [];
+    for(var i=1;i<lines.length;i++){
+      var f = splitCSVLine(lines[i]);
+      if(f.every(function(x){return x==='';})) continue;
+      var name = f[col.name] || ('Item row ' + (i+1));
+      var L = parseFloat(f[col.L]), W = parseFloat(f[col.W]), H = parseFloat(f[col.H]);
+      var weight = parseFloat(f[col.weight]);
+      var qty = parseInt(f[col.qty],10);
+      if(!L || !W || !H || isNaN(weight) || !qty || qty<=0){
+        errors.push('Row ' + (i+1) + ' (' + name + ') skipped — invalid dimensions/weight/qty.');
+        continue;
+      }
+      var rawColor = col.color!==-1 ? (f[col.color]||'').trim() : '';
+      items.push({
+        name: name, L:L, W:W, H:H, weight:weight, qty:qty,
+        cylinder: col.cyl!==-1 ? boolish(f[col.cyl]) : false,
+        uprightOnly: col.upright!==-1 ? boolish(f[col.upright]) : false,
+        maxStack: col.stack!==-1 && f[col.stack]!=='' ? (parseInt(f[col.stack],10) || 9999) : 9999,
+        priority: col.priority!==-1 && f[col.priority]!=='' ? (parseFloat(f[col.priority]) || 999) : 999,
+        tolerance: col.tol!==-1 && f[col.tol]!=='' ? (parseFloat(f[col.tol]) || 0) : 0,
+        color: hexToRgb(rawColor) ? rawColor : undefined
+      });
+    }
+    return {items:items, errors:errors};
+  }
+
+  // ---------- Packing engine (3D Extreme-Point placement + consolidation) ----------
+  // Instead of stacking items into fixed-height horizontal "shelves" (which wastes
+  // headroom above shorter items), this places each piece directly against the
+  // nearest available corner in full 3D space — the same family of technique
+  // ("extreme point" heuristics) used by commercial load-planning engines — which
+  // lets items of different heights nest tightly against each other and the floor.
+  function getOrientations(it){
+    var L=it.L, W=it.W, H=it.H;
+    if(it.cylinder) return [[L,W,H]];
+    if(it.uprightOnly) return [[L,W,H],[W,L,H]];
+    return [[L,W,H],[W,L,H],[L,H,W],[H,L,W],[W,H,L],[H,W,L]];
+  }
+
+  function newContainer(type, maxPayload){
+    return { type:type, maxPayload:maxPayload, placements:[], eps:[{x:0,y:0,z:0}], weight:0 };
+  }
+
+  function boxOverlapsAny(placements, x,y,z, ex,ey,ez){
+    for(var i=0;i<placements.length;i++){
+      var p = placements[i];
+      if(x < p.x+p.ex-1e-6 && p.x < x+ex-1e-6 &&
+         y < p.y+p.ey-1e-6 && p.y < y+ey-1e-6 &&
+         z < p.z+p.ez-1e-6 && p.z < z+ez-1e-6){ return true; }
+    }
+    return false;
+  }
+
+  function computeStack3D(placements, x, y, z, ex, ey, name){
+    if(z <= 0.5) return 1;
+    var best = 0;
+    for(var i=0;i<placements.length;i++){
+      var p = placements[i];
+      if(Math.abs((p.z+p.ez) - z) < 1){
+        if(x < p.x+p.ex-1e-6 && p.x < x+ex-1e-6 && y < p.y+p.ey-1e-6 && p.y < y+ey-1e-6){
+          if(p.name===name && p.stackCount>best) best = p.stackCount;
+        }
+      }
+    }
+    return best>0 ? best+1 : 1;
+  }
+
+  // Scans every candidate corner point ("extreme point") × valid orientation and
+  // keeps the deepest / most bottom-left-back one that fits without collision —
+  // a proven tie-break (deepest-bottom-left-fill) for dense 3D nesting.
+  // Weight cap and dimensions are read from the container itself (cont.maxPayload,
+  // cont.type) so mixed-size fleets work the same way as a uniform run.
+  function tryPlaceInContainer(cont, piece){
+    if(cont.weight + piece.weight > cont.maxPayload + 1e-6) return null;
+    var orientations = getOrientations(piece);
+    var tol = piece.tolerance || 0;
+    var best = null;
+    for(var pi=0; pi<cont.eps.length; pi++){
+      var ep = cont.eps[pi];
+      for(var oi=0; oi<orientations.length; oi++){
+        var o = orientations[oi];
+        var ex=o[0]+tol, ey=o[1]+tol, ez=o[2]+tol;
+        if(ep.x+ex > cont.type.L+1e-6) continue;
+        if(ep.y+ey > cont.type.W+1e-6) continue;
+        if(ep.z+ez > cont.type.H+1e-6) continue;
+        if(boxOverlapsAny(cont.placements, ep.x,ep.y,ep.z, ex,ey,ez)) continue;
+        var stackCount = computeStack3D(cont.placements, ep.x, ep.y, ep.z, ex, ey, piece.name);
+        if(stackCount > piece.maxStack) continue;
+        var score = ep.z*1e7 + ep.y*1e3 + ep.x;
+        if(!best || score < best.score - 1e-9){
+          best = {x:ep.x,y:ep.y,z:ep.z, epIndex:pi, ex:ex,ey:ey,ez:ez, stackCount:stackCount, score:score};
+        }
+      }
+    }
+    if(!best) return null;
+    var placement = {x:best.x, y:best.y, z:best.z, ex:best.ex, ey:best.ey, ez:best.ez, name:piece.name, stackCount:best.stackCount, weight:piece.weight, piece:piece};
+    cont.placements.push(placement);
+    cont.weight += piece.weight;
+    cont.eps.splice(best.epIndex,1);
+
+    var candidates = [
+      {x:best.x+best.ex, y:best.y, z:best.z},
+      {x:best.x, y:best.y+best.ey, z:best.z},
+      {x:best.x, y:best.y, z:best.z+best.ez}
+    ];
+    candidates.forEach(function(p){
+      if(p.x > cont.type.L-0.5 || p.y > cont.type.W-0.5 || p.z > cont.type.H-0.5) return;
+      for(var i=0;i<cont.eps.length;i++){
+        if(Math.abs(cont.eps[i].x-p.x)<1e-6 && Math.abs(cont.eps[i].y-p.y)<1e-6 && Math.abs(cont.eps[i].z-p.z)<1e-6) return;
+      }
+      cont.eps.push(p);
+    });
+    // drop any extreme points now buried inside the box we just placed
+    cont.eps = cont.eps.filter(function(p){
+      return !(p.x >= best.x-1e-6 && p.x < best.x+best.ex-1e-6 &&
+               p.y >= best.y-1e-6 && p.y < best.y+best.ey-1e-6 &&
+               p.z >= best.z-1e-6 && p.z < best.z+best.ez-1e-6);
+    });
+    return placement;
+  }
+
+  function pieceFitsType(piece, type){
+    var orientations = getOrientations(piece);
+    var tol = piece.tolerance||0;
+    for(var i=0;i<orientations.length;i++){
+      var o = orientations[i];
+      if(o[0]+tol<=type.L && o[1]+tol<=type.W && o[2]+tol<=type.H) return true;
+    }
+    return false;
+  }
+
+  // Final pass: try to empty out trailing under-filled containers by re-fitting
+  // every one of their items into earlier containers. Only commits when a whole
+  // trailing container can be fully absorbed — this is what collapses the
+  // "one almost-empty extra container" pattern a pure greedy pass leaves behind.
+  function consolidate(containers){
+    for(var ci=containers.length-1; ci>=1; ci--){
+      var cont = containers[ci];
+      var toMove = cont.placements.slice();
+      var addedTo = [];
+      var success = true;
+      for(var k=0;k<toMove.length;k++){
+        var pl = toMove[k];
+        var placedElsewhere = null;
+        for(var cj=0; cj<ci && !placedElsewhere; cj++){
+          placedElsewhere = tryPlaceInContainer(containers[cj], pl.piece);
+          if(placedElsewhere) addedTo.push({contIndex:cj, placement:placedElsewhere});
+        }
+        if(!placedElsewhere){ success = false; break; }
+      }
+      if(success){
+        containers.splice(ci,1);
+      } else {
+        addedTo.forEach(function(a){
+          var c = containers[a.contIndex];
+          var idx = c.placements.indexOf(a.placement);
+          if(idx!==-1){ c.placements.splice(idx,1); c.weight -= a.placement.weight; }
+        });
+      }
+    }
+  }
+
+  // openNextContainer(count) hands back a fresh container for slot #count, or
+  // null once no more are available (fleet list exhausted, or the uniform mode's
+  // container cap is reached) — this is what lets the same loop below serve both
+  // "one uniform type, keep opening" and "fixed mixed-type fleet, in order".
+  function packOnce(pieces, openNextContainer, fits){
+    var containers = [];
+    var unplaced = [];
+    pieces.forEach(function(piece){
+      if(!fits(piece)){ unplaced.push(piece); return; }
+      var placed = null;
+      for(var ci=0; ci<containers.length && !placed; ci++){
+        placed = tryPlaceInContainer(containers[ci], piece);
+      }
+      while(!placed){
+        var c = openNextContainer(containers.length);
+        if(!c) break;
+        containers.push(c);
+        placed = tryPlaceInContainer(c, piece);
+      }
+      if(!placed) unplaced.push(piece);
+    });
+    consolidate(containers);
+    return {containers:containers, unplaced:unplaced};
+  }
+
+  function scorePlanResult(res){
+    if(res.containers.length===0) return {n:0, util:0, unplaced:res.unplaced.length};
+    var utilSum = 0;
+    res.containers.forEach(function(c){
+      var totalVol = c.type.L*c.type.W*c.type.H;
+      var used=0; c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
+      utilSum += used/totalVol;
+    });
+    return {n:res.containers.length, util:utilSum/res.containers.length, unplaced:res.unplaced.length};
+  }
+
+  function betterPlan(a,b){
+    if(a.unplaced !== b.unplaced) return a.unplaced < b.unplaced;
+    if(a.n !== b.n) return a.n < b.n;
+    return a.util > b.util;
+  }
+
+  // Runs the packer a few times with different tie-break orderings (volume-first,
+  // tallest-first, base-area-first) and keeps whichever run used fewer containers
+  // / packed more tightly — a lightweight multi-start optimisation, similar in
+  // spirit to how commercial load-planning engines try several heuristics.
+  //
+  // containerSpec is either:
+  //   {mode:'uniform', type, maxPayload, maxContainers}  — same type/cap every time
+  //   {mode:'fleet', fleet:[{type, payload}, ...]}         — fixed, ordered, mixed-type list
+  function planLoad(itemsInput, containerSpec){
+    var maxPayloadForFilter = containerSpec.mode === 'uniform'
+      ? containerSpec.maxPayload
+      : Math.max.apply(null, containerSpec.fleet.map(function(f){ return f.payload; }));
+
+    var overweightNames = {};
+    itemsInput.forEach(function(it){ if(it.weight>maxPayloadForFilter) overweightNames[it.name]=true; });
+
+    var basePieces = [];
+    itemsInput.forEach(function(it, idx){
+      if(it.weight > maxPayloadForFilter) return;
+      for(var q=0;q<it.qty;q++){
+        basePieces.push({name:it.name, L:it.L, W:it.W, H:it.H, weight:it.weight, cylinder:it.cylinder, uprightOnly:it.uprightOnly, maxStack:it.maxStack||9999, priority:it.priority, tolerance:it.tolerance, color:it.color, itemId:it.id, srcIdx:idx});
+      }
+    });
+
+    var openNextContainer, fits;
+    if(containerSpec.mode === 'uniform'){
+      openNextContainer = function(count){
+        return count < containerSpec.maxContainers ? newContainer(containerSpec.type, containerSpec.maxPayload) : null;
+      };
+      fits = function(piece){ return pieceFitsType(piece, containerSpec.type); };
+    } else {
+      var fleet = containerSpec.fleet;
+      openNextContainer = function(count){
+        return count < fleet.length ? newContainer(fleet[count].type, fleet[count].payload) : null;
+      };
+      fits = function(piece){ return fleet.some(function(f){ return pieceFitsType(piece, f.type); }); };
+    }
+
+    var tieBreaks = [
+      function(a,b){ return (b.L*b.W*b.H) - (a.L*a.W*a.H); },
+      function(a,b){ var ha=Math.max(a.L,a.W,a.H), hb=Math.max(b.L,b.W,b.H); if(hb!==ha) return hb-ha; return (b.L*b.W)-(a.L*a.W); },
+      function(a,b){ return (b.L*b.W) - (a.L*a.W); }
+    ];
+    var runList = basePieces.length > 1500 ? [tieBreaks[0]] : tieBreaks;
+
+    var bestResult = null, bestScore = null;
+    runList.forEach(function(cmp){
+      var pieces = basePieces.slice();
+      pieces.sort(function(a,b){
+        if(a.priority !== b.priority) return a.priority - b.priority;
+        return cmp(a,b);
+      });
+      var res = packOnce(pieces, openNextContainer, fits);
+      var score = scorePlanResult(res);
+      if(!bestResult || betterPlan(score, bestScore)){ bestResult = res; bestScore = score; }
+    });
+
+    var overweightList = Object.keys(overweightNames);
+    return {containers:bestResult.containers, unplaced:bestResult.unplaced, mode:containerSpec.mode, overweightList:overweightList};
+  }
+
+
+  // ---------- 3D viewer ----------
+  var three = { renderer:null, scene:null, camera:null, anim:null };
+  var camState = { theta: 0.9, phi: 1.1, radius: 1400, target: null };
+  var dragging = false, lastX=0, lastY=0;
+
+  // Small billboard text label (always faces the camera) rendered via a canvas
+  // texture on a THREE.Sprite — used for the dimension-line measurements below.
+  function makeTextSprite(text){
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var fontSize = 44;
+    ctx.font = 'bold ' + fontSize + 'px Arial, sans-serif';
+    var textWidth = ctx.measureText(text).width;
+    canvas.width = Math.ceil(textWidth) + 28;
+    canvas.height = fontSize + 22;
+    ctx.font = 'bold ' + fontSize + 'px Arial, sans-serif';
+    ctx.fillStyle = 'rgba(252,250,243,0.94)';
+    ctx.strokeStyle = 'rgba(120,110,90,0.9)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.rect(1,1,canvas.width-2,canvas.height-2);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1E2A2E';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 14, canvas.height/2);
+    var texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    var material = new THREE.SpriteMaterial({map:texture, depthTest:false, depthWrite:false});
+    var sprite = new THREE.Sprite(material);
+    sprite.renderOrder = 999;
+    return {sprite:sprite, w:canvas.width, h:canvas.height};
+  }
+
+  // Draws one CAD-style dimension line (main line + end ticks + a floating
+  // measurement label) from p1 to p2, offset just outside the container so it
+  // reads clearly against the box itself. sizeScale keeps the tick/label size
+  // proportional across very small and very large containers.
+  function addDimensionLine(scene, p1, p2, label, tickDir, sizeScale){
+    var mat = new THREE.LineBasicMaterial({color:0x8A7A55, depthTest:false, transparent:true, opacity:0.85});
+    var pts = [new THREE.Vector3(p1[0],p1[1],p1[2]), new THREE.Vector3(p2[0],p2[1],p2[2])];
+    var line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat);
+    line.renderOrder = 998;
+    scene.add(line);
+
+    var lineLen = Math.sqrt(Math.pow(p2[0]-p1[0],2)+Math.pow(p2[1]-p1[1],2)+Math.pow(p2[2]-p1[2],2));
+    // Tick size follows the line's own length (capped) so a short dimension
+    // never grows ticks bigger than the line itself looks proportionate.
+    var tick = Math.min(sizeScale * 0.015, lineLen * 0.12);
+    [p1,p2].forEach(function(p){
+      var a = [p[0]-tickDir[0]*tick, p[1]-tickDir[1]*tick, p[2]-tickDir[2]*tick];
+      var b = [p[0]+tickDir[0]*tick, p[1]+tickDir[1]*tick, p[2]+tickDir[2]*tick];
+      var tgeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(a[0],a[1],a[2]), new THREE.Vector3(b[0],b[1],b[2])]);
+      var tl = new THREE.Line(tgeo, mat);
+      tl.renderOrder = 998;
+      scene.add(tl);
+    });
+
+    var mid = [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2, (p1[2]+p2[2])/2];
+    var lbl = makeTextSprite(label);
+    // Label size follows the line's own length too (capped by the overall
+    // container scale) so labels on short edges don't dwarf the edge itself.
+    var labelScale = Math.min(sizeScale * 0.00028, lineLen * 0.0022);
+    lbl.sprite.scale.set(lbl.w*labelScale, lbl.h*labelScale, 1);
+    lbl.sprite.position.set(mid[0], mid[1], mid[2]);
+    scene.add(lbl.sprite);
+  }
+
+  function initRenderer(){
+    if(three.renderer) return;
+    three.renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, preserveDrawingBuffer:true});
+    three.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    els.canvasHost.appendChild(three.renderer.domElement);
+    three.camera = new THREE.PerspectiveCamera(45, 1, 1, 20000);
+    three.scene = new THREE.Scene();
+
+    els.canvasHost.addEventListener('mousedown', function(e){ dragging=true; lastX=e.clientX; lastY=e.clientY; });
+    window.addEventListener('mouseup', function(){ dragging=false; });
+    window.addEventListener('mousemove', function(e){
+      if(!dragging) return;
+      var dx = e.clientX-lastX, dy = e.clientY-lastY;
+      lastX=e.clientX; lastY=e.clientY;
+      camState.theta -= dx*0.006;
+      camState.phi = Math.max(0.15, Math.min(Math.PI-0.15, camState.phi - dy*0.006));
+      updateCamera();
+    });
+    els.canvasHost.addEventListener('wheel', function(e){
+      e.preventDefault();
+      camState.radius = Math.max(200, Math.min(6000, camState.radius * (1 + e.deltaY*0.001)));
+      updateCamera();
+    }, {passive:false});
+    // touch
+    var touchLast=null;
+    els.canvasHost.addEventListener('touchstart', function(e){ if(e.touches.length===1){ touchLast={x:e.touches[0].clientX,y:e.touches[0].clientY}; } }, {passive:true});
+    els.canvasHost.addEventListener('touchmove', function(e){
+      if(e.touches.length===1 && touchLast){
+        var dx = e.touches[0].clientX-touchLast.x, dy = e.touches[0].clientY-touchLast.y;
+        touchLast = {x:e.touches[0].clientX,y:e.touches[0].clientY};
+        camState.theta -= dx*0.006;
+        camState.phi = Math.max(0.15, Math.min(Math.PI-0.15, camState.phi - dy*0.006));
+        updateCamera();
+      }
+    }, {passive:true});
+
+    window.addEventListener('resize', resizeRenderer);
+  }
+
+  function updateCamera(){
+    var t = camState.target;
+    if(!t || !three.camera) return;
+    three.camera.position.set(
+      t.x + camState.radius*Math.sin(camState.phi)*Math.sin(camState.theta),
+      t.y + camState.radius*Math.cos(camState.phi),
+      t.z + camState.radius*Math.sin(camState.phi)*Math.cos(camState.theta)
+    );
+    three.camera.lookAt(t);
+  }
+
+  function resizeRenderer(){
+    if(!three.renderer) return;
+    var w = els.canvasHost.clientWidth, h = els.canvasHost.clientHeight;
+    if(w<10||h<10) return;
+    three.renderer.setSize(w,h,false);
+    three.camera.aspect = w/h;
+    three.camera.updateProjectionMatrix();
+  }
+
+  function buildScene(cont){
+    if(typeof THREE === 'undefined'){
+      els.canvasHost.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:var(--ink-soft);font-size:12.5px;line-height:1.6;">3D preview could not load — the third-party library (three.js) failed to load from the CDN.<br>Check your internet connection / network blocker, then reload the page.<br>The rest of the app (item list, stats, export) still works normally.</div>';
+      return;
+    }
+    initRenderer();
+    while(three.scene.children.length) three.scene.remove(three.scene.children[0]);
+
+    var L=cont.type.L, W=cont.type.W, H=cont.type.H;
+    var cx=L/2, cy=H/2, cz=W/2;
+
+    var amb = new THREE.AmbientLight(0xffffff, 0.75);
+    three.scene.add(amb);
+    var dir = new THREE.DirectionalLight(0xffffff, 0.6);
+    dir.position.set(600,900,400);
+    three.scene.add(dir);
+    var dir2 = new THREE.DirectionalLight(0xffffff, 0.3);
+    dir2.position.set(-500,300,-600);
+    three.scene.add(dir2);
+
+    var boxGeo = new THREE.BoxGeometry(L,H,W);
+    var edges = new THREE.EdgesGeometry(boxGeo);
+    var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color:0xC8862A, linewidth:1}));
+    line.position.set(cx,cy,cz);
+    three.scene.add(line);
+
+    var grid = new THREE.GridHelper(Math.max(L,W)*1.15, 12, 0x999999, 0x999999);
+    grid.position.set(cx, 0, cz);
+    grid.material.opacity = 0.12; grid.material.transparent = true;
+    three.scene.add(grid);
+
+    // Dimension-line annotations (length / width / height), offset just outside
+    // the container box so the measurements are easy to read at a glance — and
+    // since the PDF export captures this same canvas, they carry over there too.
+    var dimScale = Math.max(L,W,H);
+    var off = dimScale * 0.06;
+    addDimensionLine(three.scene, [0,-off,-off], [L,-off,-off], L + ' cm', [0,1,0], dimScale);
+    addDimensionLine(three.scene, [-off,-off,0], [-off,-off,W], W + ' cm', [1,0,0], dimScale);
+    addDimensionLine(three.scene, [-off,0,-off], [-off,H,-off], H + ' cm', [0,0,1], dimScale);
+
+    cont.placements.forEach(function(p){
+      var geo = new THREE.BoxGeometry(p.ex, p.ez, p.ey);
+      var col = (p.piece && p.piece.color) ? p.piece.color : '#7C8B94';
+      var mat = new THREE.MeshLambertMaterial({color: col, transparent:true, opacity:0.92});
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(p.x+p.ex/2, p.z+p.ez/2, p.y+p.ey/2);
+      three.scene.add(mesh);
+      var edg = new THREE.EdgesGeometry(geo);
+      var eline = new THREE.LineSegments(edg, new THREE.LineBasicMaterial({color:0x1a1a1a, transparent:true, opacity:0.25}));
+      eline.position.copy(mesh.position);
+      three.scene.add(eline);
+    });
+
+    camState.target = new THREE.Vector3(cx,cy,cz);
+    camState.radius = Math.max(L,W,H) * 1.5;
+    camState.theta = 0.9; camState.phi = 1.05;
+    updateCamera();
+    resizeRenderer();
+
+    if(three.anim) cancelAnimationFrame(three.anim);
+    (function loop(){
+      three.anim = requestAnimationFrame(loop);
+      three.renderer.render(three.scene, three.camera);
+    })();
+  }
+
+  // ---------- Rendering results UI ----------
+  var lastPlan = null;
+  var activeTab = 0;
+
+  function fmt(n, d){ d=d||1; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toLocaleString('en-US'); }
+
+  function renderResults(plan){
+    lastPlan = plan;
+    activeTab = 0;
+    els.emptyState.style.display = 'none';
+    els.results.style.display = 'block';
+
+    var totalItems = 0, placedItems = 0;
+    plan.containers.forEach(function(c){ placedItems += c.placements.length; });
+    var unplacedCount = plan.unplaced.length;
+    totalItems = placedItems + unplacedCount;
+
+    var avgUtil = 0;
+    plan.containers.forEach(function(c){
+      var totalVolC = c.type.L*c.type.W*c.type.H/1e6;
+      var used = 0;
+      c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
+      avgUtil += (used/1e6)/totalVolC;
+    });
+    avgUtil = plan.containers.length ? avgUtil/plan.containers.length*100 : 0;
+    var totalWeight = 0;
+    plan.containers.forEach(function(c){ totalWeight += c.weight; });
+
+    els.statsRow.innerHTML =
+      stat(plan.containers.length, 'Containers used', '') +
+      stat(placedItems + ' / ' + totalItems, 'Items loaded', totalItems && placedItems<totalItems ? 'warn' : 'good') +
+      stat(fmt(avgUtil,1) + '%', 'Avg. volume utilization', '') +
+      stat(fmt(totalWeight,0) + ' kg', 'Total weight', '');
+
+    // tabs
+    els.tabs.innerHTML = '';
+    plan.containers.forEach(function(c, i){
+      var d = document.createElement('div');
+      d.className = 'tab' + (i===0?' active':'');
+      d.textContent = 'Container ' + (i+1) + (plan.mode==='fleet' ? ' · ' + c.type.label : '');
+      d.addEventListener('click', function(){ selectTab(i); });
+      els.tabs.appendChild(d);
+    });
+    if(plan.containers.length===0){
+      els.tabs.innerHTML = '<div class="tab active">No containers</div>';
+      els.canvasHost.innerHTML = '';
+      els.legend.innerHTML = '';
+      els.containerDimBadge.textContent = '';
+    } else {
+      selectTab(0);
+    }
+
+    // unplaced / warnings
+    var msgs = [];
+    if(plan.overweightList.length){
+      msgs.push('Items heavier than any container in the fleet can carry: ' + plan.overweightList.join(', ') + '.');
+    }
+    var unplacedByName = {};
+    plan.unplaced.forEach(function(p){ unplacedByName[p.name] = (unplacedByName[p.name]||0)+1; });
+    var unplacedList = Object.keys(unplacedByName).map(function(n){ return n + ' × ' + unplacedByName[n]; });
+    if(unplacedList.length){
+      msgs.push('Items not loaded (containers full / dimensions do not fit): ' + unplacedList.join(', ') + '.');
+    }
+    if(msgs.length){
+      els.unplacedPanel.style.display = 'block';
+      els.unplacedPanel.innerHTML = '<h2 style="margin-bottom:8px;">Warnings</h2>' +
+        msgs.map(function(m){ return '<div class="error">' + m + '</div>'; }).join('');
+    } else {
+      els.unplacedPanel.style.display = 'none';
+      els.unplacedPanel.innerHTML = '';
+    }
+
+    // detail table
+    els.detailN.textContent = '(' + plan.containers.length + ' container' + (plan.containers.length===1?'':'s') + ')';
+    var thead = els.detailTable.querySelector('thead');
+    var tbody = els.detailTable.querySelector('tbody');
+    thead.innerHTML = '<tr><th>#</th><th>Item</th><th>Qty</th><th>Loaded dims (cm)</th><th>Total weight (kg)</th></tr>';
+    tbody.innerHTML = '';
+    plan.containers.forEach(function(c, ci){
+      var counts = {};
+      c.placements.forEach(function(p){
+        var key = p.name;
+        if(!counts[key]) counts[key] = {qty:0, weight:0, dims: Math.round(p.ex)+'×'+Math.round(p.ey)+'×'+Math.round(p.ez)};
+        counts[key].qty += 1;
+        counts[key].weight += p.weight;
+      });
+      Object.keys(counts).forEach(function(name){
+        var row = document.createElement('tr');
+        row.innerHTML = '<td>C' + (ci+1) + '</td><td>' + escapeHtml(name) + '</td><td>' + counts[name].qty + '</td><td>' + counts[name].dims + '</td><td>' + fmt(counts[name].weight,0) + '</td>';
+        tbody.appendChild(row);
+      });
+      var totalVolC = c.type.L*c.type.W*c.type.H;
+      var used=0;
+      c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
+      var util = (used/1e6)/(totalVolC/1e6)*100;
+      var sumRow = document.createElement('tr');
+      sumRow.style.background = 'var(--panel-2)';
+      sumRow.innerHTML = '<td colspan="4" style="font-weight:600;">Container ' + (ci+1) + ' (' + escapeHtml(c.type.label) + ') — volume utilization ' + fmt(util,1) + '% · weight ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg</td><td></td>';
+      tbody.appendChild(sumRow);
+    });
+  }
+
+  function escapeHtml(s){
+    return (s||'').toString().replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function stat(v,l,cls){
+    return '<div class="stat ' + (cls||'') + '"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
+  }
+
+  function selectTab(i){
+    activeTab = i;
+    Array.prototype.forEach.call(els.tabs.children, function(t,idx){ t.classList.toggle('active', idx===i); });
+    var c = lastPlan.containers[i];
+    buildScene(c);
+    els.containerDimBadge.textContent = c.type.label + ' — ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)';
+    var nameColor = {};
+    c.placements.forEach(function(p){
+      nameColor[p.name] = (p.piece && p.piece.color) ? p.piece.color : '#7C8B94';
+    });
+    els.legend.innerHTML = Object.keys(nameColor).map(function(n){
+      return '<span class="item"><span class="swatch" style="background:' + nameColor[n] + '"></span>' + escapeHtml(n) + '</span>';
+    }).join('');
+  }
+
+  // ---------- Real-time recompute ----------
+  var recomputeTimer = null;
+  var computeSeq = 0;
+
+  function scheduleRecompute(){
+    if(recomputeTimer) clearTimeout(recomputeTimer);
+    recomputeTimer = setTimeout(runRecompute, 350);
+  }
+
+  function runRecompute(){
+    if(items.length === 0){
+      els.emptyState.style.display = 'block';
+      els.results.style.display = 'none';
+      lastPlan = null;
+      return;
+    }
+
+    var containerSpec;
+    if(els.modeFleet.checked){
+      if(containerFleet.length === 0){
+        els.parseMsg.innerHTML = '<div class="error">Custom fleet mode is on but the container list is still empty — add at least one container first.</div>';
+        els.emptyState.style.display = 'block';
+        els.results.style.display = 'none';
+        lastPlan = null;
+        return;
+      }
+      containerSpec = {
+        mode: 'fleet',
+        fleet: containerFleet.map(function(f){
+          return { type:{label:f.label, L:f.L, W:f.W, H:f.H}, payload:f.payload };
+        })
+      };
+    } else {
+      var typeKey = els.ctype.value;
+      if(typeKey === 'CUSTOM'){
+        var cL = parseFloat(els.cLen.value), cW = parseFloat(els.cWid.value), cH = parseFloat(els.cHei.value);
+        if(!cL || !cW || !cH || cL<=0 || cW<=0 || cH<=0){
+          els.parseMsg.innerHTML = '<div class="error">Custom container dimensions are invalid — make sure length, width and height are numbers greater than 0.</div>';
+          return;
+        }
+        CONTAINER_TYPES.CUSTOM = {
+          label: els.customLabel.value || 'Custom Container',
+          L: cL, W: cW, H: cH,
+          payload: parseFloat(els.maxpayload.value) || 26000
+        };
+      }
+      var maxPayload = parseFloat(els.maxpayload.value) || CONTAINER_TYPES[typeKey].payload;
+      var maxContainers = parseInt(els.maxcontainers.value,10) || 60;
+      containerSpec = { mode:'uniform', type: CONTAINER_TYPES[typeKey], maxPayload: maxPayload, maxContainers: maxContainers };
+    }
+
+    var mySeq = ++computeSeq;
+    try{
+      var itemsCopy = items.map(function(it){
+        return {id:it.id, name:it.name, L:it.L, W:it.W, H:it.H, weight:it.weight, qty:it.qty, cylinder:it.cylinder, uprightOnly:it.uprightOnly, maxStack:it.maxStack, priority:it.priority, tolerance:it.tolerance, color:it.color};
+      });
+      var plan = planLoad(itemsCopy, containerSpec);
+      if(mySeq !== computeSeq) return; // a newer recompute superseded this one
+      renderResults(plan);
+    } catch(err){
+      els.parseMsg.innerHTML = '<div class="error">An error occurred while computing the load plan: ' + escapeHtml(err.message||String(err)) + '</div>';
+    }
+  }
+
+  els.exportBtn.addEventListener('click', function(){
+    if(!lastPlan) return;
+    var rows = [['Container','Item','X','Y','Z','Length','Width','Height','Weight_kg']];
+    lastPlan.containers.forEach(function(c, ci){
+      c.placements.forEach(function(p){
+        rows.push([ci+1, p.name, Math.round(p.x), Math.round(p.y), Math.round(p.z), Math.round(p.ex), Math.round(p.ey), Math.round(p.ez), p.weight]);
+      });
+    });
+    var csv = rows.map(function(r){ return r.join(','); }).join('\n');
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = fileSafeName() + '-detail.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  function fileSafeName(){
+    var n = (els.projectName.value || 'load-plan').trim();
+    n = n.replace(/[^a-z0-9\-_ ]/gi, '').trim().replace(/\s+/g, '-').toLowerCase();
+    return n || 'load-plan';
+  }
+
+  els.exportPdfBtn.addEventListener('click', function(){
+    if(!lastPlan) return;
+    els.exportPdfBtn.disabled = true;
+    els.exportPdfBtn.textContent = 'Building PDF…';
+    setTimeout(function(){
+      try{
+        buildPdfReport();
+      } catch(err){
+        alert('Failed to build PDF: ' + (err.message || String(err)));
+      }
+      els.exportPdfBtn.disabled = false;
+      els.exportPdfBtn.textContent = 'Export PDF Report';
+    }, 30);
+  });
+
+  function buildPdfReport(){
+    var jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
+    if(!jsPDFCtor) throw new Error('The PDF library has not loaded — check your internet connection and try again.');
+
+    var doc = new jsPDFCtor({unit:'mm', format:'a4'});
+    var pageW = doc.internal.pageSize.getWidth();
+    var pageH = doc.internal.pageSize.getHeight();
+    var margin = 14;
+    var y = margin;
+
+    function ensureSpace(h){ if(y + h > pageH - margin){ doc.addPage(); y = margin; } }
+    function heading(text, size){
+      ensureSpace(10);
+      doc.setFont('helvetica','bold'); doc.setFontSize(size||13); doc.setTextColor(20,26,28);
+      doc.text(text, margin, y);
+      y += (size||13)*0.5 + 3;
+      doc.setFont('helvetica','normal');
+    }
+    function line(text, size, color){
+      ensureSpace(6);
+      doc.setFontSize(size||10);
+      var c = color || [40,46,45];
+      doc.setTextColor(c[0],c[1],c[2]);
+      doc.text(String(text), margin, y);
+      y += (size||10)*0.5 + 2.5;
+    }
+    function divider(){
+      ensureSpace(5);
+      doc.setDrawColor(210,205,190);
+      doc.line(margin, y, pageW-margin, y);
+      y += 5;
+    }
+
+    // Draws one line of text, automatically recoloring any email address or
+    // URL it contains (e.g. inside the letterhead's company address) so
+    // contact details stand out like a hyperlink, without needing any markup.
+    function drawHighlightedLine(x, yPos, text, fontSize, normalRGB, accentRGB){
+      var regex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(https?:\/\/[^\s,;]+)|(www\.[^\s,;]+)/g;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(fontSize);
+      var cursorX = x, lastIndex = 0, m;
+      while((m = regex.exec(text)) !== null){
+        if(m.index > lastIndex){
+          var plain = text.slice(lastIndex, m.index);
+          doc.setTextColor(normalRGB[0],normalRGB[1],normalRGB[2]);
+          doc.text(plain, cursorX, yPos);
+          cursorX += doc.getTextWidth(plain);
+        }
+        doc.setTextColor(accentRGB[0],accentRGB[1],accentRGB[2]);
+        doc.text(m[0], cursorX, yPos);
+        cursorX += doc.getTextWidth(m[0]);
+        lastIndex = regex.lastIndex;
+      }
+      if(lastIndex < text.length){
+        doc.setTextColor(normalRGB[0],normalRGB[1],normalRGB[2]);
+        doc.text(text.slice(lastIndex), cursorX, yPos);
+      }
+    }
+
+    // Bordered/gridded table row — draws a ruled cell around every column so the
+    // printed report reads like a proper manifest table, not just aligned text.
+    // cols: array of cell values. widths: array of column widths (mm).
+    // opts: {header:bool, size:number, swatchHue:[per-row hue or null,...]}
+    function gridRow(cols, widths, opts){
+      opts = opts || {};
+      var rowH = 6.4;
+      ensureSpace(rowH);
+      var x = margin;
+      var totalW = widths.reduce(function(a,b){return a+b;},0);
+      doc.setDrawColor(190,184,166);
+      doc.setLineWidth(0.15);
+      if(opts.header){ doc.setFillColor(228,220,196); doc.rect(margin, y-4.8, totalW, rowH, 'F'); }
+      doc.setFont('helvetica', opts.header?'bold':'normal');
+      doc.setFontSize(opts.size||9);
+      doc.setTextColor(28,34,33);
+      cols.forEach(function(c,i){
+        doc.rect(x, y-4.8, widths[i], rowH, 'S');
+        if(opts.swatchCol === i && opts.swatchHues && opts.swatchHues[i-i] !== undefined){
+          // handled separately below for the color column
+        }
+        doc.text(String(c), x+1.6, y);
+        x += widths[i];
+      });
+      y += rowH;
+      doc.setFont('helvetica','normal');
+    }
+
+    // Same as gridRow but paints a filled color swatch inside one specific column
+    // (used for the item breakdown table's "Color" column) instead of text.
+    function gridRowWithSwatch(cols, widths, swatchColIndex, hexColor, opts){
+      opts = opts || {};
+      var rowH = 6.4;
+      ensureSpace(rowH);
+      var x = margin;
+      doc.setDrawColor(190,184,166);
+      doc.setLineWidth(0.15);
+      doc.setFont('helvetica', opts.header?'bold':'normal');
+      doc.setFontSize(opts.size||9);
+      cols.forEach(function(c,i){
+        doc.setTextColor(28,34,33);
+        doc.rect(x, y-4.8, widths[i], rowH, 'S');
+        if(i === swatchColIndex && hexColor){
+          var rgb = hexToRgb(hexColor) || [140,140,140];
+          doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+          doc.rect(x+widths[i]/2-2.5, y-2.9, 5, 3.4, 'F');
+        } else {
+          doc.text(String(c), x+1.6, y);
+        }
+        x += widths[i];
+      });
+      y += rowH;
+      doc.setFont('helvetica','normal');
+    }
+
+    var projectTitle = (els.projectName.value || '').trim() || 'Untitled Project';
+    var companyNameVal = (els.companyName.value || '').trim();
+    var companyAddressVal = (els.companyAddress.value || '').trim();
+
+    // Letterhead (logo + company name/address), if provided — laid out like a
+    // formal kop surat: logo on the left, name/address centered in the block,
+    // closed off with a classic thick-then-thin double rule.
+    if(companyLogo || companyNameVal || companyAddressVal){
+      var blockH = 24;
+      var blockTop = y;
+      var textX = margin;
+
+      if(companyLogo){
+        var logoMax = 20;
+        var ratio = companyLogo.width / companyLogo.height;
+        var lw = logoMax, lh = logoMax / ratio;
+        if(lh > logoMax){ lh = logoMax; lw = logoMax * ratio; }
+        var logoY = blockTop + (blockH - lh) / 2;
+        try{ doc.addImage(companyLogo.dataUrl, companyLogo.format, margin, logoY, lw, lh); }catch(e){}
+        textX = margin + logoMax + 7;
+      }
+
+      // Measure the text block first so name+address can be vertically
+      // centered as a group against the logo, rather than hugging the top.
+      var addrLines = [];
+      if(companyAddressVal){
+        doc.setFont('helvetica','normal'); doc.setFontSize(9);
+        addrLines = doc.splitTextToSize(companyAddressVal, pageW - margin - textX);
+      }
+      var nameH = companyNameVal ? 6.2 : 0;
+      var addrH = addrLines.length * 4.2;
+      var textBlockH = nameH + addrH;
+      var textY = blockTop + Math.max(2, (blockH - textBlockH) / 2) + 4.5;
+
+      if(companyNameVal){
+        doc.setFont('helvetica','bold'); doc.setFontSize(14.5); doc.setTextColor(20,26,28);
+        doc.text(companyNameVal, textX, textY);
+        textY += nameH;
+      }
+      if(addrLines.length){
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(105,109,104);
+        addrLines.forEach(function(l){ drawHighlightedLine(textX, textY, l, 9, [105,109,104], [37,99,235]); textY += 4.2; });
+      }
+
+      y = blockTop + blockH + 2;
+      // classic kop-surat double rule: one thick line, a hairline gap below it
+      doc.setDrawColor(35,82,72);
+      doc.setLineWidth(0.9);
+      doc.line(margin, y, pageW - margin, y);
+      y += 1.4;
+      doc.setDrawColor(35,82,72);
+      doc.setLineWidth(0.25);
+      doc.line(margin, y, pageW - margin, y);
+      y += 7;
+    }
+
+    // Header
+    doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(20,26,28);
+    doc.text('Load Plan Report', margin, y); y += 7;
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(90,68,25);
+    doc.text(projectTitle, margin, y); y += 6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,96,95);
+    doc.text('Generated: ' + new Date().toLocaleString('en-US'), margin, y); y += 5;
+    if(lastPlan.mode === 'fleet'){
+      doc.text('Containers: custom fleet (' + lastPlan.containers.length + ' unit(s), mixed types)', margin, y); y += 6;
+    } else if(lastPlan.containers.length){
+      var t0 = lastPlan.containers[0].type;
+      doc.text('Container type: ' + t0.label + '  (' + t0.L + '×' + t0.W + '×' + t0.H + ' cm)', margin, y); y += 6;
+    }
+    divider();
+
+    var totalItems=0, placedItems=0;
+    lastPlan.containers.forEach(function(c){ placedItems += c.placements.length; });
+    totalItems = placedItems + lastPlan.unplaced.length;
+    var avgUtil = 0;
+    lastPlan.containers.forEach(function(c){
+      var totalVolC = c.type.L*c.type.W*c.type.H/1e6;
+      var used=0; c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
+      avgUtil += (used/1e6)/totalVolC;
+    });
+    avgUtil = lastPlan.containers.length ? avgUtil/lastPlan.containers.length*100 : 0;
+    var totalWeight = 0; lastPlan.containers.forEach(function(c){ totalWeight += c.weight; });
+
+    heading('Summary', 12);
+    gridRow(['Containers used', String(lastPlan.containers.length)], [70,60], {size:9.5});
+    gridRow(['Items loaded', placedItems + ' / ' + totalItems], [70,60], {size:9.5});
+    gridRow(['Avg. volume utilization', fmt(avgUtil,1) + '%'], [70,60], {size:9.5});
+    gridRow(['Total weight', fmt(totalWeight,0) + ' kg'], [70,60], {size:9.5});
+    y += 3;
+
+    if(lastPlan.overweightList.length || lastPlan.unplaced.length){
+      heading('Warnings', 11);
+      if(lastPlan.overweightList.length){
+        line('Heavier than any container in the fleet can carry: ' + lastPlan.overweightList.join(', '), 9, [166,65,44]);
+      }
+      var unplacedByName = {};
+      lastPlan.unplaced.forEach(function(p){ unplacedByName[p.name] = (unplacedByName[p.name]||0)+1; });
+      var ul = Object.keys(unplacedByName).map(function(n){ return n + ' × ' + unplacedByName[n]; });
+      if(ul.length) line('Not loaded: ' + ul.join(', '), 9, [166,65,44]);
+      y += 2;
+    }
+    divider();
+
+    var origTab = activeTab;
+    var imgW = pageW - margin*2;
+    var colWidths = [62,16,34,32,26]; // Item, Qty, Color, Dims, Weight
+
+    lastPlan.containers.forEach(function(c, ci){
+      heading('Container ' + (ci+1) + ' — ' + c.type.label, 13);
+      var totalVolC = c.type.L*c.type.W*c.type.H;
+      var used = 0; c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
+      var util = (used/1e6)/(totalVolC/1e6)*100;
+      line('Dimensions: ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)   ·   Volume utilization: ' + fmt(util,1) + '%   ·   Weight: ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg   ·   Items: ' + c.placements.length, 9);
+
+      if(c.placements.length && typeof THREE !== 'undefined'){
+        selectTab(ci);
+        if(three.renderer){
+          three.renderer.render(three.scene, three.camera);
+          var canvas = three.renderer.domElement;
+          var dataUrl = canvas.toDataURL('image/png');
+          var imgH = imgW * (canvas.height/canvas.width);
+          ensureSpace(imgH+4);
+          doc.addImage(dataUrl, 'PNG', margin, y, imgW, imgH);
+          y += imgH + 6;
+        }
+      }
+
+      var counts = {};
+      c.placements.forEach(function(p){
+        var key = p.name;
+        if(!counts[key]){
+          var col = (p.piece && p.piece.color) ? p.piece.color : '#7C8B94';
+          counts[key] = {qty:0, weight:0, dims: Math.round(p.ex)+'×'+Math.round(p.ey)+'×'+Math.round(p.ez), color:col};
+        }
+        counts[key].qty += 1; counts[key].weight += p.weight;
+      });
+      gridRow(['Item','Qty','Color','Dims (cm)','Weight (kg)'], colWidths, {header:true, size:9});
+      Object.keys(counts).forEach(function(name){
+        var row = counts[name];
+        gridRowWithSwatch([name, String(row.qty), '', row.dims, fmt(row.weight,0)], colWidths, 2, row.color, {size:9});
+      });
+      y += 4;
+      divider();
+    });
+
+    selectTab(origTab);
+    doc.save(fileSafeName() + '-report.pdf');
+  }
+
+})();
+</script>
+</body>
+</html>
