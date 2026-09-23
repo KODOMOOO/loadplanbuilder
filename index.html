@@ -6,715 +6,340 @@
 <title>Load Plan Builder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #F8FAFC;
+  :root{
+    --bg: #FFFFFF;
     --panel: #FFFFFF;
-    --panel-2: #F1F5F9;
-    --panel-hover: #E2E8F0;
-    --ink: #0F172A;
-    --ink-soft: #64748B;
-    --line: #E2E8F0;
-    --line-accent: #CBD5E1;
-    --amber: #2563EB; /* Premium primary blue */
-    --amber-hover: #1D4ED8;
-    --amber-ink: #1E3A8A;
-    --teal: #0D9488;
-    --teal-soft: #CCFBF1;
-    --red: #E11D48;
-    --red-soft: #FFE4E6;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
-    --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-    --radius-sm: 6px;
-    --radius: 10px;
-    --radius-lg: 14px;
-    --scroll-track: #F1F5F9;
+    --panel-2: #EEF3FA;
+    --ink: #0F2A4D;
+    --ink-soft: #5A6E88;
+    --line: #D6E1EE;
+    --amber: #123B6B;
+    --amber-ink: #0A1E3A;
+    --teal: #1B6E8C;
+    --teal-soft: #E3F0F6;
+    --red: #B23A2E;
+    --red-soft: #FBEAE7;
+    --shadow: none;
+    --scroll-track: #EAF0F8;
   }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0B0F17;
-      --panel: #111827;
-      --panel-2: #1F2937;
-      --panel-hover: #374151;
-      --ink: #F9FAFB;
-      --ink-soft: #9CA3AF;
-      --line: #1F2937;
-      --line-accent: #374151;
-      --amber: #3B82F6;
-      --amber-hover: #60A5FA;
-      --amber-ink: #DBEAFE;
-      --teal: #14B8A6;
-      --teal-soft: #115E59;
-      --red: #F43F5E;
-      --red-soft: #881337;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-      --scroll-track: #111827;
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #0A1930;
+      --panel: #102544;
+      --panel-2: #16305A;
+      --ink: #EAF1FB;
+      --ink-soft: #9AB2D2;
+      --line: #274571;
+      --amber: #5B9BF0;
+      --amber-ink: #C6DDFB;
+      --teal: #56AEDB;
+      --teal-soft: #133248;
+      --red: #E08066;
+      --red-soft: #3A2019;
+      --scroll-track: #16305A;
     }
   }
-
-  :root[data-theme="dark"] {
-    --bg: #0B0F17;
-    --panel: #111827;
-    --panel-2: #1F2937;
-    --panel-hover: #374151;
-    --ink: #F9FAFB;
-    --ink-soft: #9CA3AF;
-    --line: #1F2937;
-    --line-accent: #374151;
-    --amber: #3B82F6;
-    --amber-hover: #60A5FA;
-    --amber-ink: #DBEAFE;
-    --teal: #14B8A6;
-    --teal-soft: #115E59;
-    --red: #F43F5E;
-    --red-soft: #881337;
-    --scroll-track: #111827;
+  :root[data-theme="dark"]{
+    --bg: #0A1930;
+    --panel: #102544;
+    --panel-2: #16305A;
+    --ink: #EAF1FB;
+    --ink-soft: #9AB2D2;
+    --line: #274571;
+    --amber: #5B9BF0;
+    --amber-ink: #C6DDFB;
+    --teal: #56AEDB;
+    --teal-soft: #133248;
+    --red: #E08066;
+    --red-soft: #3A2019;
+    --scroll-track: #16305A;
   }
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    background-image: 
-      radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.05) 0%, transparent 70%),
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Space Grotesk', ui-sans-serif, sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    background-image:
       linear-gradient(var(--line) 1px, transparent 1px),
       linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size: 100% 100%, 32px 32px, 32px 32px;
+    background-size: 34px 34px;
     background-attachment: fixed;
-    background-position: 0 0, -1px -1px, -1px -1px;
+    background-position: -1px -1px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  h1,h2,h3{font-family:'Space Grotesk', ui-sans-serif, sans-serif; margin:0; letter-spacing:-0.01em;}
+  .mono, table, input, select, textarea, button, .stamp, .stat .v, .hint, .n, .flagbadge{ font-family:'IBM Plex Mono', ui-monospace, monospace; }
+
+  .wrap{max-width:1360px; margin:0 auto; padding:20px 20px 60px;}
+
+  header.top{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+    padding:18px 22px; margin-bottom:18px;
+    background:var(--panel); border:1px solid var(--line);
+  }
+  header.top .tag{
+    font-size:11px; color:var(--ink-soft); letter-spacing:.05em; font-family:'IBM Plex Mono',monospace;
+  }
+  header.top h1{font-size:25px; color:var(--ink);}
+  .projectNameInput{
+    font-family:'Space Grotesk',sans-serif; font-size:25px; font-weight:700; color:var(--ink);
+    background:transparent; border:none; padding:2px 0; width:100%; max-width:480px;
+  }
+  .projectNameInput::placeholder{ color:var(--ink-soft); opacity:0.55; }
+  .projectNameInput:focus{ outline:none; border-bottom:2px solid var(--amber); }
+  header.top .stamp{
+    text-align:right; font-size:11px; color:var(--ink-soft); line-height:1.7; max-width:420px;
+  }
+  .stamp b{color:var(--amber-ink); font-weight:600;}
+
+  .grid{
+    display:grid;
+    grid-template-columns: 360px 1fr;
+    gap: 18px;
+    align-items:start;
+  }
+  /* Grid items default to min-width:auto, which lets a wide unwrapped table
+     (or any long content) blow out the whole track — and on mobile, the
+     entire page viewport with it. min-width:0 lets each column shrink and
+     hand overflow off to its own internal scrollbars (.tablewrap) instead. */
+  .grid > div{ min-width:0; }
+  @media (max-width: 880px){
+    .grid{grid-template-columns: 1fr;}
   }
 
-  h1, h2, h3 { 
-    font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; 
-    margin: 0; 
-    letter-spacing: -0.02em; 
+  .panel{
+    background:var(--panel); border:1px solid var(--line);
+    padding:16px 18px;
+    margin-bottom:18px;
   }
-  
-  .mono, table, input, select, textarea, button, .stamp, .stat .v, .hint, .n, .flagbadge { 
-    font-family: 'JetBrains Mono', ui-monospace, monospace; 
+  .panel > h2{
+    font-size:14.5px; font-weight:600; color:var(--ink);
+    border-bottom:1px solid var(--line); padding-bottom:9px; margin-bottom:13px;
+    display:flex; align-items:center; justify-content:space-between;
   }
-
-  .wrap { 
-    max-width: 1400px; 
-    margin: 0 auto; 
-    padding: 24px 24px 60px; 
+  .panel > h2 span.n{
+    font-size:11px; color:var(--ink-soft); font-weight:400;
   }
 
-  /* Header */
-  header.top {
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    gap: 20px;
-    padding: 20px 24px; 
-    margin-bottom: 24px;
-    background: var(--panel); 
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(8px);
+  label{display:block; font-size:11.5px; font-weight:500; color:var(--ink-soft); margin:11px 0 4px;}
+  select, input[type=number], input[type=text], input[type=password], textarea{
+    width:100%; background:var(--panel-2); color:var(--ink); border:1px solid var(--line);
+    padding:9px 10px; font-size:13px; font-family:'IBM Plex Mono',monospace;
   }
-  
-  header.top .tag {
-    font-size: 11px; 
-    font-weight: 600;
-    color: var(--amber); 
-    letter-spacing: .08em; 
-    font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  
-  header.top h1 { font-size: 24px; color: var(--ink); font-weight: 700; }
-  
-  .projectNameInput {
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-    font-size: 22px; 
-    font-weight: 700; 
-    color: var(--ink);
-    background: transparent; 
-    border: none; 
-    border-bottom: 2px solid transparent;
-    padding: 2px 4px; 
-    width: 100%; 
-    max-width: 480px;
-    border-radius: 0;
-    transition: all 0.2s ease;
-  }
-  
-  .projectNameInput::placeholder { color: var(--ink-soft); opacity: 0.5; }
-  .projectNameInput:focus { outline: none; border-bottom: 2px solid var(--amber); background: var(--panel-2); border-radius: var(--radius-sm); }
+  select:focus, input:focus, textarea:focus{ outline:2px solid var(--amber); outline-offset:1px; }
+  textarea{resize:vertical; min-height:96px;}
 
-  header.top .stamp {
-    text-align: right; 
-    font-size: 11.5px; 
-    color: var(--ink-soft); 
-    line-height: 1.6; 
-    max-width: 460px;
-    background: var(--panel-2);
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    border: 1px solid var(--line);
-  }
-  
-  .stamp b { color: var(--amber-ink); font-weight: 600; }
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
 
-  /* Grid Layout */
-  .grid {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 24px;
-    align-items: start;
-  }
-  
-  .grid > div { min-width: 0; }
-  
-  @media (max-width: 960px) {
-    .grid { grid-template-columns: 1fr; }
-  }
+  .checks{display:flex; gap:18px; margin-top:13px;}
+  .chk{display:flex; align-items:center; gap:7px; font-size:12.5px; font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0; cursor:pointer;}
+  .chk input{width:auto; margin:0; accent-color:var(--amber);}
 
-  /* Panels */
-  .panel {
-    background: var(--panel); 
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-    transition: border-color 0.2s ease;
+  button{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13.5px;
+    background:var(--amber); color:#fff; border:1px solid var(--amber);
+    padding:10px 15px; cursor:pointer;
   }
-  
-  .panel:hover {
-    border-color: var(--line-accent);
+  button:hover{ filter:brightness(1.18); }
+  button:active{ transform: translateY(1px); }
+  button.secondary{
+    background:var(--panel); color:var(--amber); border:1.5px solid var(--amber);
   }
+  button.secondary:hover{ background:var(--panel-2); filter:none; }
+  button.accent{
+    background:var(--amber); color:#fff; border:1px solid var(--amber);
+  }
+  button:disabled{opacity:.45; cursor:not-allowed;}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
 
-  .panel > h2 {
-    font-size: 15px; 
-    font-weight: 700; 
-    color: var(--ink);
-    border-bottom: 1px solid var(--line); 
-    padding-bottom: 12px; 
-    margin-bottom: 16px;
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between;
-  }
-  
-  .panel > h2 span.n {
-    font-size: 11px; 
-    color: var(--ink-soft); 
-    font-weight: 500;
-    background: var(--panel-2);
-    padding: 2px 8px;
-    border-radius: 12px;
-  }
+  .filebtn{display:inline-block; position:relative; overflow:hidden;}
+  .filebtn input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer;}
 
-  /* Form Elements */
-  label { 
-    display: block; 
-    font-size: 12px; 
-    font-weight: 600; 
-    color: var(--ink-soft); 
-    margin: 12px 0 6px; 
-  }
-  
-  select, input[type=number], input[type=text], input[type=password], textarea {
-    width: 100%; 
-    background: var(--panel-2); 
-    color: var(--ink); 
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 9px 12px; 
-    font-size: 13px; 
-    font-family: 'JetBrains Mono', monospace;
-    transition: all 0.2s ease;
-  }
-  
-  select:hover, input:hover, textarea:hover {
-    border-color: var(--line-accent);
-  }
-  
-  select:focus, input:focus, textarea:focus { 
-    outline: none; 
-    border-color: var(--amber); 
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); 
-    background: var(--panel);
-  }
-  
-  textarea { resize: vertical; min-height: 80px; }
+  .hint{font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.6;}
 
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{color:var(--ink-soft); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em;}
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); min-width:0; max-width:100%;}
 
-  .checks { display: flex; gap: 16px; margin-top: 14px; }
-  .chk { 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    font-size: 12.5px; 
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-    font-weight: 500;
-    color: var(--ink); 
-    margin: 0; 
-    cursor: pointer; 
-  }
-  .chk input { width: 16px; height: 16px; margin: 0; accent-color: var(--amber); cursor: pointer; }
+  #itemsPanel .tablewrap{ max-height:420px; overflow-y:auto; }
+  table.wide-table td input[type=text]{ width:170px; padding:6px 7px; font-size:12.5px; }
+  table.wide-table td input[type=number]{ width:64px; padding:6px 7px; font-size:12.5px; text-align:right; }
+  table.wide-table td input[type=checkbox]{ width:auto; accent-color:var(--amber); transform:scale(1.15); }
+  table.wide-table td{ vertical-align:middle; }
+  .rmBtn{ padding:7px 12px; font-size:12px; white-space:nowrap; }
+  .rmBtn:hover{ background:var(--red-soft); border-color:var(--red); color:var(--red); }
 
-  /* Buttons */
-  button {
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-    font-weight: 600; 
-    font-size: 13px;
-    background: var(--amber); 
-    color: #ffffff; 
-    border: 1px solid var(--amber);
-    border-radius: var(--radius);
-    padding: 10px 16px; 
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    box-shadow: var(--shadow-sm);
-  }
-  
-  button:hover { 
-    background: var(--amber-hover); 
-    border-color: var(--amber-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow);
-  }
-  
-  button:active { transform: translateY(0); }
-  
-  button.secondary {
-    background: var(--panel-2); 
-    color: var(--ink); 
-    border: 1px solid var(--line);
-  }
-  
-  button.secondary:hover { 
-    background: var(--panel-hover); 
-    border-color: var(--line-accent);
-    color: var(--ink);
-  }
-  
-  button.accent {
-    background: var(--amber); 
-    color: #ffffff; 
-    border: 1px solid var(--amber);
-  }
-  
-  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-  
-  .btnrow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .error{background:var(--red-soft); color:var(--red); border:1px solid var(--red); padding:9px 11px; font-size:12px; margin-top:8px;}
+  .ok{background:var(--teal-soft); color:var(--teal); border:1px solid var(--teal); padding:9px 11px; font-size:12px; margin-top:8px;}
 
-  .filebtn { display: inline-block; position: relative; overflow: hidden; }
-  .filebtn input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .stat{background:var(--panel); padding:15px 15px;}
+  .stat .v{font-family:'Space Grotesk',sans-serif; font-size:27px; font-weight:700; color:var(--ink);}
+  .stat .l{font-size:10.5px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); margin-top:3px; letter-spacing:.02em;}
+  .stat.warn .v{color:var(--red);}
+  .stat.good .v{color:var(--teal);}
 
-  .hint { font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
-
-  /* Tables */
-  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
-  
-  th, td { 
-    text-align: left; 
-    padding: 10px 12px; 
-    border-bottom: 1px solid var(--line); 
-    white-space: nowrap; 
+  .tabs{display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid var(--line); margin-bottom:0;}
+  .tab{
+    padding:9px 15px; font-size:12.5px; font-family:'Space Grotesk',sans-serif; font-weight:500; cursor:pointer; color:var(--ink-soft);
+    border:1px solid var(--line); border-bottom:none; background:var(--panel-2);
+    margin-right:4px; margin-bottom:-1px;
   }
-  
-  th { 
-    color: var(--ink-soft); 
-    font-weight: 600; 
-    font-size: 11px; 
-    text-transform: uppercase; 
-    letter-spacing: .05em; 
-    background: var(--panel-2);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  
-  th:first-child { border-top-left-radius: var(--radius-sm); }
-  th:last-child { border-top-right-radius: var(--radius-sm); }
+  .tab.active{background:var(--panel); color:var(--ink); font-weight:700; border-bottom:1px solid var(--panel);}
 
-  .tablewrap { 
-    overflow-x: auto; 
-    border: 1px solid var(--line); 
-    border-radius: var(--radius);
-    min-width: 0; 
-    max-width: 100%; 
+  .viewer{
+    background:var(--panel); border:1px solid var(--line); border-top:none;
+    padding:0; position:relative;
+  }
+  #canvasHost{ width:100%; height:440px; display:block; touch-action:none; cursor:grab; }
+  #canvasHost:active{cursor:grabbing;}
+  .viewerbar{
+    display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+    padding:11px 15px; border-top:1px solid var(--line); font-size:11.5px; font-family:'Space Grotesk',sans-serif; color:var(--ink-soft);
+  }
+  .legend{display:flex; gap:12px; flex-wrap:wrap;}
+  .legend .item{display:flex; align-items:center; gap:6px;}
+  .swatch{width:11px; height:11px; display:inline-block; border:1px solid rgba(0,0,0,.25);}
+  .viewerDim{
+    padding:9px 15px; border-bottom:1px solid var(--line); font-size:12px; font-family:'IBM Plex Mono',monospace;
+    color:var(--ink); background:var(--panel-2); font-weight:600;
+  }
+  .dragHint{ font-family:'Space Grotesk',sans-serif; }
+  .colorSwatch{ width:22px; height:22px; border-radius:5px; border:1px solid var(--line); flex-shrink:0; display:inline-block; cursor:pointer; padding:0; }
+  #logoPreviewWrap{ background:#fff; border:1px solid var(--line); padding:8px; display:inline-block; }
+  #logoPreview{ display:block; max-width:160px; max-height:70px; }
+  .colorSwatch:hover{ outline:2px solid var(--amber); outline-offset:1px; }
+
+  .colorPopover{
+    position:fixed; z-index:9999; background:var(--panel); border:1px solid var(--line);
+    box-shadow:0 8px 24px rgba(0,0,0,.28); padding:14px; width:200px;
+  }
+  .colorPopover .wheelWrap{ position:relative; width:150px; height:150px; margin:0 auto 10px; }
+  .colorPopover canvas{ display:block; cursor:crosshair; touch-action:none; }
+  .colorPopover .wheelDot{
+    position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%;
+    border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.5); pointer-events:none;
+  }
+  .colorPopover .pickerRow{ margin-bottom:9px; }
+  .colorPopover .pickerRow label{ font-size:10.5px; color:var(--ink-soft); margin:0 0 4px; display:block; }
+  .colorPopover input[type=range]{ width:100%; accent-color:var(--amber); }
+  .colorPopover input[type=text]{ font-family:'IBM Plex Mono',monospace; text-transform:uppercase; }
+  .presetRow{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
+  .presetSwatch{
+    width:18px; height:18px; border-radius:4px; border:1px solid var(--line); cursor:pointer; padding:0;
+  }
+  .presetSwatch:hover{ outline:2px solid var(--amber); outline-offset:1px; }
+
+  .qtyEdit{width:56px; padding:4px 5px;}
+  .flagbadge{display:inline-block; font-size:9.5px; padding:2px 6px; border:1px solid var(--line); color:var(--ink-soft); margin-right:3px; border-radius:2px;}
+
+  .fleetRow{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; border:1px solid var(--line); background:var(--panel-2); margin-bottom:6px; font-size:12px;}
+  .fleetRow .fnum{font-family:'IBM Plex Mono',monospace; color:var(--amber-ink); font-weight:600; margin-right:6px;}
+  .fleetRow .fmeta{color:var(--ink-soft); font-size:10.5px; display:block; margin-top:2px;}
+  .fleetRow button{padding:5px 9px; font-size:11px; flex-shrink:0;}
+
+  footer.note{
+    font-size:10.5px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); text-align:center; margin-top:26px; line-height:1.8;
   }
 
-  #itemsPanel .tablewrap { max-height: 440px; overflow-y: auto; }
-  
-  table.wide-table td input[type=text] { width: 170px; padding: 6px 10px; font-size: 12.5px; border-radius: var(--radius-sm); }
-  table.wide-table td input[type=number] { width: 70px; padding: 6px 10px; font-size: 12.5px; text-align: right; border-radius: var(--radius-sm); }
-  table.wide-table td input[type=checkbox] { width: auto; accent-color: var(--amber); transform: scale(1.1); cursor: pointer; }
-  table.wide-table td { vertical-align: middle; }
-  
-  .rmBtn { 
-    padding: 6px 10px; 
-    font-size: 11.5px; 
-    white-space: nowrap; 
-    background: transparent;
-    border-color: transparent;
-    color: var(--red);
-    box-shadow: none;
-  }
-  
-  .rmBtn:hover { 
-    background: var(--red-soft); 
-    border-color: var(--red-soft); 
-    color: var(--red); 
-  }
+  ::-webkit-scrollbar{height:10px; width:10px;}
+  ::-webkit-scrollbar-track{background:var(--scroll-track);}
+  ::-webkit-scrollbar-thumb{background:var(--line);}
 
-  /* Alerts / Status */
-  .error { 
-    background: var(--red-soft); 
-    color: var(--red); 
-    border: 1px solid rgba(225, 29, 72, 0.2); 
-    border-radius: var(--radius);
-    padding: 10px 14px; 
-    font-size: 12.5px; 
-    margin-top: 10px; 
-  }
-  
-  .ok { 
-    background: var(--teal-soft); 
-    color: var(--teal); 
-    border: 1px solid rgba(13, 148, 136, 0.2); 
-    border-radius: var(--radius);
-    padding: 10px 14px; 
-    font-size: 12.5px; 
-    margin-top: 10px; 
-  }
-
-  /* Stats Grid */
-  .stats { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-    gap: 12px; 
-    background: transparent;
-  }
-  
-  .stat { 
-    background: var(--panel); 
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    padding: 16px; 
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .stat .v { 
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-    font-size: 26px; 
-    font-weight: 800; 
-    color: var(--ink); 
-    line-height: 1.1;
-  }
-  
-  .stat .l { 
-    font-size: 11px; 
-    font-family: 'JetBrains Mono', monospace; 
-    color: var(--ink-soft); 
-    margin-top: 6px; 
-    letter-spacing: .02em; 
-    text-transform: uppercase;
-  }
-  
-  .stat.warn .v { color: var(--red); }
-  .stat.good .v { color: var(--teal); }
-
-  /* Tabs & Viewer */
-  .tabs { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 6px; 
-    border-bottom: 1px solid var(--line); 
-    padding-bottom: 8px;
-    margin-bottom: 0; 
-  }
-  
-  .tab {
-    padding: 8px 16px; 
-    font-size: 13px; 
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-    font-weight: 600; 
-    cursor: pointer; 
-    color: var(--ink-soft);
-    border: 1px solid var(--line); 
-    border-radius: var(--radius) var(--radius) 0 0;
-    background: var(--panel-2);
-    transition: all 0.2s ease;
-  }
-  
-  .tab:hover { color: var(--ink); background: var(--panel-hover); }
-  
-  .tab.active { 
-    background: var(--panel); 
-    color: var(--amber); 
-    font-weight: 700; 
-    border-color: var(--line);
-    border-bottom-color: var(--panel);
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.03);
-  }
-
-  .viewer {
-    background: var(--panel); 
-    border: 1px solid var(--line); 
-    border-top: none;
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-    padding: 0; 
-    position: relative;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-  
-  #canvasHost { width: 100%; height: 480px; display: block; touch-action: none; cursor: grab; }
-  #canvasHost:active { cursor: grabbing; }
-  
-  .viewerbar {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    gap: 12px; 
-    flex-wrap: wrap;
-    padding: 12px 18px; 
-    border-top: 1px solid var(--line); 
-    font-size: 12px; 
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-    color: var(--ink-soft);
-    background: var(--panel-2);
-  }
-  
-  .legend { display: flex; gap: 14px; flex-wrap: wrap; }
-  .legend .item { display: flex; align-items: center; gap: 6px; font-weight: 500; }
-  
-  .swatch { 
-    width: 12px; 
-    height: 12px; 
-    display: inline-block; 
-    border-radius: 3px;
-    border: 1px solid rgba(0, 0, 0, 0.15); 
-  }
-  
-  .viewerDim {
-    padding: 10px 18px; 
-    border-bottom: 1px solid var(--line); 
-    font-size: 12.5px; 
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--ink); 
-    background: var(--panel-2); 
-    font-weight: 600;
-  }
-  
-  .dragHint { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500; opacity: 0.8; }
-  
-  .colorSwatch { 
-    width: 24px; 
-    height: 24px; 
-    border-radius: var(--radius-sm); 
-    border: 1px solid var(--line-accent); 
-    flex-shrink: 0; 
-    display: inline-block; 
-    cursor: pointer; 
-    padding: 0; 
-    transition: transform 0.15s ease;
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .colorSwatch:hover { transform: scale(1.1); outline: 2px solid var(--amber); outline-offset: 1px; }
-
-  #logoPreviewWrap { background: #FFFFFF; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; display: inline-block; }
-  #logoPreview { display: block; max-width: 160px; max-height: 70px; }
-
-  /* Color Popover */
-  .colorPopover {
-    position: fixed; 
-    z-index: 9999; 
-    background: var(--panel); 
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg); 
-    padding: 16px; 
-    width: 220px;
-    backdrop-filter: blur(12px);
-  }
-  
-  .colorPopover .wheelWrap { position: relative; width: 150px; height: 150px; margin: 0 auto 12px; }
-  .colorPopover canvas { display: block; cursor: crosshair; touch-action: none; border-radius: 50%; }
-  
-  .colorPopover .wheelDot {
-    position: absolute; 
-    width: 14px; 
-    height: 14px; 
-    margin: -7px 0 0 -7px; 
-    border-radius: 50%;
-    border: 2px solid #ffffff; 
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3); 
-    pointer-events: none;
-  }
-  
-  .colorPopover .pickerRow { margin-bottom: 10px; }
-  .colorPopover .pickerRow label { font-size: 11px; color: var(--ink-soft); margin: 0 0 4px; display: block; }
-  .colorPopover input[type=range] { width: 100%; accent-color: var(--amber); }
-  .colorPopover input[type=text] { font-family: 'JetBrains Mono', monospace; text-transform: uppercase; border-radius: var(--radius-sm); }
-  
-  .presetRow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .presetSwatch {
-    width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; padding: 0;
-    transition: transform 0.15s ease;
-  }
-  .presetSwatch:hover { transform: scale(1.15); outline: 2px solid var(--amber); outline-offset: 1px; }
-
-  .qtyEdit { width: 60px; padding: 4px 6px; }
-  
-  .flagbadge {
-    display: inline-block; 
-    font-size: 10px; 
-    padding: 2px 6px; 
-    border: 1px solid var(--line-accent); 
-    color: var(--ink-soft); 
-    margin-right: 4px; 
-    border-radius: 4px;
-    background: var(--panel-2);
-  }
-
-  /* Fleet Row */
-  .fleetRow {
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    gap: 10px; 
-    padding: 10px 12px; 
-    border: 1px solid var(--line); 
-    border-radius: var(--radius);
-    background: var(--panel-2); 
-    margin-bottom: 8px; 
-    font-size: 12.5px;
-  }
-  
-  .fleetRow .fnum { font-family: 'JetBrains Mono', monospace; color: var(--amber); font-weight: 700; margin-right: 6px; }
-  .fleetRow .fmeta { color: var(--ink-soft); font-size: 11px; display: block; margin-top: 2px; }
-  .fleetRow button { padding: 4px 8px; font-size: 11px; flex-shrink: 0; box-shadow: none; }
-
-  footer.note {
-    font-size: 11px; 
-    font-family: 'JetBrains Mono', monospace; 
-    color: var(--ink-soft); 
-    text-align: center; 
-    margin-top: 36px; 
-    line-height: 1.8;
-    opacity: 0.8;
-  }
-
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar { height: 8px; width: 8px; }
-  ::-webkit-scrollbar-track { background: var(--scroll-track); }
-  ::-webkit-scrollbar-thumb { background: var(--line-accent); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
-
-  /* Login Gate Modal */
-  .loginGate {
-    position: fixed; 
-    inset: 0; 
-    z-index: 99999; 
-    background: var(--bg);
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    padding: 20px;
-    background-image: 
-      radial-gradient(circle at 50% 30%, rgba(37, 99, 235, 0.1) 0%, transparent 60%),
+  .loginGate{
+    position:fixed; inset:0; z-index:99999; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    background-image:
       linear-gradient(var(--line) 1px, transparent 1px),
       linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size: 100% 100%, 32px 32px, 32px 32px;
+    background-size: 34px 34px;
   }
-  
-  .loginCard {
-    background: var(--panel); 
-    border: 1px solid var(--line); 
-    border-radius: var(--radius-lg);
-    padding: 36px 32px; 
-    width: 340px; 
-    max-width: 100%;
-    box-shadow: var(--shadow-lg);
+  .loginCard{
+    background:var(--panel); border:1px solid var(--line); padding:32px 30px; width:300px; max-width:100%;
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
   }
-  
-  .loginTitle { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: var(--ink); text-align: center; }
-  .loginSub { font-size: 12.5px; color: var(--ink-soft); text-align: center; margin: 6px 0 24px; }
-  .loginCard label { margin-top: 14px; }
-  .loginCard input { font-family: 'JetBrains Mono', monospace; }
-  .loginError { font-size: 12px; color: var(--red); min-height: 18px; margin-top: 12px; text-align: center; font-weight: 500; }
-
+  .loginTitle{ font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:700; color:var(--ink); text-align:center; }
+  .loginSub{ font-size:12px; color:var(--ink-soft); text-align:center; margin:4px 0 20px; }
+  .loginCard label{ margin-top:12px; }
+  .loginCard input{ font-family:'IBM Plex Mono',monospace; }
+  .loginError{ font-size:11.5px; color:var(--red); min-height:16px; margin-top:10px; text-align:center; }
   /* ===================================================================
-     Mobile overrides
+     Mobile overrides — deliberately placed last in the stylesheet so they
+     win the CSS cascade over every rule above, regardless of selector
+     order (same-specificity rules obey source order, not media-query
+     position). Never define #id / .class rules for small screens earlier
+     in this file — they'll silently lose to a later non-mobile rule.
      =================================================================== */
-  @media (max-width: 880px) {
-    .grid { grid-template-columns: 1fr; }
+  @media (max-width: 880px){
+    .grid{grid-template-columns: 1fr;}
   }
-  
-  @media (max-width: 600px) {
-    .wrap { padding: 12px 12px 40px; }
-    header.top { flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; }
-    header.top .stamp { text-align: left; max-width: 100%; }
-    .projectNameInput { font-size: 18px; }
-    .panel { padding: 16px; }
-    .row3 { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-    .row2 { grid-template-columns: 1fr 1fr; gap: 8px; }
-    #canvasHost { height: 320px; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .stat { padding: 12px; }
-    .stat .v { font-size: 22px; }
-    .btnrow { gap: 8px; }
-    .btnrow button { flex: 1 1 auto; min-height: 42px; }
-    .tab { padding: 8px 12px; font-size: 12px; }
-    body { font-size: 13px; }
+  @media (max-width: 600px){
+    .wrap{padding:10px 10px 40px;}
+    header.top{flex-direction:column; align-items:flex-start; padding:14px 16px; gap:8px;}
+    header.top .stamp{text-align:left; max-width:100%;}
+    .projectNameInput{font-size:19px;}
+    .panel{padding:14px 14px;}
+    .row3{grid-template-columns:1fr 1fr 1fr; gap:6px;}
+    .row2{grid-template-columns:1fr 1fr; gap:8px;}
+    #canvasHost{height:280px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .stat{padding:12px 12px;}
+    .stat .v{font-size:22px;}
+    .btnrow{gap:6px;}
+    .btnrow button{flex:1 1 auto; min-height:40px;}
+    .tab{padding:9px 10px; font-size:11.5px;}
+    body{font-size:13px;}
 
-    button { min-height: 42px; padding: 10px 14px; }
-    .chk { min-height: 36px; }
-    .chk input[type=checkbox] { width: 18px; height: 18px; }
-    .colorSwatch { width: 30px; height: 30px; }
-    .rmBtn { min-height: 38px; }
+    /* Comfortable tap targets: buttons, checkboxes and the color swatch
+       button all grow slightly so they're easy to hit with a thumb. */
+    button{ min-height:40px; padding:9px 13px; }
+    .chk{ min-height:32px; }
+    .chk input[type=checkbox]{ width:18px; height:18px; }
+    .colorSwatch{ width:28px; height:28px; }
+    .rmBtn{ min-height:36px; }
 
-    table.wide-table td input[type=text] { width: 130px; }
-    table.wide-table td input[type=number] { width: 54px; font-size: 12px; }
-    .tablewrap { -webkit-overflow-scrolling: touch; }
-    #itemsPanel .tablewrap { max-height: 340px; }
+    /* Item table: shrink the per-cell inputs so more columns are visible
+       per horizontal swipe, and let touch-scrolling feel native. */
+    table.wide-table td input[type=text]{ width:130px; }
+    table.wide-table td input[type=number]{ width:52px; font-size:12px; }
+    .tablewrap{ -webkit-overflow-scrolling:touch; }
+    #itemsPanel .tablewrap{ max-height:320px; }
 
-    .colorPopover { width: min(250px, calc(100vw - 24px)) !important; }
+    /* Color picker popover: cap width to the viewport and center it rather
+       than anchoring next to the (often narrow-column) swatch button, so
+       it never runs off-screen on a phone. */
+    .colorPopover{ width:min(240px, calc(100vw - 24px)) !important; }
 
-    #logoPreview { max-width: 130px; max-height: 56px; }
+    /* Letterhead logo preview and the fixed dimension-line labels in the
+       3D view stay legible without eating too much of a short viewport. */
+    #logoPreview{ max-width:130px; max-height:56px; }
 
-    .loginCard { width: 100%; max-width: 320px; padding: 28px 20px; }
-    .loginTitle { font-size: 20px; }
-    button#loginBtn { min-height: 44px; }
+    .loginCard{ width:100%; max-width:320px; padding:26px 22px; }
+    .loginTitle{ font-size:19px; }
+    button#loginBtn{ min-height:44px; }
 
-    input[type=number] { font-size: 13px; }
+    /* Number inputs: iOS/Android show a numeric keypad instead of the full
+       keyboard, which is what people actually want for dimensions/weights. */
+    input[type=number]{ font-size:13px; }
   }
-  
-  @media (max-width: 600px) and (hover: none) and (pointer: coarse) {
-    .viewerbar { flex-direction: column; align-items: flex-start; gap: 8px; }
+  @media (max-width: 600px) and (hover: none) and (pointer: coarse){
+    /* Touch devices only: three.js orbit drag already uses touch handlers,
+       this just gives the drag hint copy more breathing room under the tabs. */
+    .viewerbar{ flex-direction:column; align-items:flex-start; gap:6px; }
   }
 </style>
 </head>
@@ -728,7 +353,7 @@
     <label for="loginPass">Password</label>
     <input type="password" id="loginPass" autocomplete="current-password">
     <div id="loginError" class="loginError"></div>
-    <button type="button" class="accent" id="loginBtn" style="width:100%; margin-top:16px;">Sign In</button>
+    <button type="button" class="accent" id="loginBtn" style="width:100%; margin-top:12px;">Sign In</button>
   </div>
 </div>
 <div class="wrap">
@@ -1016,7 +641,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // protecting sensitive data.
   // =====================================================================
   var APP_USERS = [
-    { username: "admin", password: "admin" }
+    { username: "Dany", password: "Dany" }
     // , { username: "Budi", password: "budi123" }
     // , { username: "Siti", password: "siti456" }
   ];
@@ -2379,422 +2004,420 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     els.detailN.textContent = '(' + plan.containers.length + ' container' + (plan.containers.length===1?'':'s') + ')';
     var thead = els.detailTable.querySelector('thead');
     var tbody = els.detailTable.querySelector('tbody');
-    thead.innerHTML = '<tr><th>Container</th><th>Type</th><th>Internal Dims</th><th>Max Payload</th><th>Cargo Weight</th><th>Payload Util</th><th>Vol Util</th><th>Items Loaded</th></tr>';
+    thead.innerHTML = '<tr><th>#</th><th>Item</th><th>Qty</th><th>Loaded dims (cm)</th><th>Total weight (kg)</th></tr>';
     tbody.innerHTML = '';
-    plan.containers.forEach(function(c, idx){
-      var cVol = c.type.L*c.type.W*c.type.H/1e6;
-      var usedVol = 0; c.placements.forEach(function(p){ usedVol += p.ex*p.ey*p.ez; });
-      usedVol /= 1e6;
-      var vUtil = (usedVol/cVol)*100;
-      var pUtil = (c.weight/c.maxPayload)*100;
-
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td><b>Container #' + (idx+1) + '</b></td>' +
-        '<td>' + escapeHtml(c.type.label) + '</td>' +
-        '<td>' + c.type.L + '×' + c.type.W + '×' + c.type.H + ' cm (' + fmt(cVol,2) + ' m³)</td>' +
-        '<td>' + fmt(c.maxPayload,0) + ' kg</td>' +
-        '<td>' + fmt(c.weight,0) + ' kg</td>' +
-        '<td>' + fmt(pUtil,1) + '%</td>' +
-        '<td>' + fmt(vUtil,1) + '%</td>' +
-        '<td>' + c.placements.length + ' pcs</td>';
-      tbody.appendChild(tr);
+    plan.containers.forEach(function(c, ci){
+      var counts = {};
+      c.placements.forEach(function(p){
+        var key = p.name;
+        if(!counts[key]) counts[key] = {qty:0, weight:0, dims: Math.round(p.ex)+'×'+Math.round(p.ey)+'×'+Math.round(p.ez)};
+        counts[key].qty += 1;
+        counts[key].weight += p.weight;
+      });
+      Object.keys(counts).forEach(function(name){
+        var row = document.createElement('tr');
+        row.innerHTML = '<td>C' + (ci+1) + '</td><td>' + escapeHtml(name) + '</td><td>' + counts[name].qty + '</td><td>' + counts[name].dims + '</td><td>' + fmt(counts[name].weight,0) + '</td>';
+        tbody.appendChild(row);
+      });
+      var totalVolC = c.type.L*c.type.W*c.type.H;
+      var used=0;
+      c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
+      var util = (used/1e6)/(totalVolC/1e6)*100;
+      var sumRow = document.createElement('tr');
+      sumRow.style.background = 'var(--panel-2)';
+      sumRow.innerHTML = '<td colspan="4" style="font-weight:600;">Container ' + (ci+1) + ' (' + escapeHtml(c.type.label) + ') — volume utilization ' + fmt(util,1) + '% · weight ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg</td><td></td>';
+      tbody.appendChild(sumRow);
     });
   }
 
-  function stat(v, l, cls){
+  function escapeHtml(s){
+    return (s||'').toString().replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function stat(v,l,cls){
     return '<div class="stat ' + (cls||'') + '"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
   }
 
-  function selectTab(index){
-    if(!lastPlan || !lastPlan.containers.length) return;
-    activeTab = index;
-    var tabs = els.tabs.children;
-    for(var i=0;i<tabs.length;i++){
-      if(i===index) tabs[i].classList.add('active');
-      else tabs[i].classList.remove('active');
-    }
-    var cont = lastPlan.containers[index];
-    buildScene(cont);
-
-    var cVol = cont.type.L*cont.type.W*cont.type.H/1e6;
-    var usedVol = 0; cont.placements.forEach(function(p){ usedVol += p.ex*p.ey*p.ez; }); usedVol /= 1e6;
-    var vUtil = (usedVol/cVol)*100;
-    var pUtil = (cont.weight/cont.maxPayload)*100;
-
-    els.containerDimBadge.textContent = 'Container #' + (index+1) + ' (' + cont.type.label + ') — ' +
-      cont.type.L + '×' + cont.type.W + '×' + cont.type.H + ' cm | Vol: ' + fmt(usedVol,2) + '/' + fmt(cVol,2) + ' m³ (' + fmt(vUtil,1) + '%) | Weight: ' + fmt(cont.weight,0) + '/' + fmt(cont.maxPayload,0) + ' kg (' + fmt(pUtil,1) + '%)';
-
-    // legend
-    var nameMap = {};
-    cont.placements.forEach(function(p){
-      if(!nameMap[p.name]){
-        nameMap[p.name] = { count: 0, color: (p.piece&&p.piece.color)||'#7C8B94' };
-      }
-      nameMap[p.name].count++;
+  function selectTab(i){
+    activeTab = i;
+    Array.prototype.forEach.call(els.tabs.children, function(t,idx){ t.classList.toggle('active', idx===i); });
+    var c = lastPlan.containers[i];
+    buildScene(c);
+    els.containerDimBadge.textContent = c.type.label + ' — ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)';
+    var nameColor = {};
+    c.placements.forEach(function(p){
+      nameColor[p.name] = (p.piece && p.piece.color) ? p.piece.color : '#7C8B94';
     });
-    els.legend.innerHTML = Object.keys(nameMap).map(function(n){
-      var info = nameMap[n];
-      return '<div class="item"><span class="swatch" style="background:' + info.color + '"></span>' + escapeHtml(n) + ' (' + info.count + ')</div>';
+    els.legend.innerHTML = Object.keys(nameColor).map(function(n){
+      return '<span class="item"><span class="swatch" style="background:' + nameColor[n] + '"></span>' + escapeHtml(n) + '</span>';
     }).join('');
   }
 
-  // ---------- Recompute loop ----------
+  // ---------- Real-time recompute ----------
   var recomputeTimer = null;
+  var computeSeq = 0;
+
   function scheduleRecompute(){
     if(recomputeTimer) clearTimeout(recomputeTimer);
-    recomputeTimer = setTimeout(recompute, 180);
+    recomputeTimer = setTimeout(runRecompute, 350);
   }
 
-  function getContainerSpec(){
+  function runRecompute(){
+    if(items.length === 0){
+      els.emptyState.style.display = 'block';
+      els.results.style.display = 'none';
+      lastPlan = null;
+      return;
+    }
+
+    var containerSpec;
     if(els.modeFleet.checked){
-      return { mode:'fleet', fleet: containerFleet };
-    }
-    var ctypeKey = els.ctype.value;
-    var typeObj, maxPayload;
-    if(ctypeKey === 'CUSTOM'){
-      var L = parseFloat(els.cLen.value)||1203, W = parseFloat(els.cWid.value)||235, H = parseFloat(els.cHei.value)||269;
-      typeObj = { label: els.customLabel.value || 'Custom Container', L:L, W:W, H:H, payload: parseFloat(els.maxpayload.value)||28580 };
+      if(containerFleet.length === 0){
+        els.parseMsg.innerHTML = '<div class="error">Custom fleet mode is on but the container list is still empty — add at least one container first.</div>';
+        els.emptyState.style.display = 'block';
+        els.results.style.display = 'none';
+        lastPlan = null;
+        return;
+      }
+      containerSpec = {
+        mode: 'fleet',
+        fleet: containerFleet.map(function(f){
+          return { type:{label:f.label, L:f.L, W:f.W, H:f.H}, payload:f.payload };
+        })
+      };
     } else {
-      typeObj = CONTAINER_TYPES[ctypeKey];
+      var typeKey = els.ctype.value;
+      if(typeKey === 'CUSTOM'){
+        var cL = parseFloat(els.cLen.value), cW = parseFloat(els.cWid.value), cH = parseFloat(els.cHei.value);
+        if(!cL || !cW || !cH || cL<=0 || cW<=0 || cH<=0){
+          els.parseMsg.innerHTML = '<div class="error">Custom container dimensions are invalid — make sure length, width and height are numbers greater than 0.</div>';
+          return;
+        }
+        CONTAINER_TYPES.CUSTOM = {
+          label: els.customLabel.value || 'Custom Container',
+          L: cL, W: cW, H: cH,
+          payload: parseFloat(els.maxpayload.value) || 26000
+        };
+      }
+      var maxPayload = parseFloat(els.maxpayload.value) || CONTAINER_TYPES[typeKey].payload;
+      var maxContainers = parseInt(els.maxcontainers.value,10) || 60;
+      containerSpec = { mode:'uniform', type: CONTAINER_TYPES[typeKey], maxPayload: maxPayload, maxContainers: maxContainers };
     }
-    maxPayload = parseFloat(els.maxpayload.value) || typeObj.payload;
-    var maxContainers = parseInt(els.maxcontainers.value,10) || 60;
-    return { mode:'uniform', type:typeObj, maxPayload:maxPayload, maxContainers:maxContainers };
-  }
 
-  function recompute(){
-    if(items.length===0){
-      els.results.style.display = 'none';
-      els.emptyState.style.display = 'block';
-      lastPlan = null;
-      return;
+    var mySeq = ++computeSeq;
+    try{
+      var itemsCopy = items.map(function(it){
+        return {id:it.id, name:it.name, L:it.L, W:it.W, H:it.H, weight:it.weight, qty:it.qty, cylinder:it.cylinder, uprightOnly:it.uprightOnly, maxStack:it.maxStack, priority:it.priority, tolerance:it.tolerance, color:it.color};
+      });
+      var plan = planLoad(itemsCopy, containerSpec);
+      if(mySeq !== computeSeq) return; // a newer recompute superseded this one
+      renderResults(plan);
+    } catch(err){
+      els.parseMsg.innerHTML = '<div class="error">An error occurred while computing the load plan: ' + escapeHtml(err.message||String(err)) + '</div>';
     }
-    var spec = getContainerSpec();
-    if(spec.mode === 'fleet' && spec.fleet.length === 0){
-      els.results.style.display = 'none';
-      els.emptyState.style.display = 'block';
-      els.emptyState.innerHTML = '<div style="font-size:34px; margin-bottom:8px;">🚚</div>Add at least one container to your fleet on the left to compute the load plan.';
-      lastPlan = null;
-      return;
-    }
-    els.emptyState.innerHTML = '<div style="font-size:34px; margin-bottom:8px;">▦</div>Add an item on the left — the 3D preview and container summary will appear <b style="color:var(--ink)">automatically here</b>.';
-
-    var plan = planLoad(items, spec);
-    renderResults(plan);
-  }
-
-  // ---------- Export CSV / PDF helpers ----------
-  function fileSafeName(){
-    var name = (els.projectName.value || 'load-plan').trim();
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'load-plan';
   }
 
   els.exportBtn.addEventListener('click', function(){
-    if(!lastPlan || !lastPlan.containers.length) return;
-    var proj = (els.projectName.value || 'Untitled Project').trim();
-    var comp = (els.companyName.value || '').trim();
-
-    var rows = [
-      ['Project Name', proj],
-      ['Company Name', comp],
-      ['Export Date', new Date().toISOString().slice(0,10)],
-      [],
-      ['Container #', 'Container Type', 'Placed Item Name', 'Length cm', 'Width cm', 'Height cm', 'Weight kg', 'X cm', 'Y cm', 'Z cm']
-    ];
-
-    lastPlan.containers.forEach(function(c, cIdx){
+    if(!lastPlan) return;
+    var rows = [['Container','Item','X','Y','Z','Length','Width','Height','Weight_kg']];
+    lastPlan.containers.forEach(function(c, ci){
       c.placements.forEach(function(p){
-        rows.push([
-          cIdx+1,
-          c.type.label,
-          p.name,
-          p.ex, p.ey, p.ez,
-          p.weight,
-          Math.round(p.x), Math.round(p.y), Math.round(p.z)
-        ]);
+        rows.push([ci+1, p.name, Math.round(p.x), Math.round(p.y), Math.round(p.z), Math.round(p.ex), Math.round(p.ey), Math.round(p.ez), p.weight]);
       });
     });
-
-    var csv = rows.map(function(r){
-      return r.map(function(v){
-        v = String(v===undefined||v===null?'':v);
-        return /[,"\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
-      }).join(',');
-    }).join('\n');
-
+    var csv = rows.map(function(r){ return r.join(','); }).join('\n');
     var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url;
-    a.download = fileSafeName() + '-breakdown.csv';
+    a.href = url; a.download = fileSafeName() + '-detail.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
 
-  // ---------- PDF Export ----------
-  els.exportPdfBtn.addEventListener('click', function(){
-    if(!lastPlan || !lastPlan.containers.length) return;
-    var windowPdf = window.jspdf || (window.jspdf = {});
-    var jsPDF = windowPdf.jsPDF;
-    if(!jsPDF){ alert('jspdf library failed to load.'); return; }
+  function fileSafeName(){
+    var n = (els.projectName.value || 'load-plan').trim();
+    n = n.replace(/[^a-z0-9\-_ ]/gi, '').trim().replace(/\s+/g, '-').toLowerCase();
+    return n || 'load-plan';
+  }
 
-    var doc = new jsPDF({orientation:'p', unit:'mm', format:'a4'});
+  els.exportPdfBtn.addEventListener('click', function(){
+    if(!lastPlan) return;
+    els.exportPdfBtn.disabled = true;
+    els.exportPdfBtn.textContent = 'Building PDF…';
+    setTimeout(function(){
+      try{
+        buildPdfReport();
+      } catch(err){
+        alert('Failed to build PDF: ' + (err.message || String(err)));
+      }
+      els.exportPdfBtn.disabled = false;
+      els.exportPdfBtn.textContent = 'Export PDF Report';
+    }, 30);
+  });
+
+  function buildPdfReport(){
+    var jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
+    if(!jsPDFCtor) throw new Error('The PDF library has not loaded — check your internet connection and try again.');
+
+    var doc = new jsPDFCtor({unit:'mm', format:'a4'});
     var pageW = doc.internal.pageSize.getWidth();
     var pageH = doc.internal.pageSize.getHeight();
     var margin = 14;
     var y = margin;
 
-    // Outer framing border on every page
-    function drawPageBorder(){
-      doc.setDrawColor(210, 220, 230);
-      doc.setLineWidth(0.4);
-      doc.rect(margin-4, margin-4, pageW - (margin-4)*2, pageH - (margin-4)*2);
+    function ensureSpace(h){ if(y + h > pageH - margin){ doc.addPage(); y = margin; } }
+    function heading(text, size){
+      ensureSpace(10);
+      doc.setFont('helvetica','bold'); doc.setFontSize(size||13); doc.setTextColor(20,26,28);
+      doc.text(text, margin, y);
+      y += (size||13)*0.5 + 3;
+      doc.setFont('helvetica','normal');
+    }
+    function line(text, size, color){
+      ensureSpace(6);
+      doc.setFontSize(size||10);
+      var c = color || [40,46,45];
+      doc.setTextColor(c[0],c[1],c[2]);
+      doc.text(String(text), margin, y);
+      y += (size||10)*0.5 + 2.5;
+    }
+    function divider(){
+      ensureSpace(5);
+      doc.setDrawColor(198,209,224);
+      doc.line(margin, y, pageW-margin, y);
+      y += 5;
     }
 
-    // Letterhead header on page 1 (supports user's custom company logo)
-    function drawHeader(){
-      var leftX = margin;
-      if(companyLogo && companyLogo.dataUrl){
-        try{
-          var maxW = 45, maxH = 18;
-          var ratio = companyLogo.width / companyLogo.height;
-          var imgW = maxW, imgH = maxW / ratio;
-          if(imgH > maxH){ imgH = maxH; imgW = maxH * ratio; }
-          doc.addImage(companyLogo.dataUrl, companyLogo.format, margin, y, imgW, imgH);
-          leftX = margin + imgW + 6;
-        }catch(e){}
+    // Draws one line of text, automatically recoloring any email address or
+    // URL it contains (e.g. inside the letterhead's company address) so
+    // contact details stand out like a hyperlink, without needing any markup.
+    function drawHighlightedLine(x, yPos, text, fontSize, normalRGB, accentRGB){
+      var regex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(https?:\/\/[^\s,;]+)|(www\.[^\s,;]+)/g;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(fontSize);
+      var cursorX = x, lastIndex = 0, m;
+      while((m = regex.exec(text)) !== null){
+        if(m.index > lastIndex){
+          var plain = text.slice(lastIndex, m.index);
+          doc.setTextColor(normalRGB[0],normalRGB[1],normalRGB[2]);
+          doc.text(plain, cursorX, yPos);
+          cursorX += doc.getTextWidth(plain);
+        }
+        doc.setTextColor(accentRGB[0],accentRGB[1],accentRGB[2]);
+        doc.text(m[0], cursorX, yPos);
+        cursorX += doc.getTextWidth(m[0]);
+        lastIndex = regex.lastIndex;
+      }
+      if(lastIndex < text.length){
+        doc.setTextColor(normalRGB[0],normalRGB[1],normalRGB[2]);
+        doc.text(text.slice(lastIndex), cursorX, yPos);
+      }
+    }
+
+    // Bordered/gridded table row — draws a ruled cell around every column so the
+    // printed report reads like a proper manifest table, not just aligned text.
+    // cols: array of cell values. widths: array of column widths (mm).
+    // opts: {header:bool, size:number, swatchHue:[per-row hue or null,...]}
+    function gridRow(cols, widths, opts){
+      opts = opts || {};
+      var rowH = 6.4;
+      ensureSpace(rowH);
+      var x = margin;
+      var totalW = widths.reduce(function(a,b){return a+b;},0);
+      doc.setDrawColor(176,193,214);
+      doc.setLineWidth(0.15);
+      if(opts.header){ doc.setFillColor(222,233,246); doc.rect(margin, y-4.8, totalW, rowH, 'F'); }
+      doc.setFont('helvetica', opts.header?'bold':'normal');
+      doc.setFontSize(opts.size||9);
+      doc.setTextColor(28,34,33);
+      cols.forEach(function(c,i){
+        doc.rect(x, y-4.8, widths[i], rowH, 'S');
+        if(opts.swatchCol === i && opts.swatchHues && opts.swatchHues[i-i] !== undefined){
+          // handled separately below for the color column
+        }
+        doc.text(String(c), x+1.6, y);
+        x += widths[i];
+      });
+      y += rowH;
+      doc.setFont('helvetica','normal');
+    }
+
+    // Same as gridRow but paints a filled color swatch inside one specific column
+    // (used for the item breakdown table's "Color" column) instead of text.
+    function gridRowWithSwatch(cols, widths, swatchColIndex, hexColor, opts){
+      opts = opts || {};
+      var rowH = 6.4;
+      ensureSpace(rowH);
+      var x = margin;
+      doc.setDrawColor(176,193,214);
+      doc.setLineWidth(0.15);
+      doc.setFont('helvetica', opts.header?'bold':'normal');
+      doc.setFontSize(opts.size||9);
+      cols.forEach(function(c,i){
+        doc.setTextColor(28,34,33);
+        doc.rect(x, y-4.8, widths[i], rowH, 'S');
+        if(i === swatchColIndex && hexColor){
+          var rgb = hexToRgb(hexColor) || [140,140,140];
+          doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+          doc.rect(x+widths[i]/2-2.5, y-2.9, 5, 3.4, 'F');
+        } else {
+          doc.text(String(c), x+1.6, y);
+        }
+        x += widths[i];
+      });
+      y += rowH;
+      doc.setFont('helvetica','normal');
+    }
+
+    var projectTitle = (els.projectName.value || '').trim() || 'Untitled Project';
+    var companyNameVal = (els.companyName.value || '').trim();
+    var companyAddressVal = (els.companyAddress.value || '').trim();
+
+    // Letterhead (logo + company name/address), if provided — laid out like a
+    // formal kop surat: logo on the left, name/address centered in the block,
+    // closed off with a classic thick-then-thin double rule.
+    if(companyLogo || companyNameVal || companyAddressVal){
+      var blockH = 24;
+      var blockTop = y;
+      var textX = margin;
+
+      if(companyLogo){
+        var logoMax = 20;
+        var ratio = companyLogo.width / companyLogo.height;
+        var lw = logoMax, lh = logoMax / ratio;
+        if(lh > logoMax){ lh = logoMax; lw = logoMax * ratio; }
+        var logoY = blockTop + (blockH - lh) / 2;
+        try{ doc.addImage(companyLogo.dataUrl, companyLogo.format, margin, logoY, lw, lh); }catch(e){}
+        textX = margin + logoMax + 7;
       }
 
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.setTextColor(15, 42, 77);
-      var company = (els.companyName.value || '').trim() || 'LOAD PLAN REPORT';
-      doc.text(company, leftX, y + 5);
+      // Measure the text block first so name+address can be vertically
+      // centered as a group against the logo, rather than hugging the top.
+      var addrLines = [];
+      if(companyAddressVal){
+        doc.setFont('helvetica','normal'); doc.setFontSize(9);
+        addrLines = doc.splitTextToSize(companyAddressVal, pageW - margin - textX);
+      }
+      var nameH = companyNameVal ? 6.2 : 0;
+      var addrH = addrLines.length * 4.2;
+      var textBlockH = nameH + addrH;
+      var textY = blockTop + Math.max(2, (blockH - textBlockH) / 2) + 4.5;
 
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(90, 110, 136);
+      if(companyNameVal){
+        doc.setFont('helvetica','bold'); doc.setFontSize(14.5); doc.setTextColor(20,26,28);
+        doc.text(companyNameVal, textX, textY);
+        textY += nameH;
+      }
+      if(addrLines.length){
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(105,109,104);
+        addrLines.forEach(function(l){ drawHighlightedLine(textX, textY, l, 9, [105,109,104], [37,99,235]); textY += 4.2; });
+      }
 
-      var addrStr = (els.companyAddress.value || '').trim();
-      var addrLines = addrStr ? addrStr.split(/\r?\n/) : [];
-      var lineY = y + 10;
-
-      // Smart link detection for email/URL inside company address
-      addrLines.forEach(function(al){
-        var tokens = al.split(/(\s+)/);
-        var curX = leftX;
-        tokens.forEach(function(tok){
-          var isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tok);
-          var isUrl = /^https?:\/\/[^\s]+$/i.test(tok) || /^www\.[^\s]+$/i.test(tok);
-
-          if(isEmail || isUrl){
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(18, 59, 107);
-          } else {
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(90, 110, 136);
-          }
-          doc.text(tok, curX, lineY);
-          curX += doc.getTextWidth(tok);
-        });
-        lineY += 4;
-      });
-
-      // Right metadata column
-      var rightX = pageW - margin;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.setTextColor(18, 59, 107);
-      var projName = (els.projectName.value || 'Untitled Project').trim();
-      doc.text(projName, rightX, y + 5, {align:'right'});
-
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(90, 110, 136);
-      doc.text('Date: ' + new Date().toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'}), rightX, y + 10, {align:'right'});
-      doc.text('Containers: ' + lastPlan.containers.length, rightX, y + 14, {align:'right'});
-
-      var headerBottom = Math.max(y + 20, lineY + 2);
-      doc.setDrawColor(214, 225, 238);
-      doc.setLineWidth(0.5);
-      doc.line(margin, headerBottom, pageW - margin, headerBottom);
-      return headerBottom + 6;
+      y = blockTop + blockH + 2;
+      // classic kop-surat double rule: one thick line, a hairline gap below it
+      doc.setDrawColor(18,59,107);
+      doc.setLineWidth(0.9);
+      doc.line(margin, y, pageW - margin, y);
+      y += 1.4;
+      doc.setDrawColor(18,59,107);
+      doc.setLineWidth(0.25);
+      doc.line(margin, y, pageW - margin, y);
+      y += 7;
     }
 
-    drawPageBorder();
-    y = drawHeader();
+    // Header
+    doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(20,26,28);
+    doc.text('Load Plan Report', margin, y); y += 7;
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(18,59,107);
+    doc.text(projectTitle, margin, y); y += 6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,96,95);
+    doc.text('Generated: ' + new Date().toLocaleString('en-US'), margin, y); y += 5;
+    if(lastPlan.mode === 'fleet'){
+      doc.text('Containers: custom fleet (' + lastPlan.containers.length + ' unit(s), mixed types)', margin, y); y += 6;
+    } else if(lastPlan.containers.length){
+      var t0 = lastPlan.containers[0].type;
+      doc.text('Container type: ' + t0.label + '  (' + t0.L + '×' + t0.W + '×' + t0.H + ' cm)', margin, y); y += 6;
+    }
+    divider();
 
-    // Summary stats bar
-    doc.setFillColor(238, 243, 250);
-    doc.rect(margin, y, pageW - margin*2, 16, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(15, 42, 77);
-
-    var totalItems = 0, placedItems = 0, totalWeight = 0, totalVol = 0, usedVol = 0;
-    lastPlan.containers.forEach(function(c){
-      placedItems += c.placements.length;
-      totalWeight += c.weight;
-      totalVol += (c.type.L*c.type.W*c.type.H)/1e6;
-      c.placements.forEach(function(p){ usedVol += p.ex*p.ey*p.ez; });
-    });
-    usedVol /= 1e6;
+    var totalItems=0, placedItems=0;
+    lastPlan.containers.forEach(function(c){ placedItems += c.placements.length; });
     totalItems = placedItems + lastPlan.unplaced.length;
-    var avgVolUtil = totalVol ? (usedVol/totalVol)*100 : 0;
+    var avgUtil = 0;
+    lastPlan.containers.forEach(function(c){
+      var totalVolC = c.type.L*c.type.W*c.type.H/1e6;
+      var used=0; c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
+      avgUtil += (used/1e6)/totalVolC;
+    });
+    avgUtil = lastPlan.containers.length ? avgUtil/lastPlan.containers.length*100 : 0;
+    var totalWeight = 0; lastPlan.containers.forEach(function(c){ totalWeight += c.weight; });
 
-    var colW = (pageW - margin*2) / 4;
-    doc.text('CONTAINERS', margin + 4, y + 6);
-    doc.text('CARGO LOADED', margin + colW + 4, y + 6);
-    doc.text('VOL UTILIZATION', margin + colW*2 + 4, y + 6);
-    doc.text('TOTAL WEIGHT', margin + colW*3 + 4, y + 6);
+    heading('Summary', 12);
+    gridRow(['Containers used', String(lastPlan.containers.length)], [70,60], {size:9.5});
+    gridRow(['Items loaded', placedItems + ' / ' + totalItems], [70,60], {size:9.5});
+    gridRow(['Avg. volume utilization', fmt(avgUtil,1) + '%'], [70,60], {size:9.5});
+    gridRow(['Total weight', fmt(totalWeight,0) + ' kg'], [70,60], {size:9.5});
+    y += 3;
 
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(18, 59, 107);
-    doc.text(String(lastPlan.containers.length), margin + 4, y + 12);
-    doc.text(placedItems + ' / ' + totalItems + ' pcs', margin + colW + 4, y + 12);
-    doc.text(fmt(avgVolUtil,1) + '%', margin + colW*2 + 4, y + 12);
-    doc.text(fmt(totalWeight,0) + ' kg', margin + colW*3 + 4, y + 12);
-
-    y += 22;
-
-    // Snapshot of active 3D container view
-    if(three.renderer){
-      try{
-        var imgData = three.renderer.domElement.toDataURL('image/png');
-        var canvasW = pageW - margin*2;
-        var canvasH = 75;
-        doc.setFillColor(255,255,255);
-        doc.rect(margin, y, canvasW, canvasH, 'F');
-        doc.addImage(imgData, 'PNG', margin, y, canvasW, canvasH);
-        doc.setDrawColor(214, 225, 238);
-        doc.rect(margin, y, canvasW, canvasH, 'S');
-
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(90, 110, 136);
-        doc.text('3D PREVIEW — CONTAINER #' + (activeTab+1), margin + 3, y + 5);
-        y += canvasH + 8;
-      }catch(e){}
+    if(lastPlan.overweightList.length || lastPlan.unplaced.length){
+      heading('Warnings', 11);
+      if(lastPlan.overweightList.length){
+        line('Heavier than any container in the fleet can carry: ' + lastPlan.overweightList.join(', '), 9, [166,65,44]);
+      }
+      var unplacedByName = {};
+      lastPlan.unplaced.forEach(function(p){ unplacedByName[p.name] = (unplacedByName[p.name]||0)+1; });
+      var ul = Object.keys(unplacedByName).map(function(n){ return n + ' × ' + unplacedByName[n]; });
+      if(ul.length) line('Not loaded: ' + ul.join(', '), 9, [166,65,44]);
+      y += 2;
     }
+    divider();
 
-    // Container Breakdown Tables
-    lastPlan.containers.forEach(function(c, cIdx){
-      if(y > pageH - 45){
-        doc.addPage();
-        drawPageBorder();
-        y = margin;
+    var origTab = activeTab;
+    var imgW = pageW - margin*2;
+    var colWidths = [62,16,34,32,26]; // Item, Qty, Color, Dims, Weight
+
+    lastPlan.containers.forEach(function(c, ci){
+      heading('Container ' + (ci+1) + ' — ' + c.type.label, 13);
+      var totalVolC = c.type.L*c.type.W*c.type.H;
+      var used = 0; c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
+      var util = (used/1e6)/(totalVolC/1e6)*100;
+      line('Dimensions: ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)   ·   Volume utilization: ' + fmt(util,1) + '%   ·   Weight: ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg   ·   Items: ' + c.placements.length, 9);
+
+      if(c.placements.length && typeof THREE !== 'undefined'){
+        selectTab(ci);
+        if(three.renderer){
+          three.renderer.render(three.scene, three.camera);
+          var canvas = three.renderer.domElement;
+          var dataUrl = canvas.toDataURL('image/png');
+          var imgH = imgW * (canvas.height/canvas.width);
+          ensureSpace(imgH+4);
+          doc.addImage(dataUrl, 'PNG', margin, y, imgW, imgH);
+          y += imgH + 6;
+        }
       }
 
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(15, 42, 77);
-      doc.text('Container #' + (cIdx+1) + ' — ' + c.type.label + ' (' + c.type.L + '×' + c.type.W + '×' + c.type.H + ' cm)', margin, y);
-
-      var cVol = (c.type.L*c.type.W*c.type.H)/1e6;
-      var cUsed = 0; c.placements.forEach(function(p){ cUsed += p.ex*p.ey*p.ez; }); cUsed /= 1e6;
-      var cVUtil = (cUsed/cVol)*100;
-      var cPUtil = (c.weight/c.maxPayload)*100;
-
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(90, 110, 136);
-      doc.text('Weight: ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg (' + fmt(cPUtil,1) + '%)  |  Vol: ' + fmt(cUsed,2) + ' / ' + fmt(cVol,2) + ' m³ (' + fmt(cVUtil,1) + '%)', pageW - margin, y, {align:'right'});
-
-      y += 4;
-
-      // Table Header
-      var tableW = pageW - margin*2;
-      doc.setFillColor(238, 243, 250);
-      doc.rect(margin, y, tableW, 6, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(90, 110, 136);
-
-      var cols = [
-        {name:'ITEM NAME', w:60},
-        {name:'L×W×H (cm)', w:35},
-        {name:'WEIGHT', w:22},
-        {name:'POSITION (X,Y,Z cm)', w:45},
-        {name:'STACK', w:18}
-      ];
-
-      var curX = margin + 2;
-      cols.forEach(function(col){
-        doc.text(col.name, curX, y + 4.2);
-        curX += col.w;
-      });
-
-      y += 6;
-
-      // Consolidate identical placement entries for clean print layout
-      var summary = {};
+      var counts = {};
       c.placements.forEach(function(p){
-        var key = p.name + '|' + p.ex + 'x' + p.ey + 'x' + p.ez + '|' + p.weight;
-        if(!summary[key]){
-          summary[key] = {name:p.name, dim:p.ex+'×'+p.ey+'×'+p.ez, weight:p.weight, count:0, samplePos: Math.round(p.x)+','+Math.round(p.y)+','+Math.round(p.z)};
+        var key = p.name;
+        if(!counts[key]){
+          var col = (p.piece && p.piece.color) ? p.piece.color : '#7C8B94';
+          counts[key] = {qty:0, weight:0, dims: Math.round(p.ex)+'×'+Math.round(p.ey)+'×'+Math.round(p.ez), color:col};
         }
-        summary[key].count++;
+        counts[key].qty += 1; counts[key].weight += p.weight;
       });
-
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(15, 42, 77);
-      Object.keys(summary).forEach(function(k, rowIdx){
-        if(y > pageH - 20){
-          doc.addPage();
-          drawPageBorder();
-          y = margin;
-        }
-
-        var row = summary[k];
-        if(rowIdx % 2 === 1){
-          doc.setFillColor(248, 250, 252);
-          doc.rect(margin, y, tableW, 5.5, 'F');
-        }
-
-        var rx = margin + 2;
-        doc.text(row.name + ' (×' + row.count + ')', rx, y + 3.8); rx += cols[0].w;
-        doc.text(row.dim, rx, y + 3.8); rx += cols[1].w;
-        doc.text(row.weight + ' kg', rx, y + 3.8); rx += cols[2].w;
-        doc.text('e.g. ' + row.samplePos, rx, y + 3.8); rx += cols[3].w;
-        doc.text('Ok', rx, y + 3.8);
-
-        doc.setDrawColor(230, 235, 242);
-        doc.line(margin, y + 5.5, margin + tableW, y + 5.5);
-        y += 5.5;
+      gridRow(['Item','Qty','Color','Dims (cm)','Weight (kg)'], colWidths, {header:true, size:9});
+      Object.keys(counts).forEach(function(name){
+        var row = counts[name];
+        gridRowWithSwatch([name, String(row.qty), '', row.dims, fmt(row.weight,0)], colWidths, 2, row.color, {size:9});
       });
-
-      y += 6;
+      y += 4;
+      divider();
     });
 
-    // Unplaced items warning section
-    if(lastPlan.unplaced.length){
-      if(y > pageH - 35){
-        doc.addPage();
-        drawPageBorder();
-        y = margin;
-      }
-
-      doc.setFillColor(253, 237, 237);
-      doc.rect(margin, y, pageW - margin*2, 6, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(178, 58, 46);
-      doc.text('UNPLACED CARGO WARNING (' + lastPlan.unplaced.length + ' pcs not loaded)', margin + 3, y + 4.2);
-      y += 8;
-
-      var unplacedSummary = {};
-      lastPlan.unplaced.forEach(function(u){
-        unplacedSummary[u.name] = (unplacedSummary[u.name]||0) + 1;
-      });
-
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(178, 58, 46);
-      Object.keys(unplacedSummary).forEach(function(uname){
-        doc.text('• ' + uname + ' — ' + unplacedSummary[uname] + ' unit(s) skipped (exceeds dimensions or max weight limit)', margin + 4, y);
-        y += 4.5;
-      });
-      y += 4;
-    }
-
-    // Page footer numbering
-    var pageCount = doc.internal.getNumberOfPages();
-    for(var i=1; i<=pageCount; i++){
-      doc.setPage(i);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(120, 130, 140);
-      doc.text('Generated by Load Plan Builder  |  Page ' + i + ' of ' + pageCount, pageW/2, pageH - 6, {align:'center'});
-    }
-
+    selectTab(origTab);
     doc.save(fileSafeName() + '-report.pdf');
-  });
-
-  function escapeHtml(str){
-    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
 })();
