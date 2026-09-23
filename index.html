@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
-<title>LPB BETA 1.0</title>
+<title>Load Plan Builder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -11,52 +11,52 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root{
-    --bg: #F4F0E4;
-    --panel: #FCFAF3;
-    --panel-2: #EFE9D8;
-    --ink: #1E2A2E;
-    --ink-soft: #55605F;
-    --line: #C9C0A6;
-    --amber: #C8862A;
-    --amber-ink: #6b4413;
-    --teal: #235248;
-    --teal-soft: #E1EBE6;
-    --red: #A6412C;
-    --red-soft: #F4E1DB;
+    --bg: #FFFFFF;
+    --panel: #FFFFFF;
+    --panel-2: #EEF3FA;
+    --ink: #0F2A4D;
+    --ink-soft: #5A6E88;
+    --line: #D6E1EE;
+    --amber: #123B6B;
+    --amber-ink: #0A1E3A;
+    --teal: #1B6E8C;
+    --teal-soft: #E3F0F6;
+    --red: #B23A2E;
+    --red-soft: #FBEAE7;
     --shadow: none;
-    --scroll-track: #E7E0CC;
+    --scroll-track: #EAF0F8;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg: #10181C;
-      --panel: #17232A;
-      --panel-2: #1E2E36;
-      --ink: #E9F0EC;
-      --ink-soft: #9AACA9;
-      --line: #2E4048;
-      --amber: #E3A552;
-      --amber-ink: #F4D9AC;
-      --teal: #5FA893;
-      --teal-soft: #1B322F;
+      --bg: #0A1930;
+      --panel: #102544;
+      --panel-2: #16305A;
+      --ink: #EAF1FB;
+      --ink-soft: #9AB2D2;
+      --line: #274571;
+      --amber: #5B9BF0;
+      --amber-ink: #C6DDFB;
+      --teal: #56AEDB;
+      --teal-soft: #133248;
       --red: #E08066;
       --red-soft: #3A2019;
-      --scroll-track: #1E2E36;
+      --scroll-track: #16305A;
     }
   }
   :root[data-theme="dark"]{
-    --bg: #10181C;
-    --panel: #17232A;
-    --panel-2: #1E2E36;
-    --ink: #E9F0EC;
-    --ink-soft: #9AACA9;
-    --line: #2E4048;
-    --amber: #E3A552;
-    --amber-ink: #F4D9AC;
-    --teal: #5FA893;
-    --teal-soft: #1B322F;
+    --bg: #0A1930;
+    --panel: #102544;
+    --panel-2: #16305A;
+    --ink: #EAF1FB;
+    --ink-soft: #9AB2D2;
+    --line: #274571;
+    --amber: #5B9BF0;
+    --amber-ink: #C6DDFB;
+    --teal: #56AEDB;
+    --teal-soft: #133248;
     --red: #E08066;
     --red-soft: #3A2019;
-    --scroll-track: #1E2E36;
+    --scroll-track: #16305A;
   }
 
   *{box-sizing:border-box;}
@@ -110,22 +110,13 @@
     gap: 18px;
     align-items:start;
   }
+  /* Grid items default to min-width:auto, which lets a wide unwrapped table
+     (or any long content) blow out the whole track — and on mobile, the
+     entire page viewport with it. min-width:0 lets each column shrink and
+     hand overflow off to its own internal scrollbars (.tablewrap) instead. */
+  .grid > div{ min-width:0; }
   @media (max-width: 880px){
     .grid{grid-template-columns: 1fr;}
-  }
-  @media (max-width: 600px){
-    .wrap{padding:12px 10px 40px;}
-    header.top{flex-direction:column; align-items:flex-start; padding:14px 16px; gap:8px;}
-    header.top .stamp{text-align:left; max-width:100%;}
-    .projectNameInput{font-size:20px;}
-    .panel{padding:14px 14px;}
-    .row3{grid-template-columns:1fr 1fr 1fr; gap:6px;}
-    .row2{gap:8px;}
-    #canvasHost{height:300px;}
-    .stats{grid-template-columns:repeat(2,1fr);}
-    .btnrow button{flex:1 1 auto;}
-    .tab{padding:8px 10px; font-size:11.5px;}
-    body{font-size:13px;}
   }
 
   .panel{
@@ -159,16 +150,17 @@
 
   button{
     font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13.5px;
-    background:var(--ink); color:var(--panel); border:1px solid var(--ink);
+    background:var(--amber); color:#fff; border:1px solid var(--amber);
     padding:10px 15px; cursor:pointer;
   }
-  button:hover{ filter:brightness(1.12); }
+  button:hover{ filter:brightness(1.18); }
   button:active{ transform: translateY(1px); }
   button.secondary{
-    background:transparent; color:var(--ink); border:1px solid var(--line);
+    background:var(--panel); color:var(--amber); border:1.5px solid var(--amber);
   }
+  button.secondary:hover{ background:var(--panel-2); filter:none; }
   button.accent{
-    background:var(--amber); color:#241505; border:1px solid var(--amber);
+    background:var(--amber); color:#fff; border:1px solid var(--amber);
   }
   button:disabled{opacity:.45; cursor:not-allowed;}
   .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
@@ -181,7 +173,7 @@
   table{width:100%; border-collapse:collapse; font-size:12.5px;}
   th,td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); white-space:nowrap;}
   th{color:var(--ink-soft); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em;}
-  .tablewrap{overflow-x:auto; border:1px solid var(--line);}
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); min-width:0; max-width:100%;}
 
   #itemsPanel .tablewrap{ max-height:420px; overflow-y:auto; }
   table.wide-table td input[type=text]{ width:170px; padding:6px 7px; font-size:12.5px; }
@@ -285,12 +277,76 @@
   .loginCard label{ margin-top:12px; }
   .loginCard input{ font-family:'IBM Plex Mono',monospace; }
   .loginError{ font-size:11.5px; color:var(--red); min-height:16px; margin-top:10px; text-align:center; }
+  /* ===================================================================
+     Mobile overrides — deliberately placed last in the stylesheet so they
+     win the CSS cascade over every rule above, regardless of selector
+     order (same-specificity rules obey source order, not media-query
+     position). Never define #id / .class rules for small screens earlier
+     in this file — they'll silently lose to a later non-mobile rule.
+     =================================================================== */
+  @media (max-width: 880px){
+    .grid{grid-template-columns: 1fr;}
+  }
+  @media (max-width: 600px){
+    .wrap{padding:10px 10px 40px;}
+    header.top{flex-direction:column; align-items:flex-start; padding:14px 16px; gap:8px;}
+    header.top .stamp{text-align:left; max-width:100%;}
+    .projectNameInput{font-size:19px;}
+    .panel{padding:14px 14px;}
+    .row3{grid-template-columns:1fr 1fr 1fr; gap:6px;}
+    .row2{grid-template-columns:1fr 1fr; gap:8px;}
+    #canvasHost{height:280px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .stat{padding:12px 12px;}
+    .stat .v{font-size:22px;}
+    .btnrow{gap:6px;}
+    .btnrow button{flex:1 1 auto; min-height:40px;}
+    .tab{padding:9px 10px; font-size:11.5px;}
+    body{font-size:13px;}
+
+    /* Comfortable tap targets: buttons, checkboxes and the color swatch
+       button all grow slightly so they're easy to hit with a thumb. */
+    button{ min-height:40px; padding:9px 13px; }
+    .chk{ min-height:32px; }
+    .chk input[type=checkbox]{ width:18px; height:18px; }
+    .colorSwatch{ width:28px; height:28px; }
+    .rmBtn{ min-height:36px; }
+
+    /* Item table: shrink the per-cell inputs so more columns are visible
+       per horizontal swipe, and let touch-scrolling feel native. */
+    table.wide-table td input[type=text]{ width:130px; }
+    table.wide-table td input[type=number]{ width:52px; font-size:12px; }
+    .tablewrap{ -webkit-overflow-scrolling:touch; }
+    #itemsPanel .tablewrap{ max-height:320px; }
+
+    /* Color picker popover: cap width to the viewport and center it rather
+       than anchoring next to the (often narrow-column) swatch button, so
+       it never runs off-screen on a phone. */
+    .colorPopover{ width:min(240px, calc(100vw - 24px)) !important; }
+
+    /* Letterhead logo preview and the fixed dimension-line labels in the
+       3D view stay legible without eating too much of a short viewport. */
+    #logoPreview{ max-width:130px; max-height:56px; }
+
+    .loginCard{ width:100%; max-width:320px; padding:26px 22px; }
+    .loginTitle{ font-size:19px; }
+    button#loginBtn{ min-height:44px; }
+
+    /* Number inputs: iOS/Android show a numeric keypad instead of the full
+       keyboard, which is what people actually want for dimensions/weights. */
+    input[type=number]{ font-size:13px; }
+  }
+  @media (max-width: 600px) and (hover: none) and (pointer: coarse){
+    /* Touch devices only: three.js orbit drag already uses touch handlers,
+       this just gives the drag hint copy more breathing room under the tabs. */
+    .viewerbar{ flex-direction:column; align-items:flex-start; gap:6px; }
+  }
 </style>
 </head>
 <body>
 <div id="loginGate" class="loginGate">
   <div class="loginCard">
-    <div class="loginTitle">RUJHAG PECHEL</div>
+    <div class="loginTitle">📦 Load Plan Builder</div>
     <div class="loginSub">Sign in to continue</div>
     <label for="loginUser">Username</label>
     <input type="text" id="loginUser" autocomplete="username">
@@ -304,10 +360,10 @@
 
   <header class="top">
     <div>
-      <div class="tag">Name of the Project</div>
+      <div class="tag">CARGO PLANNING TOOL — v1</div>
       <input type="text" id="projectName" class="projectNameInput" placeholder="Untitled Project" maxlength="80">
     </div>
-    <div class="stamp">LPB (Load Plan Builder) by KODOMOOO</b></div>
+    <div class="stamp">Column format: <b>Product Name · L/W/H cm · Unit Weight kg · Quantity · Cylinder · Upright Only · Max Stack · Priority · Tolerance cm</b></div>
   </header>
 
   <div class="grid">
@@ -315,12 +371,12 @@
     <div>
       <div class="panel">
         <h2>Letterhead <span class="n">for PDF report</span></h2>
-        <label for="companyName">Company Name</label>
+        <label for="companyName">Company name</label>
         <input type="text" id="companyName" placeholder="Your Company Name">
-        <label for="companyAddress">Company Description</label>
+        <label for="companyAddress">Company address</label>
         <textarea id="companyAddress" placeholder="Street address, city, country&#10;Phone / email / website" style="min-height:52px;"></textarea>
-        <div class="hint"></div>
-        <label style="margin-top:12px;">Company Logo</label>
+        <div class="hint">Any email address or website you type here is automatically highlighted in a different color on the PDF, like a link.</div>
+        <label style="margin-top:12px;">Company logo</label>
         <div class="btnrow">
           <button type="button" class="secondary" id="uploadLogoBtn">Upload Logo</button>
           <input type="file" id="logoInput" accept="image/png,image/jpeg" style="display:none;">
@@ -330,7 +386,7 @@
           <img id="logoPreview" alt="Logo preview">
         </div>
         <div id="logoMsg"></div>
-        <div class="hint"></div>
+        <div class="hint">Appears in the top-left corner of the PDF report, like a company letterhead. Stored only in this browser.</div>
       </div>
 
       <div class="panel">
@@ -378,7 +434,7 @@
               <input type="number" id="maxcontainers" value="60">
             </div>
           </div>
-          <div class="hint"></div>
+          <div class="hint">Every container opened will use this same type &amp; size.</div>
         </div>
 
         <div id="fleetSettings" style="display:none;">
@@ -407,7 +463,7 @@
           <div class="hint" id="fleetEmptyHint">No containers added to the fleet yet.</div>
         </div>
 
-        <div class="hint"></div>
+        <div class="hint">Match the weight capacity to your forwarder / shipping line's actual specs. For custom sizes, enter the real interior (not exterior) dimensions.</div>
       </div>
 
       <div class="panel">
@@ -466,7 +522,7 @@
 
       <div class="panel">
         <h2>Bulk CSV Import <span class="n">optional</span></h2>
-        <label for="sampleTemplate">Sample Template</label>
+        <label for="sampleTemplate">Sample template</label>
         <select id="sampleTemplate">
           <option value="mixed">Mixed Cargo</option>
           <option value="pallets">Palletized Goods</option>
@@ -475,7 +531,7 @@
         <div class="btnrow" style="margin-top:8px;">
           <button type="button" class="secondary" id="downloadSampleBtn">↓ Download Example CSV File</button>
         </div>
-        <div class="hint" style="margin-top:2px;"></div>
+        <div class="hint" style="margin-top:2px;">Downloads the selected template as a real .csv file — handy for test-driving "Upload CSV File" below, or as a starting point to edit in a spreadsheet.</div>
         <label for="csvInput" style="margin-top:12px;">Paste CSV data</label>
         <textarea id="csvInput" placeholder="Product Name,Length cm,Width cm,Height cm,Unit Weight kg,Quantity,Cylinder,Upright Only,Max Stack,Priority,Tolerance cm
 Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
@@ -488,7 +544,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         <div id="parseMsg"></div>
       </div>
 
-      <div class="hint" style="text-align:center; margin-top:4px;"></div>
+      <div class="hint" style="text-align:center; margin-top:4px;">The 3D preview on the right updates automatically whenever the item list or container settings change.<br>A simplified planning aid — not a substitute for certified cargo engineering calculations.</div>
     </div>
 
     <!-- RIGHT: RESULTS -->
@@ -545,10 +601,10 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     <div class="btnrow">
       <button type="button" class="secondary" id="saveListBtn">Save Item List (CSV)</button>
     </div>
-    <div class="hint"></div>
+    <div class="hint">Saves your work-in-progress list (including colors) as a CSV you can re-upload later via "Upload CSV File" / "Import to List" to pick up exactly where you left off.</div>
   </div>
 
-  <footer class="note">© 2021 - 2026 KODOMOOO. All rights reserved.<br>Results are indicative for planning purposes; re-validate for high-value or irregular loads.</footer>
+  <footer class="note">Load Plan Builder — optimized 3D bin-packing algorithm (best-fit extreme-point + consolidation).<br>Results are indicative for planning purposes; re-validate for high-value or irregular loads.</footer>
 
   <div class="colorPopover" id="colorPopover" style="display:none;">
     <div class="wheelWrap">
@@ -576,14 +632,19 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   "use strict";
 
   // =====================================================================
-  // ACCESS GATE — edit the two lines below to change the sign-in username
-  // and password. This runs entirely in the browser (no server), so it's a
-  // simple front door, not real security — anyone opening dev tools/view
-  // source can see or bypass it. Good enough to keep casual/accidental
-  // access out, not for protecting sensitive data.
+  // ACCESS GATE — edit the list below to change who can sign in. Each line
+  // is one person's username + password; add more by copying a line and
+  // changing the values (don't forget the comma between entries). This runs
+  // entirely in the browser (no server), so it's a simple front door, not
+  // real security — anyone opening dev tools/view source can see or bypass
+  // it. Good enough to keep casual/accidental access out, not for
+  // protecting sensitive data.
   // =====================================================================
-  var APP_USERNAME = "admin";
-  var APP_PASSWORD = "admin";
+  var APP_USERS = [
+    { username: "Dany", password: "Dany" }
+    // , { username: "Budi", password: "budi123" }
+    // , { username: "Siti", password: "siti456" }
+  ];
   // =====================================================================
 
   (function loginGate(){
@@ -629,7 +690,8 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
 
     function tryLogin(){
       if(updateLockUI()) return;
-      if(userInput.value === APP_USERNAME && passInput.value === APP_PASSWORD){
+      var validUser = APP_USERS.some(function(u){ return u.username === userInput.value && u.password === passInput.value; });
+      if(validUser){
         setFailCount(0); setLockUntil(0);
         try{ sessionStorage.setItem('lpb_authed','1'); }catch(e){}
         gate.style.display = 'none';
@@ -1183,14 +1245,16 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     els.hexInput.value = rgbToHex(rgb);
 
     var rect = anchorEl.getBoundingClientRect();
-    var popW = 200;
+    els.colorPopover.style.left = '0px'; // reset before measuring, so its own width reflects current CSS (desktop 200px vs the mobile min(240px, 100vw-24px) rule)
+    els.colorPopover.style.display = 'block';
+    var popW = els.colorPopover.getBoundingClientRect().width || 200;
+    var popH = els.colorPopover.getBoundingClientRect().height || 340;
     var left = Math.min(window.innerWidth - popW - 12, rect.left);
     left = Math.max(8, left);
     var top = rect.bottom + 8;
-    if(top + 340 > window.innerHeight){ top = Math.max(8, rect.top - 340); }
+    if(top + popH > window.innerHeight){ top = Math.max(8, rect.top - popH); }
     els.colorPopover.style.left = left + 'px';
     els.colorPopover.style.top = top + 'px';
-    els.colorPopover.style.display = 'block';
   }
 
   function closeColorPicker(){
@@ -1688,8 +1752,8 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     canvas.width = Math.ceil(textWidth) + 28;
     canvas.height = fontSize + 22;
     ctx.font = 'bold ' + fontSize + 'px Arial, sans-serif';
-    ctx.fillStyle = 'rgba(252,250,243,0.94)';
-    ctx.strokeStyle = 'rgba(120,110,90,0.9)';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.strokeStyle = 'rgba(18,59,107,0.9)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.rect(1,1,canvas.width-2,canvas.height-2);
@@ -1710,7 +1774,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // reads clearly against the box itself. sizeScale keeps the tick/label size
   // proportional across very small and very large containers.
   function addDimensionLine(scene, p1, p2, label, tickDir, sizeScale){
-    var mat = new THREE.LineBasicMaterial({color:0x8A7A55, depthTest:false, transparent:true, opacity:0.85});
+    var mat = new THREE.LineBasicMaterial({color:0x123B6B, depthTest:false, transparent:true, opacity:0.85});
     var pts = [new THREE.Vector3(p1[0],p1[1],p1[2]), new THREE.Vector3(p2[0],p2[1],p2[2])];
     var line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat);
     line.renderOrder = 998;
@@ -1820,7 +1884,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
 
     var boxGeo = new THREE.BoxGeometry(L,H,W);
     var edges = new THREE.EdgesGeometry(boxGeo);
-    var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color:0xC8862A, linewidth:1}));
+    var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color:0x123B6B, linewidth:1}));
     line.position.set(cx,cy,cz);
     three.scene.add(line);
 
@@ -2121,7 +2185,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     }
     function divider(){
       ensureSpace(5);
-      doc.setDrawColor(210,205,190);
+      doc.setDrawColor(198,209,224);
       doc.line(margin, y, pageW-margin, y);
       y += 5;
     }
@@ -2162,9 +2226,9 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       ensureSpace(rowH);
       var x = margin;
       var totalW = widths.reduce(function(a,b){return a+b;},0);
-      doc.setDrawColor(190,184,166);
+      doc.setDrawColor(176,193,214);
       doc.setLineWidth(0.15);
-      if(opts.header){ doc.setFillColor(228,220,196); doc.rect(margin, y-4.8, totalW, rowH, 'F'); }
+      if(opts.header){ doc.setFillColor(222,233,246); doc.rect(margin, y-4.8, totalW, rowH, 'F'); }
       doc.setFont('helvetica', opts.header?'bold':'normal');
       doc.setFontSize(opts.size||9);
       doc.setTextColor(28,34,33);
@@ -2187,7 +2251,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       var rowH = 6.4;
       ensureSpace(rowH);
       var x = margin;
-      doc.setDrawColor(190,184,166);
+      doc.setDrawColor(176,193,214);
       doc.setLineWidth(0.15);
       doc.setFont('helvetica', opts.header?'bold':'normal');
       doc.setFontSize(opts.size||9);
@@ -2253,11 +2317,11 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
 
       y = blockTop + blockH + 2;
       // classic kop-surat double rule: one thick line, a hairline gap below it
-      doc.setDrawColor(35,82,72);
+      doc.setDrawColor(18,59,107);
       doc.setLineWidth(0.9);
       doc.line(margin, y, pageW - margin, y);
       y += 1.4;
-      doc.setDrawColor(35,82,72);
+      doc.setDrawColor(18,59,107);
       doc.setLineWidth(0.25);
       doc.line(margin, y, pageW - margin, y);
       y += 7;
@@ -2266,7 +2330,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     // Header
     doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(20,26,28);
     doc.text('Load Plan Report', margin, y); y += 7;
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(90,68,25);
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(18,59,107);
     doc.text(projectTitle, margin, y); y += 6;
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,96,95);
     doc.text('Generated: ' + new Date().toLocaleString('en-US'), margin, y); y += 5;
