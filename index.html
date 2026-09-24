@@ -63,11 +63,21 @@
      Each overrides just the accent pair (--amber / --amber-ink); everything
      else (white/near-white base, dark-mode base) stays as set above. Navy is
      the default and needs no override — it's what :root already defines. */
-  :root[data-color="rose"]{ --amber:#A8285C; --amber-ink:#5C1633; }
-  :root[data-theme="dark"][data-color="rose"]{ --amber:#F27CAE; --amber-ink:#FBD9E7; }
+  :root[data-color="rose"]{ --amber:#D6568C; --amber-ink:#8A2F55; }
+  :root[data-theme="dark"][data-color="rose"]{
+    --bg:#210F1B; --panel:#33172A; --panel-2:#452038;
+    --ink:#FBEAF1; --ink-soft:#D9A9C1; --line:#5C2A48;
+    --amber:#F5A8C9; --amber-ink:#FDE0EC;
+    --teal:#5FBEA6; --teal-soft:#173430; --red:#E8927E; --red-soft:#3E2019; --scroll-track:#452038;
+  }
 
   :root[data-color="forest"]{ --amber:#1E5631; --amber-ink:#0E3320; }
-  :root[data-theme="dark"][data-color="forest"]{ --amber:#5FCB8C; --amber-ink:#D3F3E0; }
+  :root[data-theme="dark"][data-color="forest"]{
+    --bg:#0B1F16; --panel:#0F2B1F; --panel-2:#15392A;
+    --ink:#E8F5EE; --ink-soft:#9FC9B0; --line:#1F4A36;
+    --amber:#5FCB8C; --amber-ink:#D3F3E0;
+    --teal:#5FA9DB; --teal-soft:#12324A; --red:#E8927E; --red-soft:#3E2019; --scroll-track:#15392A;
+  }
 
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -89,6 +99,14 @@
   .mono, table, input, select, textarea, button, .stamp, .stat .v, .hint, .n, .flagbadge{ font-family:'IBM Plex Mono', ui-monospace, monospace; }
 
   .wrap{max-width:1360px; margin:0 auto; padding:22px 22px 60px;}
+  .wrap.appReveal{ animation: appFadeIn .55s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes appFadeIn{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .wrap.appReveal{ animation:none; }
+  }
 
   header.top{
     display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
@@ -249,6 +267,11 @@
     color:var(--ink); background:var(--panel-2); font-weight:600;
   }
   .dragHint{ font-family:'Space Grotesk',sans-serif; }
+  .dragHint .hintTouch{ display:none; }
+  @media (hover: none) and (pointer: coarse){
+    .dragHint .hintDesktop{ display:none; }
+    .dragHint .hintTouch{ display:inline; }
+  }
   .colorSwatch{ width:22px; height:22px; border-radius:6px; border:1px solid var(--line); flex-shrink:0; display:inline-block; cursor:pointer; padding:0; transition: transform .1s ease; }
   #logoPreviewWrap{ background:#fff; border:1px solid var(--line); border-radius:8px; padding:8px; display:inline-block; }
   #logoPreview{ display:block; max-width:160px; max-height:70px; }
@@ -294,11 +317,22 @@
   .loginGate{
     position:fixed; inset:0; z-index:99999; background:var(--bg);
     display:flex; align-items:center; justify-content:center; padding:20px;
-    transition: background-color .25s ease;
+    transition: background-color .25s ease, opacity .45s ease, transform .45s ease;
+    opacity:1;
   }
+  .loginGate.gateHiding{ opacity:0; transform:scale(1.03); pointer-events:none; }
   .loginCard{
     background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:34px 30px; width:300px; max-width:100%;
     box-shadow:0 16px 40px rgba(10,25,48,.16), 0 2px 8px rgba(10,25,48,.08);
+    animation: loginCardIn .55s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes loginCardIn{
+    from{ opacity:0; transform:translateY(22px) scale(.96); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .loginCard{ animation:none; }
+    .loginGate{ transition:none; }
   }
   .loginTitle{ font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:700; color:var(--ink); text-align:center; }
   .loginSub{ font-size:12px; color:var(--ink-soft); text-align:center; margin:4px 0 20px; }
@@ -476,6 +510,7 @@
             </div>
             <label for="customLabel">Container name/label</label>
             <input type="text" id="customLabel" value="Custom Container">
+            <div class="hint volLive" id="customVolDisplay">Volume: — m³</div>
           </div>
 
           <div class="row2">
@@ -618,7 +653,10 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
             <div id="canvasHost"></div>
             <div class="viewerbar">
               <div class="legend" id="legend"></div>
-              <div class="dragHint">drag = rotate · scroll = zoom</div>
+              <div class="dragHint">
+                <span class="hintDesktop">left-drag = pan · right-drag = rotate · scroll = zoom</span>
+                <span class="hintTouch">drag = rotate · two fingers = pan/zoom</span>
+              </div>
             </div>
           </div>
         </div>
@@ -687,7 +725,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   <div class="ctpTitle">Color theme</div>
   <div class="ctpOptions" id="ctpOptions">
     <button type="button" class="ctpOption" data-color="navy"><span class="ctpSwatch" style="background:#123B6B"></span>Navy Blue</button>
-    <button type="button" class="ctpOption" data-color="rose"><span class="ctpSwatch" style="background:#A8285C"></span>Rose</button>
+    <button type="button" class="ctpOption" data-color="rose"><span class="ctpSwatch" style="background:#D6568C"></span>Rose</button>
     <button type="button" class="ctpOption" data-color="forest"><span class="ctpSwatch" style="background:#1E5631"></span>Forest Green</button>
   </div>
 </div>
@@ -773,7 +811,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // protecting sensitive data.
   // =====================================================================
   var APP_USERS = [
-    { username: "admin", password: "admin" }
+    { username: "Dany", password: "Dany" }
     // , { username: "Budi", password: "budi123" }
     // , { username: "Siti", password: "siti456" }
   ];
@@ -820,13 +858,24 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       return false;
     }
 
+    function hideGate(animated){
+      if(animated){
+        gate.classList.add('gateHiding');
+        var wrap = document.querySelector('.wrap');
+        if(wrap) wrap.classList.add('appReveal');
+        setTimeout(function(){ gate.style.display = 'none'; }, 460);
+      } else {
+        gate.style.display = 'none';
+      }
+    }
+
     function tryLogin(){
       if(updateLockUI()) return;
       var validUser = APP_USERS.some(function(u){ return u.username === userInput.value && u.password === passInput.value; });
       if(validUser){
         setFailCount(0); setLockUntil(0);
         try{ sessionStorage.setItem('lpb_authed','1'); }catch(e){}
-        gate.style.display = 'none';
+        hideGate(true);
       } else {
         var fails = getFailCount() + 1;
         if(fails >= MAX_ATTEMPTS){
@@ -850,7 +899,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     var isAuthed = false;
     try{ isAuthed = sessionStorage.getItem('lpb_authed') === '1'; }catch(e){}
     if(isAuthed && !isLocked){
-      gate.style.display = 'none';
+      hideGate(false); // already signed in this session — skip the reveal animation, just show the app
     } else if(!isLocked){
       userInput.focus();
     }
@@ -2134,6 +2183,13 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     if(three.anim) cancelAnimationFrame(three.anim);
     (function loop(){
       three.anim = requestAnimationFrame(loop);
+      // Gentle idle spin when nobody's touched the view for a bit — stops the
+      // preview feeling like a static screenshot without being distracting;
+      // any drag/wheel/touch (markInteraction) resets the idle clock instantly.
+      if(!dragging && Date.now() - lastInteraction > 1600){
+        camState.theta += 0.0022;
+        updateCamera();
+      }
       three.renderer.render(three.scene, three.camera);
     })();
   }
