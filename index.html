@@ -682,6 +682,16 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   </div>
 </div>
 
+<button type="button" id="colorThemeFab" class="colorThemeFab" title="Choose color theme" aria-label="Choose color theme">🎨</button>
+<div class="colorThemePopover" id="colorThemePopover" style="display:none;">
+  <div class="ctpTitle">Color theme</div>
+  <div class="ctpOptions" id="ctpOptions">
+    <button type="button" class="ctpOption" data-color="navy"><span class="ctpSwatch" style="background:#123B6B"></span>Navy Blue</button>
+    <button type="button" class="ctpOption" data-color="rose"><span class="ctpSwatch" style="background:#A8285C"></span>Rose</button>
+    <button type="button" class="ctpOption" data-color="forest"><span class="ctpSwatch" style="background:#1E5631"></span>Forest Green</button>
+  </div>
+</div>
+
 <script>
 (function(){
   "use strict";
@@ -715,6 +725,44 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     }
   })();
 
+  // ---------- Color theme (accent) picker ----------
+  (function colorThemePicker(){
+    var fab = document.getElementById('colorThemeFab');
+    var pop = document.getElementById('colorThemePopover');
+    var options = document.getElementById('ctpOptions');
+    var root = document.documentElement;
+    if(!fab) return;
+
+    function applyColor(name){
+      if(name === 'navy'){ root.removeAttribute('data-color'); } // navy is the unstyled default
+      else { root.setAttribute('data-color', name); }
+      try{ localStorage.setItem('lpb_colortheme', name); }catch(e){}
+      Array.prototype.forEach.call(options.children, function(btn){
+        btn.classList.toggle('active', btn.getAttribute('data-color') === name);
+      });
+    }
+
+    var saved = 'navy';
+    try{ saved = localStorage.getItem('lpb_colortheme') || 'navy'; }catch(e){}
+    applyColor(saved);
+
+    fab.addEventListener('click', function(e){
+      e.stopPropagation();
+      pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
+    });
+    options.addEventListener('click', function(e){
+      var btn = e.target.closest('.ctpOption');
+      if(!btn) return;
+      applyColor(btn.getAttribute('data-color'));
+      pop.style.display = 'none';
+    });
+    document.addEventListener('mousedown', function(e){
+      if(pop.style.display === 'none') return;
+      if(pop.contains(e.target) || e.target === fab) return;
+      pop.style.display = 'none';
+    });
+  })();
+
   // =====================================================================
   // ACCESS GATE — edit the list below to change who can sign in. Each line
   // is one person's username + password; add more by copying a line and
@@ -725,7 +773,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // protecting sensitive data.
   // =====================================================================
   var APP_USERS = [
-    { username: "wawanbegal", password: "1234" }
+    { username: "Dany", password: "Dany" }
     // , { username: "Budi", password: "budi123" }
     // , { username: "Siti", password: "siti456" }
   ];
@@ -1835,7 +1883,22 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // ---------- 3D viewer ----------
   var three = { renderer:null, scene:null, camera:null, anim:null };
   var camState = { theta: 0.9, phi: 1.1, radius: 1400, target: null };
-  var dragging = false, lastX=0, lastY=0;
+  var dragging = false, dragButton = 0, lastX=0, lastY=0;
+  var lastInteraction = Date.now();
+  function markInteraction(){ lastInteraction = Date.now(); }
+
+  // Shifts the orbit target sideways/up-down in the camera's own screen
+  // plane, so a pan drag always feels like "grabbing the container" rather
+  // than sliding along the fixed world axes.
+  function panCamera(dx, dy){
+    if(!camState.target || !three.camera) return;
+    var forward = new THREE.Vector3().subVectors(camState.target, three.camera.position).normalize();
+    var right = new THREE.Vector3().crossVectors(forward, three.camera.up).normalize();
+    var up = new THREE.Vector3().crossVectors(right, forward).normalize();
+    var panScale = camState.radius * 0.0012;
+    camState.target.addScaledVector(right, -dx*panScale);
+    camState.target.addScaledVector(up, dy*panScale);
+  }
 
   // Small billboard text label (always faces the camera) rendered via a canvas
   // texture on a THREE.Sprite — used for the dimension-line measurements below.
@@ -1907,32 +1970,74 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     three.camera = new THREE.PerspectiveCamera(45, 1, 1, 20000);
     three.scene = new THREE.Scene();
 
-    els.canvasHost.addEventListener('mousedown', function(e){ dragging=true; lastX=e.clientX; lastY=e.clientY; });
+    els.canvasHost.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+    els.canvasHost.addEventListener('mousedown', function(e){
+      dragging=true; dragButton=e.button; lastX=e.clientX; lastY=e.clientY; markInteraction();
+    });
     window.addEventListener('mouseup', function(){ dragging=false; });
     window.addEventListener('mousemove', function(e){
       if(!dragging) return;
       var dx = e.clientX-lastX, dy = e.clientY-lastY;
       lastX=e.clientX; lastY=e.clientY;
-      camState.theta -= dx*0.006;
-      camState.phi = Math.max(0.15, Math.min(Math.PI-0.15, camState.phi - dy*0.006));
+      markInteraction();
+      if(dragButton === 2){
+        // right-click drag: rotate/orbit
+        camState.theta -= dx*0.006;
+        camState.phi = Math.max(0.15, Math.min(Math.PI-0.15, camState.phi - dy*0.006));
+      } else {
+        // left-click drag: pan
+        panCamera(dx, dy);
+      }
       updateCamera();
     });
     els.canvasHost.addEventListener('wheel', function(e){
       e.preventDefault();
+      markInteraction();
       camState.radius = Math.max(200, Math.min(6000, camState.radius * (1 + e.deltaY*0.001)));
       updateCamera();
     }, {passive:false});
-    // touch
-    var touchLast=null;
-    els.canvasHost.addEventListener('touchstart', function(e){ if(e.touches.length===1){ touchLast={x:e.touches[0].clientX,y:e.touches[0].clientY}; } }, {passive:true});
+
+    // Touch: one finger orbits (the natural default on mobile, no separate
+    // pan gesture needed for a quick look), two fingers pan + pinch-zoom —
+    // the same split most map/3D-viewer apps use.
+    var touchLast=null, touchMid=null, pinchStartDist=null, pinchStartRadius=null;
+    function touchDist(a,b){ var dx=a.clientX-b.clientX, dy=a.clientY-b.clientY; return Math.sqrt(dx*dx+dy*dy); }
+
+    els.canvasHost.addEventListener('touchstart', function(e){
+      markInteraction();
+      if(e.touches.length===1){
+        touchLast={x:e.touches[0].clientX,y:e.touches[0].clientY};
+        touchMid=null; pinchStartDist=null;
+      } else if(e.touches.length===2){
+        touchLast=null;
+        touchMid={x:(e.touches[0].clientX+e.touches[1].clientX)/2, y:(e.touches[0].clientY+e.touches[1].clientY)/2};
+        pinchStartDist = touchDist(e.touches[0], e.touches[1]);
+        pinchStartRadius = camState.radius;
+      }
+    }, {passive:true});
     els.canvasHost.addEventListener('touchmove', function(e){
+      markInteraction();
       if(e.touches.length===1 && touchLast){
         var dx = e.touches[0].clientX-touchLast.x, dy = e.touches[0].clientY-touchLast.y;
         touchLast = {x:e.touches[0].clientX,y:e.touches[0].clientY};
         camState.theta -= dx*0.006;
         camState.phi = Math.max(0.15, Math.min(Math.PI-0.15, camState.phi - dy*0.006));
         updateCamera();
+      } else if(e.touches.length===2){
+        var dist = touchDist(e.touches[0], e.touches[1]);
+        if(pinchStartDist){
+          camState.radius = Math.max(200, Math.min(6000, pinchStartRadius * (pinchStartDist/dist)));
+        }
+        var mid = {x:(e.touches[0].clientX+e.touches[1].clientX)/2, y:(e.touches[0].clientY+e.touches[1].clientY)/2};
+        if(touchMid){ panCamera(mid.x-touchMid.x, mid.y-touchMid.y); }
+        touchMid = mid;
+        updateCamera();
       }
+    }, {passive:true});
+    els.canvasHost.addEventListener('touchend', function(e){
+      if(e.touches.length===0){ touchLast=null; touchMid=null; pinchStartDist=null; }
+      else if(e.touches.length===1){ touchLast={x:e.touches[0].clientX,y:e.touches[0].clientY}; touchMid=null; pinchStartDist=null; }
     }, {passive:true});
 
     window.addEventListener('resize', resizeRenderer);
