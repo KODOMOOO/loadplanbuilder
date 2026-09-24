@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
-<title>LPB BETA 1.1</title>
+<title>Load Plan Builder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -58,6 +58,16 @@
     --red-soft: #3A2019;
     --scroll-track: #16305A;
   }
+
+  /* ---- Accent color themes (picked from the palette button, bottom-right) ----
+     Each overrides just the accent pair (--amber / --amber-ink); everything
+     else (white/near-white base, dark-mode base) stays as set above. Navy is
+     the default and needs no override — it's what :root already defines. */
+  :root[data-color="rose"]{ --amber:#A8285C; --amber-ink:#5C1633; }
+  :root[data-theme="dark"][data-color="rose"]{ --amber:#F27CAE; --amber-ink:#FBD9E7; }
+
+  :root[data-color="forest"]{ --amber:#1E5631; --amber-ink:#0E3320; }
+  :root[data-theme="dark"][data-color="forest"]{ --amber:#5FCB8C; --amber-ink:#D3F3E0; }
 
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -295,6 +305,30 @@
   .loginCard label{ margin-top:12px; }
   .loginCard input{ font-family:'IBM Plex Mono',monospace; }
   .loginError{ font-size:11.5px; color:var(--red); min-height:16px; margin-top:10px; text-align:center; }
+
+  /* ---- Bottom-right color theme picker ---- */
+  .colorThemeFab{
+    position:fixed; right:20px; bottom:20px; z-index:9998;
+    width:48px; height:48px; padding:0; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:20px;
+    box-shadow:0 4px 14px rgba(15,42,77,.28);
+  }
+  .colorThemePopover{
+    position:fixed; right:20px; bottom:78px; z-index:9998;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    box-shadow:0 12px 32px rgba(10,25,48,.22); padding:12px; width:190px;
+  }
+  .ctpTitle{ font-size:11px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px; }
+  .ctpOptions{ display:flex; flex-direction:column; gap:4px; }
+  .ctpOption{
+    display:flex; align-items:center; gap:10px; text-align:left;
+    background:transparent; color:var(--ink); border:1px solid transparent; border-radius:9px;
+    padding:8px 9px; font-size:12.5px; font-weight:500; cursor:pointer;
+    box-shadow:none;
+  }
+  .ctpOption:hover{ background:var(--panel-2); filter:none; box-shadow:none; }
+  .ctpOption.active{ border-color:var(--amber); background:var(--panel-2); }
+  .ctpSwatch{ width:20px; height:20px; border-radius:50%; flex-shrink:0; border:1px solid rgba(0,0,0,.15); }
   /* ===================================================================
      Mobile overrides — deliberately placed last in the stylesheet so they
      win the CSS cascade over every rule above, regardless of selector
@@ -365,7 +399,7 @@
 <body>
 <div id="loginGate" class="loginGate">
   <div class="loginCard">
-    <div class="loginTitle">WONG MUMET</div>
+    <div class="loginTitle">📦 Load Plan Builder</div>
     <div class="loginSub">Sign in to continue</div>
     <label for="loginUser">Username</label>
     <input type="text" id="loginUser" autocomplete="username">
@@ -691,11 +725,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // protecting sensitive data.
   // =====================================================================
   var APP_USERS = [
-    { username: "admin", password: "admin" }
-     , { username: "angel", password: "angel" }
-     , { username: "eriska", password: "eriska" }
-     , { username: "dany", password: "25123269" }
-    // , { username: "Siti", password: "siti456" }
+    { username: "Dany", password: "Dany" }
     // , { username: "Budi", password: "budi123" }
     // , { username: "Siti", password: "siti456" }
   ];
@@ -1839,8 +1869,8 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // measurement label) from p1 to p2, offset just outside the container so it
   // reads clearly against the box itself. sizeScale keeps the tick/label size
   // proportional across very small and very large containers.
-  function addDimensionLine(scene, p1, p2, label, tickDir, sizeScale){
-    var mat = new THREE.LineBasicMaterial({color:0x123B6B, depthTest:false, transparent:true, opacity:0.85});
+  function addDimensionLine(scene, p1, p2, label, tickDir, sizeScale, lineColor){
+    var mat = new THREE.LineBasicMaterial({color:lineColor, depthTest:false, transparent:true, opacity:0.85});
     var pts = [new THREE.Vector3(p1[0],p1[1],p1[2]), new THREE.Vector3(p2[0],p2[1],p2[2])];
     var line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat);
     line.renderOrder = 998;
@@ -1928,7 +1958,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     three.camera.updateProjectionMatrix();
   }
 
-  function buildScene(cont){
+  function buildScene(cont, forceMode){
     if(typeof THREE === 'undefined'){
       els.canvasHost.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:var(--ink-soft);font-size:12.5px;line-height:1.6;">3D preview could not load — the third-party library (three.js) failed to load from the CDN.<br>Check your internet connection / network blocker, then reload the page.<br>The rest of the app (item list, stats, export) still works normally.</div>';
       return;
@@ -1938,6 +1968,15 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
 
     var L=cont.type.L, W=cont.type.W, H=cont.type.H;
     var cx=L/2, cy=H/2, cz=W/2;
+
+    // The wireframe/dimension-line color is picked for contrast against
+    // whatever the container sits on: light background → dark line, dark
+    // background → light line. The rendered canvas itself is transparent, so
+    // the PDF export (which drops the capture onto a plain white page,
+    // regardless of the app's current theme) always forces the light-mode
+    // (dark line) variant here — see the 'pdf' forceMode below.
+    var isDarkBg = forceMode === 'pdf' ? false : (document.documentElement.getAttribute('data-theme') === 'dark');
+    var lineColor = isDarkBg ? 0xCFE0FA : 0x123B6B;
 
     var amb = new THREE.AmbientLight(0xffffff, 0.75);
     three.scene.add(amb);
@@ -1950,7 +1989,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
 
     var boxGeo = new THREE.BoxGeometry(L,H,W);
     var edges = new THREE.EdgesGeometry(boxGeo);
-    var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color:0x123B6B, linewidth:1}));
+    var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color:lineColor, linewidth:1}));
     line.position.set(cx,cy,cz);
     three.scene.add(line);
 
@@ -1964,9 +2003,9 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     // since the PDF export captures this same canvas, they carry over there too.
     var dimScale = Math.max(L,W,H);
     var off = dimScale * 0.06;
-    addDimensionLine(three.scene, [0,-off,-off], [L,-off,-off], L + ' cm', [0,1,0], dimScale);
-    addDimensionLine(three.scene, [-off,-off,0], [-off,-off,W], W + ' cm', [1,0,0], dimScale);
-    addDimensionLine(three.scene, [-off,0,-off], [-off,H,-off], H + ' cm', [0,0,1], dimScale);
+    addDimensionLine(three.scene, [0,-off,-off], [L,-off,-off], L + ' cm', [0,1,0], dimScale, lineColor);
+    addDimensionLine(three.scene, [-off,-off,0], [-off,-off,W], W + ' cm', [1,0,0], dimScale, lineColor);
+    addDimensionLine(three.scene, [-off,0,-off], [-off,H,-off], H + ' cm', [0,0,1], dimScale, lineColor);
 
     cont.placements.forEach(function(p){
       var geo = new THREE.BoxGeometry(p.ex, p.ez, p.ey);
@@ -2106,11 +2145,11 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     return '<div class="stat ' + (cls||'') + '"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
   }
 
-  function selectTab(i){
+  function selectTab(i, forceMode){
     activeTab = i;
     Array.prototype.forEach.call(els.tabs.children, function(t,idx){ t.classList.toggle('active', idx===i); });
     var c = lastPlan.containers[i];
-    buildScene(c);
+    buildScene(c, forceMode);
     els.containerDimBadge.textContent = c.type.label + ' — ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)';
     var nameColor = {};
     c.placements.forEach(function(p){
@@ -2452,7 +2491,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       line('Dimensions: ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)   ·   Volume utilization: ' + fmt(util,1) + '%   ·   Weight: ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg   ·   Items: ' + c.placements.length, 9);
 
       if(c.placements.length && typeof THREE !== 'undefined'){
-        selectTab(ci);
+        selectTab(ci, 'pdf');
         if(three.renderer){
           three.renderer.render(three.scene, three.camera);
           var canvas = three.renderer.domElement;
