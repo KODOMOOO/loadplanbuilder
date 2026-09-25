@@ -213,6 +213,7 @@
   .filebtn input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer;}
 
   .hint{font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.6;}
+  .volLive{ font-weight:700; color:var(--amber-ink); font-family:'IBM Plex Mono',monospace; font-size:12px; }
 
   table{width:100%; border-collapse:collapse; font-size:12.5px;}
   th,td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); white-space:nowrap;}
@@ -545,6 +546,7 @@
             <div><label for="fcHei">Height (cm)</label><input type="number" id="fcHei" value="269"></div>
             <label for="fcCustomLabel">Name/label</label>
             <input type="text" id="fcCustomLabel" value="Custom Container">
+            <div class="hint volLive" id="fcVolDisplay">Volume: — m³</div>
           </div>
           <label for="fcPayload">Max weight for this container (kg)</label>
           <input type="number" id="fcPayload" value="28580">
@@ -685,6 +687,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         <th style="min-width:180px;">Name</th>
         <th>Color</th>
         <th>L (cm)</th><th>W (cm)</th><th>H (cm)</th>
+        <th>Vol (m³)</th>
         <th>Weight (kg)</th><th>Qty</th>
         <th>Max stack</th><th>Priority</th>
         <th>Cyl.</th><th>Upright</th>
@@ -815,7 +818,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // protecting sensitive data.
   // =====================================================================
   var APP_USERS = [
-    { username: "admin", password: "admin" }
+    { username: "Dany", password: "Dany" }
     // , { username: "Budi", password: "budi123" }
     // , { username: "Siti", password: "siti456" }
   ];
@@ -922,6 +925,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     cWid: document.getElementById('cWid'),
     cHei: document.getElementById('cHei'),
     customLabel: document.getElementById('customLabel'),
+    customVolDisplay: document.getElementById('customVolDisplay'),
     maxpayload: document.getElementById('maxpayload'),
     maxcontainers: document.getElementById('maxcontainers'),
     modeUniform: document.getElementById('modeUniform'),
@@ -934,6 +938,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     fcWid: document.getElementById('fcWid'),
     fcHei: document.getElementById('fcHei'),
     fcCustomLabel: document.getElementById('fcCustomLabel'),
+    fcVolDisplay: document.getElementById('fcVolDisplay'),
     fcPayload: document.getElementById('fcPayload'),
     fcAddBtn: document.getElementById('fcAddBtn'),
     fleetList: document.getElementById('fleetList'),
@@ -1073,8 +1078,52 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     try{ localStorage.removeItem('lpb_logo'); }catch(e){}
   });
 
+  // ---------- Volume helpers (used everywhere: item table, container badge,
+  // custom-dims live readout, breakdown table, PDF) ----------
+  function calcVolM3(L,W,H){
+    var l=parseFloat(L), w=parseFloat(W), h=parseFloat(H);
+    if(!l || !w || !h || l<=0 || w<=0 || h<=0) return null;
+    return (l*w*h)/1e6;
+  }
+  function fmtVol(v){ return v===null || v===undefined || isNaN(v) ? '—' : v.toFixed(2); }
+
   // ---------- CSV upload trigger (hidden input, real button so sizing matches its siblings) ----------
   els.uploadCsvBtn.addEventListener('click', function(){ els.fileInput.click(); });
+
+  function updateCustomVolDisplay(){
+    els.customVolDisplay.textContent = 'Volume: ' + fmtVol(calcVolM3(els.cLen.value, els.cWid.value, els.cHei.value)) + ' m³';
+  }
+  function updateFcVolDisplay(){
+    els.fcVolDisplay.textContent = 'Volume: ' + fmtVol(calcVolM3(els.fcLen.value, els.fcWid.value, els.fcHei.value)) + ' m³';
+  }
+
+  // ---------- Persist uniform-mode container settings across refresh (fleet
+  // mode and the mode switch itself were already persisted; this fills in
+  // the remaining gap so a plain single-type setup survives a reload too). ----------
+  function persistContainerSettings(){
+    try{
+      localStorage.setItem('lpb_ctype', els.ctype.value);
+      localStorage.setItem('lpb_clen', els.cLen.value);
+      localStorage.setItem('lpb_cwid', els.cWid.value);
+      localStorage.setItem('lpb_chei', els.cHei.value);
+      localStorage.setItem('lpb_clabel', els.customLabel.value);
+      localStorage.setItem('lpb_maxpayload', els.maxpayload.value);
+      localStorage.setItem('lpb_maxcontainers', els.maxcontainers.value);
+    }catch(e){}
+  }
+  (function restoreContainerSettings(){
+    try{
+      var sv;
+      if((sv=localStorage.getItem('lpb_ctype'))!==null) els.ctype.value = sv;
+      if((sv=localStorage.getItem('lpb_clen'))!==null) els.cLen.value = sv;
+      if((sv=localStorage.getItem('lpb_cwid'))!==null) els.cWid.value = sv;
+      if((sv=localStorage.getItem('lpb_chei'))!==null) els.cHei.value = sv;
+      if((sv=localStorage.getItem('lpb_clabel'))!==null) els.customLabel.value = sv;
+      if((sv=localStorage.getItem('lpb_maxpayload'))!==null) els.maxpayload.value = sv;
+      if((sv=localStorage.getItem('lpb_maxcontainers'))!==null) els.maxcontainers.value = sv;
+      if(els.ctype.value === 'CUSTOM') els.customDims.style.display = 'block';
+    }catch(e){}
+  })();
 
   els.ctype.addEventListener('change', function(){
     if(els.ctype.value === 'CUSTOM'){
@@ -1084,11 +1133,21 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       var t = CONTAINER_TYPES[els.ctype.value];
       els.maxpayload.value = t.payload;
     }
+    updateCustomVolDisplay();
+    persistContainerSettings();
     scheduleRecompute();
   });
   ['cLen','cWid','cHei','maxpayload','maxcontainers'].forEach(function(id){
-    els[id].addEventListener('input', scheduleRecompute);
+    els[id].addEventListener('input', function(){
+      if(id==='cLen'||id==='cWid'||id==='cHei') updateCustomVolDisplay();
+      persistContainerSettings();
+      scheduleRecompute();
+    });
   });
+  els.customLabel.addEventListener('input', persistContainerSettings);
+  updateCustomVolDisplay();
+  ['fcLen','fcWid','fcHei'].forEach(function(id){ els[id].addEventListener('input', updateFcVolDisplay); });
+  updateFcVolDisplay();
 
   // ---------- Container mode toggle (uniform vs custom fleet) ----------
   function updateModeVisibility(){
@@ -1312,6 +1371,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         '<td><input type="number" class="cellEdit" data-field="L" data-id="' + it.id + '" value="' + it.L + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="W" data-id="' + it.id + '" value="' + it.W + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="H" data-id="' + it.id + '" value="' + it.H + '"></td>' +
+        '<td class="itemVolDisplay" data-vol-id="' + it.id + '">' + fmtVol(calcVolM3(it.L, it.W, it.H)) + '</td>' +
         '<td><input type="number" class="cellEdit" data-field="weight" data-id="' + it.id + '" value="' + it.weight + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="qty" data-id="' + it.id + '" min="1" value="' + it.qty + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="maxStack" data-id="' + it.id + '" placeholder="∞" value="' + (it.maxStack<9999 ? it.maxStack : '') + '"></td>' +
