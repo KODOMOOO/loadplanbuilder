@@ -132,9 +132,11 @@
   .stamp b{color:var(--amber-ink); font-weight:600;}
 
   .themeToggle{
-    flex-shrink:0; width:42px; height:42px; padding:0; font-size:19px; line-height:1;
+    position:fixed; right:80px; bottom:20px; z-index:9998;
+    width:48px; height:48px; padding:0; font-size:20px; line-height:1;
     display:flex; align-items:center; justify-content:center;
-    background:var(--panel-2); color:var(--ink); border:1px solid var(--line); border-radius:10px;
+    background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:50%;
+    box-shadow:0 4px 14px rgba(15,42,77,.28);
   }
   .themeToggle:hover{ filter:none; background:var(--amber); color:#fff; border-color:var(--amber); }
 
@@ -377,8 +379,10 @@
     .wrap{padding:10px 10px 40px;}
     header.top{flex-direction:column; align-items:flex-start; padding:14px 16px; gap:8px; position:relative;}
     header.top .stamp{text-align:left; max-width:100%;}
-    .projectNameInput{font-size:19px; max-width:calc(100% - 50px);}
-    .themeToggle{ position:absolute; top:14px; right:14px; }
+    .projectNameInput{font-size:19px; max-width:100%;}
+    .colorThemeFab{ right:14px; bottom:14px; width:44px; height:44px; font-size:18px; }
+    .themeToggle{ right:66px; bottom:14px; width:44px; height:44px; font-size:18px; }
+    .colorThemePopover{ right:14px; bottom:66px; }
     .panel{padding:14px 14px;}
     .row3{grid-template-columns:1fr 1fr 1fr; gap:6px;}
     .row2{grid-template-columns:1fr 1fr; gap:8px;}
@@ -451,7 +455,6 @@
       <input type="text" id="projectName" class="projectNameInput" placeholder="Untitled Project" maxlength="80">
     </div>
     <div class="stamp">Column format: <b>Product Name · L/W/H cm · Unit Weight kg · Quantity · Cylinder · Upright Only · Max Stack · Priority · Tolerance cm</b></div>
-    <button type="button" id="themeToggleBtn" class="themeToggle" title="Switch light/dark theme" aria-label="Switch light/dark theme">☀️</button>
   </header>
 
   <div class="grid">
@@ -720,6 +723,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   </div>
 </div>
 
+<button type="button" id="themeToggleBtn" class="themeToggle" title="Switch light/dark theme" aria-label="Switch light/dark theme">☀️</button>
 <button type="button" id="colorThemeFab" class="colorThemeFab" title="Choose color theme" aria-label="Choose color theme">🎨</button>
 <div class="colorThemePopover" id="colorThemePopover" style="display:none;">
   <div class="ctpTitle">Color theme</div>
