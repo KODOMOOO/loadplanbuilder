@@ -687,7 +687,8 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         <th style="min-width:180px;">Name</th>
         <th>Color</th>
         <th>L (cm)</th><th>W (cm)</th><th>H (cm)</th>
-        <th>Vol (m³)</th>
+        <th>Vol/unit (m³)</th>
+        <th>Vol total (m³)</th>
         <th>Weight (kg)</th><th>Qty</th>
         <th>Max stack</th><th>Priority</th>
         <th>Cyl.</th><th>Upright</th>
@@ -1144,7 +1145,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       scheduleRecompute();
     });
   });
-  els.customLabel.addEventListener('input', persistContainerSettings);
+  els.customLabel.addEventListener('input', function(){ persistContainerSettings(); scheduleRecompute(); });
   updateCustomVolDisplay();
   ['fcLen','fcWid','fcHei'].forEach(function(id){ els[id].addEventListener('input', updateFcVolDisplay); });
   updateFcVolDisplay();
@@ -1371,7 +1372,8 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         '<td><input type="number" class="cellEdit" data-field="L" data-id="' + it.id + '" value="' + it.L + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="W" data-id="' + it.id + '" value="' + it.W + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="H" data-id="' + it.id + '" value="' + it.H + '"></td>' +
-        '<td class="itemVolDisplay" data-vol-id="' + it.id + '">' + fmtVol(calcVolM3(it.L, it.W, it.H)) + '</td>' +
+        '<td class="volUnitDisplay" data-vol-id="' + it.id + '">' + fmtVol(calcVolM3(it.L, it.W, it.H)) + '</td>' +
+        '<td class="volTotalDisplay" data-vol-id="' + it.id + '">' + fmtVol(calcVolM3(it.L, it.W, it.H) * it.qty) + '</td>' +
         '<td><input type="number" class="cellEdit" data-field="weight" data-id="' + it.id + '" value="' + it.weight + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="qty" data-id="' + it.id + '" min="1" value="' + it.qty + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="maxStack" data-id="' + it.id + '" placeholder="∞" value="' + (it.maxStack<9999 ? it.maxStack : '') + '"></td>' +
@@ -1590,6 +1592,13 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       if(!isNaN(v) && v>0) it[field] = v;
     }
     persistItems();
+    if(field==='L' || field==='W' || field==='H' || field==='qty'){
+      var vUnit = calcVolM3(it.L, it.W, it.H);
+      var vuEl = els.itemsBody.querySelector('.volUnitDisplay[data-vol-id="'+id+'"]');
+      var vtEl = els.itemsBody.querySelector('.volTotalDisplay[data-vol-id="'+id+'"]');
+      if(vuEl) vuEl.textContent = fmtVol(vUnit);
+      if(vtEl) vtEl.textContent = fmtVol(vUnit * it.qty);
+    }
     scheduleRecompute();
   }
   els.itemsBody.addEventListener('input', handleCellEdit);
@@ -2276,20 +2285,27 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     totalItems = placedItems + unplacedCount;
 
     var avgUtil = 0;
+    var totalContainerVol = 0, totalUsedVol = 0;
     plan.containers.forEach(function(c){
       var totalVolC = c.type.L*c.type.W*c.type.H/1e6;
       var used = 0;
       c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
-      avgUtil += (used/1e6)/totalVolC;
+      used = used/1e6;
+      avgUtil += used/totalVolC;
+      totalContainerVol += totalVolC;
+      totalUsedVol += used;
     });
     avgUtil = plan.containers.length ? avgUtil/plan.containers.length*100 : 0;
     var totalWeight = 0;
     plan.containers.forEach(function(c){ totalWeight += c.weight; });
+    var totalItemVol = 0;
+    items.forEach(function(it){ totalItemVol += calcVolM3(it.L, it.W, it.H) * it.qty; });
 
     els.statsRow.innerHTML =
       stat(plan.containers.length, 'Containers used', '') +
       stat(placedItems + ' / ' + totalItems, 'Items loaded', totalItems && placedItems<totalItems ? 'warn' : 'good') +
       stat(fmt(avgUtil,1) + '%', 'Avg. volume utilization', '') +
+      stat(fmtVol(totalItemVol) + ' m³', 'Total item volume', '') +
       stat(fmt(totalWeight,0) + ' kg', 'Total weight', '');
 
     // tabs
@@ -2334,28 +2350,30 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     els.detailN.textContent = '(' + plan.containers.length + ' container' + (plan.containers.length===1?'':'s') + ')';
     var thead = els.detailTable.querySelector('thead');
     var tbody = els.detailTable.querySelector('tbody');
-    thead.innerHTML = '<tr><th>#</th><th>Item</th><th>Qty</th><th>Loaded dims (cm)</th><th>Total weight (kg)</th></tr>';
+    thead.innerHTML = '<tr><th>#</th><th>Item</th><th>Qty</th><th>L (cm)</th><th>W (cm)</th><th>H (cm)</th><th>Volume (m³)</th><th>Total weight (kg)</th></tr>';
     tbody.innerHTML = '';
     plan.containers.forEach(function(c, ci){
       var counts = {};
       c.placements.forEach(function(p){
         var key = p.name;
-        if(!counts[key]) counts[key] = {qty:0, weight:0, dims: Math.round(p.ex)+'×'+Math.round(p.ey)+'×'+Math.round(p.ez)};
+        if(!counts[key]) counts[key] = {qty:0, weight:0, vol:0, dL:Math.round(p.ex), dW:Math.round(p.ey), dH:Math.round(p.ez)};
         counts[key].qty += 1;
         counts[key].weight += p.weight;
+        counts[key].vol += (p.ex*p.ey*p.ez)/1e6;
       });
       Object.keys(counts).forEach(function(name){
         var row = document.createElement('tr');
-        row.innerHTML = '<td>C' + (ci+1) + '</td><td>' + escapeHtml(name) + '</td><td>' + counts[name].qty + '</td><td>' + counts[name].dims + '</td><td>' + fmt(counts[name].weight,0) + '</td>';
+        row.innerHTML = '<td>C' + (ci+1) + '</td><td>' + escapeHtml(name) + '</td><td>' + counts[name].qty + '</td><td>' + counts[name].dL + '</td><td>' + counts[name].dW + '</td><td>' + counts[name].dH + '</td><td>' + fmtVol(counts[name].vol) + '</td><td>' + fmt(counts[name].weight,0) + '</td>';
         tbody.appendChild(row);
       });
-      var totalVolC = c.type.L*c.type.W*c.type.H;
+      var totalVolC = c.type.L*c.type.W*c.type.H/1e6;
       var used=0;
       c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
-      var util = (used/1e6)/(totalVolC/1e6)*100;
+      used = used/1e6;
+      var util = used/totalVolC*100;
       var sumRow = document.createElement('tr');
       sumRow.style.background = 'var(--panel-2)';
-      sumRow.innerHTML = '<td colspan="4" style="font-weight:600;">Container ' + (ci+1) + ' (' + escapeHtml(c.type.label) + ') — volume utilization ' + fmt(util,1) + '% · weight ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg</td><td></td>';
+      sumRow.innerHTML = '<td colspan="7" style="font-weight:600;">Container ' + (ci+1) + ' (' + escapeHtml(c.type.label) + ') — volume ' + fmtVol(used) + ' / ' + fmtVol(totalVolC) + ' m³ (' + fmt(util,1) + '%) · weight ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg</td><td></td>';
       tbody.appendChild(sumRow);
     });
   }
@@ -2375,7 +2393,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     Array.prototype.forEach.call(els.tabs.children, function(t,idx){ t.classList.toggle('active', idx===i); });
     var c = lastPlan.containers[i];
     buildScene(c, forceMode);
-    els.containerDimBadge.textContent = c.type.label + ' — ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)';
+    els.containerDimBadge.textContent = c.type.label + ' — ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior) · ' + fmtVol(calcVolM3(c.type.L, c.type.W, c.type.H)) + ' m³';
     var nameColor = {};
     c.placements.forEach(function(p){
       nameColor[p.name] = (p.piece && p.piece.color) ? p.piece.color : '#7C8B94';
@@ -2676,18 +2694,27 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     lastPlan.containers.forEach(function(c){ placedItems += c.placements.length; });
     totalItems = placedItems + lastPlan.unplaced.length;
     var avgUtil = 0;
+    var totalContainerVol = 0, totalUsedVol = 0;
     lastPlan.containers.forEach(function(c){
       var totalVolC = c.type.L*c.type.W*c.type.H/1e6;
       var used=0; c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
-      avgUtil += (used/1e6)/totalVolC;
+      used = used/1e6;
+      avgUtil += used/totalVolC;
+      totalContainerVol += totalVolC;
+      totalUsedVol += used;
     });
     avgUtil = lastPlan.containers.length ? avgUtil/lastPlan.containers.length*100 : 0;
     var totalWeight = 0; lastPlan.containers.forEach(function(c){ totalWeight += c.weight; });
+    var totalItemVol = 0;
+    items.forEach(function(it){ totalItemVol += calcVolM3(it.L, it.W, it.H) * it.qty; });
 
     heading('Summary', 12);
     gridRow(['Containers used', String(lastPlan.containers.length)], [70,60], {size:9.5});
     gridRow(['Items loaded', placedItems + ' / ' + totalItems], [70,60], {size:9.5});
     gridRow(['Avg. volume utilization', fmt(avgUtil,1) + '%'], [70,60], {size:9.5});
+    gridRow(['Total container volume', fmtVol(totalContainerVol) + ' m³'], [70,60], {size:9.5});
+    gridRow(['Total volume loaded', fmtVol(totalUsedVol) + ' m³'], [70,60], {size:9.5});
+    gridRow(['Total item volume (all items)', fmtVol(totalItemVol) + ' m³'], [70,60], {size:9.5});
     gridRow(['Total weight', fmt(totalWeight,0) + ' kg'], [70,60], {size:9.5});
     y += 3;
 
@@ -2706,14 +2733,16 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
 
     var origTab = activeTab;
     var imgW = pageW - margin*2;
-    var colWidths = [62,16,34,32,26]; // Item, Qty, Color, Dims, Weight
+    var colWidths = [46,12,18,22,16,16,16,22]; // Item, Qty, Color, Vol(m³), L, W, H, Weight
 
     lastPlan.containers.forEach(function(c, ci){
       heading('Container ' + (ci+1) + ' — ' + c.type.label, 13);
-      var totalVolC = c.type.L*c.type.W*c.type.H;
+      var totalVolC = c.type.L*c.type.W*c.type.H/1e6;
       var used = 0; c.placements.forEach(function(p){ used += p.ex*p.ey*p.ez; });
-      var util = (used/1e6)/(totalVolC/1e6)*100;
-      line('Dimensions: ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)   ·   Volume utilization: ' + fmt(util,1) + '%   ·   Weight: ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg   ·   Items: ' + c.placements.length, 9);
+      used = used/1e6;
+      var util = used/totalVolC*100;
+      line('Dimensions: ' + c.type.L + ' × ' + c.type.W + ' × ' + c.type.H + ' cm (interior)   ·   Volume: ' + fmtVol(totalVolC) + ' m³', 9);
+      line('Volume loaded: ' + fmtVol(used) + ' / ' + fmtVol(totalVolC) + ' m³ (' + fmt(util,1) + '%)   ·   Weight: ' + fmt(c.weight,0) + ' / ' + fmt(c.maxPayload,0) + ' kg   ·   Items: ' + c.placements.length, 9);
 
       if(c.placements.length && typeof THREE !== 'undefined'){
         selectTab(ci, 'pdf');
@@ -2733,14 +2762,15 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         var key = p.name;
         if(!counts[key]){
           var col = (p.piece && p.piece.color) ? p.piece.color : '#7C8B94';
-          counts[key] = {qty:0, weight:0, dims: Math.round(p.ex)+'×'+Math.round(p.ey)+'×'+Math.round(p.ez), color:col};
+          counts[key] = {qty:0, weight:0, vol:0, dL:Math.round(p.ex), dW:Math.round(p.ey), dH:Math.round(p.ez), color:col};
         }
         counts[key].qty += 1; counts[key].weight += p.weight;
+        counts[key].vol += (p.ex*p.ey*p.ez)/1e6;
       });
-      gridRow(['Item','Qty','Color','Dims (cm)','Weight (kg)'], colWidths, {header:true, size:9});
+      gridRow(['Item','Qty','Color','Vol (m³)','L (cm)','W (cm)','H (cm)','Weight (kg)'], colWidths, {header:true, size:9});
       Object.keys(counts).forEach(function(name){
         var row = counts[name];
-        gridRowWithSwatch([name, String(row.qty), '', row.dims, fmt(row.weight,0)], colWidths, 2, row.color, {size:9});
+        gridRowWithSwatch([name, String(row.qty), '', fmtVol(row.vol), String(row.dL), String(row.dW), String(row.dH), fmt(row.weight,0)], colWidths, 2, row.color, {size:9});
       });
       y += 4;
       divider();
