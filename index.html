@@ -1663,14 +1663,15 @@ textarea:focus {
   </div>
 </div>
 
+
+</div>
 <div id="loginSuccessModal" class="loginSuccessModal" aria-hidden="true">
   <div class="loginSuccessCard" role="dialog" aria-modal="true" aria-labelledby="loginSuccessTitle">
     <div class="loginSuccessIcon" aria-hidden="true">✓</div>
     <div class="loginSuccessTitle" id="loginSuccessTitle">Login Successful</div>
-    <div class="loginSuccessMessage" id="loginSuccessMessage">Welcome, username.</div>
+    <div class="loginSuccessMessage" id="loginSuccessMessage">Welcome, username! Have a great day, stay productive, and keep up the great work. ✨</div>
     <button type="button" class="loginSuccessOk" id="loginSuccessOk">OK</button>
   </div>
-</div>
 </div>
 <div class="wrap">
 
@@ -2132,7 +2133,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     var loginSuccessOk = document.getElementById('loginSuccessOk');
 
     function openLoginSuccessModal(username){
-      loginSuccessMessage.textContent = 'Welcome, ' + username + '.';
+      loginSuccessMessage.textContent = 'Welcome, ' + username + '! Have a great day, stay productive, and keep up the great work. ✨';
       loginSuccessModal.classList.add('open');
       loginSuccessModal.setAttribute('aria-hidden', 'false');
       setTimeout(function(){ loginSuccessOk.focus(); }, 220);
