@@ -1717,24 +1717,37 @@ textarea:focus {
   }
 
 
-/* FINAL QR CLOSE BUTTON: EXACT SIGN-IN LOOK, WHITE X */
+/* FINAL QR CLOSE BUTTON: CONTRAST PER THEME */
 #qrModal .qrModalClose{
   background:linear-gradient(135deg,
     var(--theme-c1) 0%,
     var(--theme-c2) 52%,
     var(--theme-c3) 100%) !important;
   background-size:200% 200% !important;
-  color:#fff !important;
   border:1px solid var(--theme-c2) !important;
   border-radius:8px !important;
   box-shadow:0 4px 12px color-mix(in srgb, var(--theme-c2) 28%, transparent) !important;
   opacity:1 !important;
+  font-size:23px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.22) !important;
+}
+
+/* Light theme: dark X so it remains visible on the light button */
+:root:not([data-theme="dark"]) #qrModal .qrModalClose{
+  color:#18212f !important;
+  text-shadow:none !important;
+}
+
+/* Dark theme: white X */
+:root[data-theme="dark"] #qrModal .qrModalClose{
+  color:#fff !important;
   text-shadow:0 1px 2px rgba(0,0,0,.25) !important;
 }
+
 #qrModal .qrModalClose:hover{
   background-position:100% 50% !important;
-  color:#fff !important;
-  border-color:var(--theme-c2) !important;
 }
 </style>
 </head>
