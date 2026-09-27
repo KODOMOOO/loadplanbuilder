@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <!-- FAVICON: ganti URL di bawah dengan link icon kamu -->
-  <link rel="icon" type="image/png" href="https://www.flaticon.com/free-icon/box_679821">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/256/679/679821.png">
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
@@ -906,7 +906,9 @@ table.wide-table td input[type=number]{
   display:none;
   align-items:center;
   justify-content:center;
-  padding:20px;
+  box-sizing:border-box;
+  padding:24px;
+  overflow-y:auto;
   background:rgba(15,23,42,.52);
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
@@ -918,8 +920,11 @@ table.wide-table td input[type=number]{
 
 .qrModalCard{
   position:relative;
-  width:min(340px, 92vw);
-  padding:28px 24px 24px;
+  width:min(340px, 100%);
+  max-height:calc(100dvh - 48px);
+  overflow-y:auto;
+  box-sizing:border-box;
+  padding:30px 24px 24px;
   border:1px solid var(--line);
   border-radius:20px;
   background:var(--panel);
@@ -931,11 +936,12 @@ table.wide-table td input[type=number]{
   font-family:'Space Grotesk',sans-serif;
   font-size:20px;
   font-weight:700;
+  line-height:1.25;
   color:var(--ink);
 }
 
 .qrModalSub{
-  margin:6px 0 18px;
+  margin:7px 0 18px;
   font-size:11.5px;
   line-height:1.5;
   color:var(--ink-soft);
@@ -943,8 +949,9 @@ table.wide-table td input[type=number]{
 
 .qrCodeImage{
   display:block;
-  width:220px;
-  height:220px;
+  width:min(220px, 72vw);
+  height:auto;
+  aspect-ratio:1 / 1;
   max-width:100%;
   margin:0 auto;
   object-fit:contain;
@@ -956,22 +963,92 @@ table.wide-table td input[type=number]{
 
 .qrModalClose{
   position:absolute;
-  top:10px;
-  right:12px;
-  width:30px;
-  height:30px;
+  top:9px;
+  right:9px;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  margin:0;
+  padding:0;
   border:0;
+  border-radius:50%;
   background:transparent;
   color:var(--ink-soft);
-  font-size:22px;
+  font-family:Arial,sans-serif;
+  font-size:25px;
+  font-weight:400;
   line-height:1;
   cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  box-sizing:border-box;
 }
 
 .qrModalClose:hover{
+  background:rgba(127,127,127,.10);
   color:var(--ink);
 }
 
+.qrModalClose:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+@media (max-width:480px){
+  .qrModal{
+    align-items:center;
+    padding:16px;
+  }
+
+  .qrModalCard{
+    width:100%;
+    max-width:340px;
+    max-height:calc(100dvh - 32px);
+    padding:28px 18px 18px;
+    border-radius:18px;
+  }
+
+  .qrModalTitle{
+    font-size:18px;
+  }
+
+  .qrModalSub{
+    margin-bottom:14px;
+    font-size:11px;
+  }
+
+  .qrCodeImage{
+    width:min(200px, 68vw);
+    padding:7px;
+  }
+
+  .qrModalClose{
+    top:7px;
+    right:7px;
+    width:32px;
+    height:32px;
+    font-size:23px;
+  }
+}
+
+@media (max-height:560px){
+  .qrModal{
+    align-items:flex-start;
+    padding-top:12px;
+    padding-bottom:12px;
+  }
+
+  .qrModalCard{
+    max-height:calc(100dvh - 24px);
+  }
+
+  .qrCodeImage{
+    width:min(170px, 58vw);
+  }
+}
 /* Floating controls */
 .themeToggle,
 .colorThemeFab{
@@ -1400,7 +1477,7 @@ textarea:focus {
     <img
       class="qrCodeImage"
       id="registrationQr"
-      src="https://example.com/your-registration-qr.png"
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_3BmpsLC0ADkMyAnPMDqqVQtFVX-R5tQI07B4xeT23R5VOebrrgLJNZ4&s=10"
       alt="Registration QR code"
     >
   </div>
