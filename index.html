@@ -1630,6 +1630,89 @@ textarea:focus {
   }
 }
 
+
+  #loginSuccessModal,
+  .loginSuccessModal {
+    background: color-mix(in srgb, var(--theme-c1) 10%, rgba(0,0,0,.35)) !important;
+  }
+  #loginSuccessModal .loginSuccessCard,
+  .loginSuccessModal .loginSuccessCard {
+    border-color: var(--theme-c2) !important;
+  }
+
+
+  /* Login-success actions always use the selected color theme. */
+  #loginSuccessModal #loginSuccessOk,
+  .loginSuccessModal #loginSuccessOk {
+    background: linear-gradient(
+      135deg,
+      var(--theme-c1) 0%,
+      var(--theme-c2) 52%,
+      var(--theme-c3) 100%
+    ) !important;
+    background-size: 200% 200% !important;
+    border-color: var(--theme-c2) !important;
+    color: #fff !important;
+  }
+
+
+  /* Registration QR popup follows the selected color theme. */
+  .registrationModal .registrationModalCard,
+  .qrModal .qrModalCard,
+  #registrationModal .modalCard,
+  #registrationQrModal .modalCard {
+    border-color: var(--theme-c2) !important;
+    box-shadow:
+      0 18px 50px color-mix(in srgb, var(--theme-c2) 28%, rgba(10,25,48,.20)),
+      0 4px 14px color-mix(in srgb, var(--theme-c1) 18%, transparent) !important;
+  }
+  #registrationQrModal .modalTitle,
+  #registrationModal .modalTitle,
+  .qrModal .modalTitle {
+    color: var(--theme-c2) !important;
+  }
+  #registrationQrModal .modalClose,
+  #registrationModal .modalClose,
+  .qrModal .modalClose {
+    border-color: var(--theme-c2) !important;
+    color: var(--theme-c2) !important;
+  }
+
+
+  /* QR registration popup follows the selected color theme. */
+  #qrModal .qrModalCard {
+    border-color: var(--theme-c2) !important;
+    box-shadow:
+      0 18px 50px color-mix(in srgb, var(--theme-c2) 28%, rgba(10,25,48,.20)),
+      0 4px 14px color-mix(in srgb, var(--theme-c1) 18%, transparent) !important;
+  }
+  #qrModal .qrModalTitle {
+    color: var(--theme-c2) !important;
+  }
+  #qrModal .qrModalClose {
+    border-color: var(--theme-c2) !important;
+    color: var(--theme-c2) !important;
+  }
+
+  /* Login success OK button follows the selected color theme. */
+  #loginSuccessModal .loginSuccessOk {
+    background: linear-gradient(
+      135deg,
+      var(--theme-c1) 0%,
+      var(--theme-c2) 52%,
+      var(--theme-c3) 100%
+    ) !important;
+    background-size: 200% 200% !important;
+    border-color: var(--theme-c2) !important;
+    color: #fff !important;
+    box-shadow:
+      0 8px 22px color-mix(in srgb, var(--theme-c2) 32%, transparent),
+      inset 0 1px 0 rgba(255,255,255,.20) !important;
+  }
+  #loginSuccessModal .loginSuccessOk:hover {
+    background-position: 100% 50% !important;
+  }
+
 </style>
 </head>
 <body>
@@ -1664,6 +1747,17 @@ textarea:focus {
 </div>
 
 
+
+<button type="button" id="themeToggleBtn" class="themeToggle" title="Switch light/dark theme" aria-label="Switch light/dark theme">☀️</button>
+<button type="button" id="colorThemeFab" class="colorThemeFab" title="Choose color theme" aria-label="Choose color theme">🎨</button>
+<div class="colorThemePopover" id="colorThemePopover" style="display:none;">
+  <div class="ctpTitle">Color theme</div>
+  <div class="ctpOptions" id="ctpOptions">
+    <button type="button" class="ctpOption" data-color="navy"><span class="ctpSwatch" style="background:#123B6B"></span>Navy Blue</button>
+    <button type="button" class="ctpOption" data-color="rose"><span class="ctpSwatch" style="background:#D6568C"></span>Rose</button>
+    <button type="button" class="ctpOption" data-color="forest"><span class="ctpSwatch" style="background:#1E5631"></span>Forest Green</button>
+  </div>
+</div>
 </div>
 <div id="loginSuccessModal" class="loginSuccessModal" aria-hidden="true">
   <div class="loginSuccessCard" role="dialog" aria-modal="true" aria-labelledby="loginSuccessTitle">
@@ -1671,6 +1765,17 @@ textarea:focus {
     <div class="loginSuccessTitle" id="loginSuccessTitle">Login Successful</div>
     <div class="loginSuccessMessage" id="loginSuccessMessage">Welcome, username! Have a great day, stay productive, and keep up the great work. ✨</div>
     <button type="button" class="loginSuccessOk" id="loginSuccessOk">OK</button>
+  </div>
+
+</div>
+<button type="button" id="themeToggleBtnApp" class="themeToggle" title="Switch light/dark theme" aria-label="Switch light/dark theme">☀️</button>
+<button type="button" id="colorThemeFabApp" class="colorThemeFab" title="Choose color theme" aria-label="Choose color theme">🎨</button>
+<div class="colorThemePopover" id="colorThemePopoverApp" style="display:none;">
+  <div class="ctpTitle">Color theme</div>
+  <div class="ctpOptions" id="ctpOptionsApp">
+    <button type="button" class="ctpOption" data-color="navy"><span class="ctpSwatch" style="background:#123B6B"></span>Navy Blue</button>
+    <button type="button" class="ctpOption" data-color="rose"><span class="ctpSwatch" style="background:#D6568C"></span>Rose</button>
+    <button type="button" class="ctpOption" data-color="forest"><span class="ctpSwatch" style="background:#1E5631"></span>Forest Green</button>
   </div>
 </div>
 <div class="wrap">
@@ -1952,64 +2057,73 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   </div>
 </div>
 
-<button type="button" id="themeToggleBtn" class="themeToggle" title="Switch light/dark theme" aria-label="Switch light/dark theme">☀️</button>
-<button type="button" id="colorThemeFab" class="colorThemeFab" title="Choose color theme" aria-label="Choose color theme">🎨</button>
-<div class="colorThemePopover" id="colorThemePopover" style="display:none;">
-  <div class="ctpTitle">Color theme</div>
-  <div class="ctpOptions" id="ctpOptions">
-    <button type="button" class="ctpOption" data-color="navy"><span class="ctpSwatch" style="background:#123B6B"></span>Navy Blue</button>
-    <button type="button" class="ctpOption" data-color="rose"><span class="ctpSwatch" style="background:#D6568C"></span>Rose</button>
-    <button type="button" class="ctpOption" data-color="forest"><span class="ctpSwatch" style="background:#1E5631"></span>Forest Green</button>
-  </div>
-</div>
+
 
 <script>
 (function(){
   "use strict";
 
   // ---------- Light/dark theme toggle ----------
-  // Applied first (and unconditionally on every load) so the CSS's own
-  // prefers-color-scheme handling is fully overridden by whatever the person
-  // last picked here — no flash of the wrong theme, no fighting the OS setting.
   (function themeToggle(){
-    var btn = document.getElementById('themeToggleBtn');
     var root = document.documentElement;
+    var buttons = [
+      document.getElementById('themeToggleBtn'),
+      document.getElementById('themeToggleBtnApp')
+    ].filter(Boolean);
 
     function systemPrefersDark(){
       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     function applyTheme(mode){
       root.setAttribute('data-theme', mode);
-      if(btn) btn.textContent = mode === 'dark' ? '🌙' : '☀️';
+      buttons.forEach(function(btn){
+        btn.textContent = mode === 'dark' ? '🌙' : '☀️';
+      });
       try{ localStorage.setItem('lpb_theme', mode); }catch(e){}
     }
 
     var saved = null;
     try{ saved = localStorage.getItem('lpb_theme'); }catch(e){}
-    applyTheme(saved === 'dark' || saved === 'light' ? saved : (systemPrefersDark() ? 'dark' : 'light'));
+    applyTheme(saved === 'dark' || saved === 'light'
+      ? saved
+      : (systemPrefersDark() ? 'dark' : 'light'));
 
-    if(btn){
+    buttons.forEach(function(btn){
       btn.addEventListener('click', function(){
         var current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
         applyTheme(current === 'dark' ? 'light' : 'dark');
       });
-    }
+    });
   })();
 
   // ---------- Color theme (accent) picker ----------
   (function colorThemePicker(){
-    var fab = document.getElementById('colorThemeFab');
-    var pop = document.getElementById('colorThemePopover');
-    var options = document.getElementById('ctpOptions');
     var root = document.documentElement;
-    if(!fab) return;
+
+    var pairs = [
+      {
+        fab: document.getElementById('colorThemeFab'),
+        pop: document.getElementById('colorThemePopover'),
+        options: document.getElementById('ctpOptions')
+      },
+      {
+        fab: document.getElementById('colorThemeFabApp'),
+        pop: document.getElementById('colorThemePopoverApp'),
+        options: document.getElementById('ctpOptionsApp')
+      }
+    ].filter(function(x){ return x.fab && x.pop && x.options; });
+
+    if(!pairs.length) return;
 
     function applyColor(name){
-      if(name === 'navy'){ root.removeAttribute('data-color'); } // navy is the unstyled default
-      else { root.setAttribute('data-color', name); }
+      if(name === 'navy') root.removeAttribute('data-color');
+      else root.setAttribute('data-color', name);
       try{ localStorage.setItem('lpb_colortheme', name); }catch(e){}
-      Array.prototype.forEach.call(options.children, function(btn){
-        btn.classList.toggle('active', btn.getAttribute('data-color') === name);
+
+      pairs.forEach(function(pair){
+        Array.prototype.forEach.call(pair.options.children, function(btn){
+          btn.classList.toggle('active', btn.getAttribute('data-color') === name);
+        });
       });
     }
 
@@ -2017,20 +2131,26 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     try{ saved = localStorage.getItem('lpb_colortheme') || 'navy'; }catch(e){}
     applyColor(saved);
 
-    fab.addEventListener('click', function(e){
-      e.stopPropagation();
-      pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
+    pairs.forEach(function(pair){
+      pair.fab.addEventListener('click', function(e){
+        e.stopPropagation();
+        pair.pop.style.display = pair.pop.style.display === 'none' ? 'block' : 'none';
+      });
+
+      pair.options.addEventListener('click', function(e){
+        var btn = e.target.closest('.ctpOption');
+        if(!btn) return;
+        applyColor(btn.getAttribute('data-color'));
+        pairs.forEach(function(other){ other.pop.style.display = 'none'; });
+      });
     });
-    options.addEventListener('click', function(e){
-      var btn = e.target.closest('.ctpOption');
-      if(!btn) return;
-      applyColor(btn.getAttribute('data-color'));
-      pop.style.display = 'none';
-    });
+
     document.addEventListener('mousedown', function(e){
-      if(pop.style.display === 'none') return;
-      if(pop.contains(e.target) || e.target === fab) return;
-      pop.style.display = 'none';
+      pairs.forEach(function(pair){
+        if(pair.pop.style.display === 'none') return;
+        if(pair.pop.contains(e.target) || e.target === pair.fab) return;
+        pair.pop.style.display = 'none';
+      });
     });
   })();
 
@@ -2045,7 +2165,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   // =====================================================================
   var APP_USERS = [
     { username: "admin", password: "admin" }
-     , { username: "Budi", password: "budi123" }
+    // , { username: "Budi", password: "budi123" }
     // , { username: "Siti", password: "siti456" }
   ];
   // =====================================================================
