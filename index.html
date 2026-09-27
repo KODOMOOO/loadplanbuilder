@@ -1272,8 +1272,91 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     URL.revokeObjectURL(url);
   });
 
+  // ---------- Container settings embedded in the saved/imported CSV ----------
+  // Written as "# Key: value" comment lines above the header row, so the file
+  // still opens fine in Excel/Sheets (comments are just ignored/shown as text)
+  // while letting this app fully restore container mode/type/custom size/fleet
+  // on re-import — not just the item rows.
+  function buildContainerMetaLines(){
+    var lines = ['# LoadPlanBuilder Export v1'];
+    if(els.modeFleet.checked){
+      lines.push('# ContainerMode: fleet');
+      var fleetStr = containerFleet.map(function(f){
+        return [f.label, f.L, f.W, f.H, f.payload].join('|');
+      }).join(';');
+      lines.push('# Fleet: ' + fleetStr);
+    } else {
+      lines.push('# ContainerMode: uniform');
+      lines.push('# ContainerType: ' + els.ctype.value);
+      if(els.ctype.value === 'CUSTOM'){
+        lines.push('# ContainerLabel: ' + els.customLabel.value);
+        lines.push('# ContainerL: ' + els.cLen.value);
+        lines.push('# ContainerW: ' + els.cWid.value);
+        lines.push('# ContainerH: ' + els.cHei.value);
+      }
+      lines.push('# ContainerMaxPayload: ' + els.maxpayload.value);
+      lines.push('# ContainerMaxContainers: ' + els.maxcontainers.value);
+    }
+    return lines;
+  }
+
+  function extractMetaLines(text){
+    var lines = (text||'').split(/\r?\n/);
+    var meta = [], rest = [];
+    lines.forEach(function(l){
+      if(l.trim().indexOf('#') === 0) meta.push(l.trim()); else rest.push(l);
+    });
+    return {meta:meta, rest:rest.join('\n')};
+  }
+
+  function applyContainerMeta(metaLines){
+    var map = {};
+    metaLines.forEach(function(l){
+      var m = l.match(/^#\s*([A-Za-z]+):\s*(.*)$/);
+      if(m) map[m[1]] = m[2].trim();
+    });
+    if(!map.ContainerMode) return false;
+
+    if(map.ContainerMode === 'fleet'){
+      els.modeFleet.checked = true;
+      updateModeVisibility();
+      if(map.Fleet){
+        var entries = map.Fleet.split(';').map(function(s){ return s.trim(); }).filter(Boolean);
+        containerFleet = entries.map(function(e, idx){
+          var parts = e.split('|');
+          return {id:'fc'+(idx+1), label:parts[0], L:parseFloat(parts[1]), W:parseFloat(parts[2]), H:parseFloat(parts[3]), payload:parseFloat(parts[4])};
+        });
+        fleetIdSeq = containerFleet.length+1;
+        renderFleetList();
+        persistFleet();
+      }
+    } else {
+      els.modeUniform.checked = true;
+      updateModeVisibility();
+      if(map.ContainerType){
+        els.ctype.value = map.ContainerType;
+        if(map.ContainerType === 'CUSTOM'){
+          els.customDims.style.display = 'block';
+          if(map.ContainerLabel !== undefined) els.customLabel.value = map.ContainerLabel;
+          if(map.ContainerL) els.cLen.value = map.ContainerL;
+          if(map.ContainerW) els.cWid.value = map.ContainerW;
+          if(map.ContainerH) els.cHei.value = map.ContainerH;
+        } else {
+          els.customDims.style.display = 'none';
+        }
+      }
+      if(map.ContainerMaxPayload) els.maxpayload.value = map.ContainerMaxPayload;
+      if(map.ContainerMaxContainers) els.maxcontainers.value = map.ContainerMaxContainers;
+      persistContainerSettings();
+    }
+    try{ localStorage.setItem('lpb_mode', els.modeFleet.checked?'fleet':'uniform'); }catch(e){}
+    return true;
+  }
+
   els.importCsvBtn.addEventListener('click', function(){
-    var parsed = parseCSV(els.csvInput.value);
+    var extracted = extractMetaLines(els.csvInput.value);
+    var appliedContainer = applyContainerMeta(extracted.meta);
+    var parsed = parseCSV(extracted.rest);
     if(parsed.errors.length && parsed.items.length===0){
       els.parseMsg.innerHTML = parsed.errors.map(function(e){ return '<div class="error">' + escapeHtml(e) + '</div>'; }).join('');
       return;
@@ -1283,7 +1366,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     if(parsed.errors.length){
       msgHtml += parsed.errors.map(function(e){ return '<div class="error">' + escapeHtml(e) + '</div>'; }).join('');
     }
-    msgHtml += '<div class="ok">' + parsed.items.length + ' item(s) from CSV added to the list.</div>';
+    msgHtml += '<div class="ok">' + parsed.items.length + ' item(s) from CSV added to the list' + (appliedContainer ? ', and the saved container setup was restored.' : '.') + '</div>';
     els.parseMsg.innerHTML = msgHtml;
   });
 
@@ -1665,13 +1748,14 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         return /[,"\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
       }).join(',');
     }).join('\n');
+    csv = buildContainerMetaLines().join('\n') + '\n' + csv;
     var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url; a.download = fileSafeName() + '-items.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    els.parseMsg.innerHTML = '<div class="ok">Item list saved as CSV — upload it again anytime via "Upload CSV File" or "Import to List" to continue where you left off.</div>';
+    els.parseMsg.innerHTML = '<div class="ok">Item list saved as CSV, including your current container setup — upload it again anytime via "Upload CSV File" or "Import to List" to continue exactly where you left off.</div>';
   });
 
   els.clearAllBtn.addEventListener('click', function(){
