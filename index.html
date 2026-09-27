@@ -1717,23 +1717,24 @@ textarea:focus {
   }
 
 
-/* FINAL QR CLOSE BUTTON: MATCH SIGN IN BUTTON */
-.qrModalClose{
+/* FINAL QR CLOSE BUTTON: EXACT SIGN-IN LOOK, WHITE X */
+#qrModal .qrModalClose{
   background:linear-gradient(135deg,
-    color-mix(in srgb, var(--amber) 92%, #fff),
-    var(--amber)) !important;
+    var(--theme-c1) 0%,
+    var(--theme-c2) 52%,
+    var(--theme-c3) 100%) !important;
+  background-size:200% 200% !important;
   color:#fff !important;
-  border:1px solid var(--amber) !important;
+  border:1px solid var(--theme-c2) !important;
   border-radius:8px !important;
-  box-shadow:0 2px 8px rgba(15,23,42,.18) !important;
+  box-shadow:0 4px 12px color-mix(in srgb, var(--theme-c2) 28%, transparent) !important;
   opacity:1 !important;
-  text-shadow:0 1px 2px rgba(0,0,0,.22) !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.25) !important;
 }
-.qrModalClose:hover{
-  background:var(--amber) !important;
-  border-color:var(--amber) !important;
+#qrModal .qrModalClose:hover{
+  background-position:100% 50% !important;
   color:#fff !important;
-  opacity:1 !important;
+  border-color:var(--theme-c2) !important;
 }
 </style>
 </head>
