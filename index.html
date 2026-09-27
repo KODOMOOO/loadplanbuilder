@@ -1740,40 +1740,75 @@ textarea:focus {
   color:#fff !important;
 }
 
-/* FINAL MOBILE QR POPUP COMPATIBILITY */
+/* FINAL MOBILE QR POPUP COMPATIBILITY - COMPACT CLOSE BUTTON */
 .qrModalCard{
   max-width:calc(100vw - 24px) !important;
   max-height:calc(100dvh - 24px) !important;
   overflow:auto !important;
   box-sizing:border-box !important;
 }
+
 #qrModal .qrModalClose{
-  width:44px !important;
-  height:44px !important;
-  min-width:44px !important;
-  min-height:44px !important;
-  top:4px !important;
-  right:4px !important;
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+  min-height:36px !important;
+  top:7px !important;
+  right:7px !important;
   padding:0 !important;
+  margin:0 !important;
+  border-radius:8px !important;
+  font-size:23px !important;
+  font-weight:700 !important;
+  line-height:36px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
   z-index:10 !important;
 }
+
 #qrModal .qrCodeImage{
   max-width:min(100%, 280px) !important;
   height:auto !important;
 }
+
 @media (max-width:480px){
   .qrModalCard{
     width:calc(100vw - 24px) !important;
-    padding:18px !important;
+    max-width:340px !important;
+    padding:28px 18px 18px !important;
   }
+
   #qrModal .qrModalClose{
-    top:3px !important;
-    right:3px !important;
+    width:34px !important;
+    height:34px !important;
+    min-width:34px !important;
+    min-height:34px !important;
+    top:7px !important;
+    right:7px !important;
+    border-radius:7px !important;
+    font-size:22px !important;
+    line-height:34px !important;
   }
 }
 
+@media (max-height:560px){
+  .qrModal{
+    align-items:flex-start;
+    padding-top:12px;
+    padding-bottom:12px;
+  }
+
+  .qrModalCard{
+    max-height:calc(100dvh - 24px) !important;
+  }
+
+  .qrCodeImage{
+    width:min(170px, 58vw) !important;
+  }
+}
 </style>
 </head>
 <body>
