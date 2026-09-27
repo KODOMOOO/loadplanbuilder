@@ -893,10 +893,6 @@ table.wide-table td input[type=number]{
   font-weight:700;
   text-decoration:none;
   cursor:pointer;
-  background:none;
-  border:0;
-  padding:0;
-  font:inherit;
 }
 
 .registerLink:hover{
@@ -906,7 +902,7 @@ table.wide-table td input[type=number]{
 .qrModal{
   position:fixed;
   inset:0;
-  z-index:9999;
+  z-index:100000;
   display:none;
   align-items:center;
   justify-content:center;
@@ -1391,10 +1387,9 @@ textarea:focus {
     <div id="loginError" class="loginError"></div>
     <button type="button" class="accent" id="loginBtn" style="width:100%; margin-top:12px;">Sign In</button>
     <div class="registerPrompt">
-      Don't have an account? <button type="button" class="registerLink" id="registerBtn">Register</button>
+      Don't have an account? <a href="#" class="registerLink" id="registerBtn">Register</a>
     </div>
   </div>
-</div>
 
 <div id="qrModal" class="qrModal" aria-hidden="true">
   <div class="qrModalCard" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
@@ -1409,6 +1404,7 @@ textarea:focus {
       alt="Registration QR code"
     >
   </div>
+</div>
 </div>
 <div class="wrap">
 
@@ -1878,7 +1874,10 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       qrModal.setAttribute('aria-hidden', 'true');
     }
 
-    registerBtn.addEventListener('click', openQrModal);
+    registerBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      openQrModal();
+    });
     qrModalClose.addEventListener('click', closeQrModal);
     qrModal.addEventListener('click', function(e){
       if(e.target === qrModal) closeQrModal();
