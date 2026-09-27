@@ -1717,13 +1717,14 @@ textarea:focus {
   }
 
 
-/* FINAL QR CLOSE BUTTON: CONTRAST PER THEME */
+/* FINAL QR CLOSE BUTTON: WHITE X IN ALL THEMES */
 #qrModal .qrModalClose{
   background:linear-gradient(135deg,
     var(--theme-c1) 0%,
     var(--theme-c2) 52%,
     var(--theme-c3) 100%) !important;
   background-size:200% 200% !important;
+  color:#fff !important;
   border:1px solid var(--theme-c2) !important;
   border-radius:8px !important;
   box-shadow:0 4px 12px color-mix(in srgb, var(--theme-c2) 28%, transparent) !important;
@@ -1731,24 +1732,48 @@ textarea:focus {
   font-size:23px !important;
   font-weight:700 !important;
   line-height:1 !important;
-  text-shadow:0 1px 2px rgba(0,0,0,.22) !important;
-}
-
-/* Light theme: dark X so it remains visible on the light button */
-:root:not([data-theme="dark"]) #qrModal .qrModalClose{
-  color:#18212f !important;
-  text-shadow:none !important;
-}
-
-/* Dark theme: white X */
-:root[data-theme="dark"] #qrModal .qrModalClose{
-  color:#fff !important;
-  text-shadow:0 1px 2px rgba(0,0,0,.25) !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.28) !important;
 }
 
 #qrModal .qrModalClose:hover{
   background-position:100% 50% !important;
+  color:#fff !important;
 }
+
+/* FINAL MOBILE QR POPUP COMPATIBILITY */
+.qrModalCard{
+  max-width:calc(100vw - 24px) !important;
+  max-height:calc(100dvh - 24px) !important;
+  overflow:auto !important;
+  box-sizing:border-box !important;
+}
+#qrModal .qrModalClose{
+  width:44px !important;
+  height:44px !important;
+  min-width:44px !important;
+  min-height:44px !important;
+  top:4px !important;
+  right:4px !important;
+  padding:0 !important;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  z-index:10 !important;
+}
+#qrModal .qrCodeImage{
+  max-width:min(100%, 280px) !important;
+  height:auto !important;
+}
+@media (max-width:480px){
+  .qrModalCard{
+    width:calc(100vw - 24px) !important;
+    padding:18px !important;
+  }
+  #qrModal .qrModalClose{
+    top:3px !important;
+    right:3px !important;
+  }
+}
+
 </style>
 </head>
 <body>
