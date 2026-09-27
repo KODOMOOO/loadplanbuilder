@@ -953,15 +953,6 @@ table.wide-table td input[type=number]{
   font-weight:700;
 }
 
-.loginSuccessImage{
-  width:90px;
-  height:90px;
-  object-fit:contain;
-  display:block;
-  margin:0 auto 14px;
-}
-
-
 .loginSuccessTitle{
   font-family:'Space Grotesk',sans-serif;
   font-size:20px;
@@ -1866,7 +1857,7 @@ textarea:focus {
 </div>
 <div id="loginSuccessModal" class="loginSuccessModal" aria-hidden="true">
   <div class="loginSuccessCard" role="dialog" aria-modal="true" aria-labelledby="loginSuccessTitle">
-    <img class="loginSuccessImage" id="loginSuccessImage" src="https://i.pinimg.com/236x/bb/44/a1/bb44a1d738949192f9ad530e4c549f27.jpg" alt="Welcome">
+    <div class="loginSuccessIcon" aria-hidden="true">✓</div>
     <div class="loginSuccessTitle" id="loginSuccessTitle">Login Successful</div>
     <div class="loginSuccessMessage" id="loginSuccessMessage">Welcome, username! Have a great day, stay productive, and keep up the great work. ✨</div>
     <button type="button" class="loginSuccessOk" id="loginSuccessOk">OK</button>
