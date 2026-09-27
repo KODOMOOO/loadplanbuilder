@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
-<title>Load Plan Builder</title>
+<title>LPB Beta 1.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -438,7 +438,7 @@
 <body>
 <div id="loginGate" class="loginGate">
   <div class="loginCard">
-    <div class="loginTitle">📦 Load Plan Builder</div>
+    <div class="loginTitle">LPB Beta 1.2</div>
     <div class="loginSub">Sign in to continue</div>
     <label for="loginUser">Username</label>
     <input type="text" id="loginUser" autocomplete="username">
@@ -478,7 +478,7 @@
           <img id="logoPreview" alt="Logo preview">
         </div>
         <div id="logoMsg"></div>
-        <div class="hint">Appears in the top-left corner of the PDF report, like a company letterhead. Stored only in this browser.</div>
+        <div class="hint"></div>
       </div>
 
       <div class="panel">
@@ -494,7 +494,7 @@
             <option value="20GP">20' GP — 589×235×239 cm</option>
             <option value="40GP">40' GP — 1203×235×239 cm</option>
             <option value="40HQ" selected>40' HQ — 1203×235×269 cm</option>
-            <option value="CUSTOM">Custom — enter your own size</option>
+            <option value="CUSTOM">Custom</option>
           </select>
 
           <div id="customDims" style="display:none;">
@@ -527,7 +527,7 @@
               <input type="number" id="maxcontainers" value="60">
             </div>
           </div>
-          <div class="hint">Every container opened will use this same type &amp; size.</div>
+          <div class="hint"></div>
         </div>
 
         <div id="fleetSettings" style="display:none;">
@@ -557,7 +557,7 @@
           <div class="hint" id="fleetEmptyHint">No containers added to the fleet yet.</div>
         </div>
 
-        <div class="hint">Match the weight capacity to your forwarder / shipping line's actual specs. For custom sizes, enter the real interior (not exterior) dimensions.</div>
+        <div class="hint"></div>
       </div>
 
       <div class="panel">
@@ -623,9 +623,9 @@
           <option value="furniture">Furniture Shipment</option>
         </select>
         <div class="btnrow" style="margin-top:8px;">
-          <button type="button" class="secondary" id="downloadSampleBtn">↓ Download Example CSV File</button>
+          <button type="button" class="secondary" id="downloadSampleBtn">Download Example (CSV)</button>
         </div>
-        <div class="hint" style="margin-top:2px;">Downloads the selected template as a real .csv file — handy for test-driving "Upload CSV File" below, or as a starting point to edit in a spreadsheet.</div>
+        <div class="hint" style="margin-top:2px;"></div>
         <label for="csvInput" style="margin-top:12px;">Paste CSV data</label>
         <textarea id="csvInput" placeholder="Product Name,Length cm,Width cm,Height cm,Unit Weight kg,Quantity,Cylinder,Upright Only,Max Stack,Priority,Tolerance cm
 Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
@@ -638,7 +638,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         <div id="parseMsg"></div>
       </div>
 
-      <div class="hint" style="text-align:center; margin-top:4px;">The 3D preview on the right updates automatically whenever the item list or container settings change.<br>A simplified planning aid — not a substitute for certified cargo engineering calculations.</div>
+      <div class="hint" style="text-align:center; margin-top:4px;"><br></div>
     </div>
 
     <!-- RIGHT: RESULTS -->
@@ -701,10 +701,10 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       <button type="button" class="secondary" id="saveListBtn">Save Item List (CSV)</button>
       <button type="button" class="secondary" id="clearAllBtn" style="color:var(--red); border-color:var(--red);">Clear All</button>
     </div>
-    <div class="hint">Saves your work-in-progress list (including colors) as a CSV you can re-upload later via "Upload CSV File" / "Import to List" to pick up exactly where you left off.</div>
+    <div class="hint"></div>
   </div>
 
-  <footer class="note">© 2026 KODOMOOO. All Rights Reserved.<br>Results are indicative for planning purposes; re-validate for high-value or irregular loads.</footer>
+  <footer class="note">© 2026 KODOMOOO. All Rights Reserved.<br>Please contact KODOMOOO for registration.</footer>
 
   <div class="colorPopover" id="colorPopover" style="display:none;">
     <div class="wheelWrap">
