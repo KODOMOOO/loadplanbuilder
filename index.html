@@ -903,19 +903,51 @@ table.wide-table td input[type=number]{
   position:fixed;
   inset:0;
   z-index:100000;
-  display:none;
+  display:flex;
   align-items:center;
   justify-content:center;
   box-sizing:border-box;
   padding:24px;
   overflow-y:auto;
-  background:rgba(15,23,42,.52);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
+  background:rgba(15,23,42,0);
+  backdrop-filter:blur(0);
+  -webkit-backdrop-filter:blur(0);
+  -webkit-backdrop-filter:blur(0);
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:
+    opacity .22s ease,
+    background .22s ease,
+    backdrop-filter .22s ease,
+    visibility 0s linear .22s;
+}
+
+.qrModalCard{
+  transform:translateY(8px) scale(.96);
+  opacity:0;
+  transition:
+    transform .24s ease,
+    opacity .20s ease;
 }
 
 .qrModal.open{
-  display:flex;
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+  background:rgba(15,23,42,.52);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  transition:
+    opacity .22s ease,
+    background .22s ease,
+    backdrop-filter .22s ease,
+    visibility 0s linear 0s;
+}
+
+.qrModal.open .qrModalCard{
+  transform:translateY(0) scale(1);
+  opacity:1;
 }
 
 .qrModalCard{
@@ -974,7 +1006,7 @@ table.wide-table td input[type=number]{
   margin:0;
   padding:0;
   border:0;
-  border-radius:50%;
+  border-radius:8px;
   background:transparent;
   color:var(--ink-soft);
   font-family:Arial,sans-serif;
@@ -1030,6 +1062,7 @@ table.wide-table td input[type=number]{
     right:7px;
     width:32px;
     height:32px;
+    border-radius:7px;
     font-size:23px;
   }
 }
@@ -1477,7 +1510,7 @@ textarea:focus {
     <img
       class="qrCodeImage"
       id="registrationQr"
-      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_3BmpsLC0ADkMyAnPMDqqVQtFVX-R5tQI07B4xeT23R5VOebrrgLJNZ4&s=10"
+      src="https://pub-e6e58aeeeb9c474fb0d35a5f6f05b8ca.r2.dev/uploads/main/31-01-2023-12-12-11bj2tx-custom_1675166730.webp"
       alt="Registration QR code"
     >
   </div>
