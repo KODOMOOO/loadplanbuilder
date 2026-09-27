@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <!-- FAVICON: ganti URL di bawah dengan link icon kamu -->
-  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/256/679/679821.png">
+  <link rel="icon" type="image/png" href="https://www.flaticon.com/free-icon/box_679821">
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
@@ -880,6 +880,102 @@ table.wide-table td input[type=number]{
   min-height:42px;
 }
 
+/* Registration QR modal */
+.registerPrompt{
+  margin-top:14px;
+  text-align:center;
+  font-size:11.5px;
+  color:var(--ink-soft);
+}
+
+.registerLink{
+  color:var(--accent);
+  font-weight:700;
+  text-decoration:none;
+  cursor:pointer;
+  background:none;
+  border:0;
+  padding:0;
+  font:inherit;
+}
+
+.registerLink:hover{
+  text-decoration:underline;
+}
+
+.qrModal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(15,23,42,.52);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+
+.qrModal.open{
+  display:flex;
+}
+
+.qrModalCard{
+  position:relative;
+  width:min(340px, 92vw);
+  padding:28px 24px 24px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:var(--panel);
+  box-shadow:var(--shadow-lg);
+  text-align:center;
+}
+
+.qrModalTitle{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:20px;
+  font-weight:700;
+  color:var(--ink);
+}
+
+.qrModalSub{
+  margin:6px 0 18px;
+  font-size:11.5px;
+  line-height:1.5;
+  color:var(--ink-soft);
+}
+
+.qrCodeImage{
+  display:block;
+  width:220px;
+  height:220px;
+  max-width:100%;
+  margin:0 auto;
+  object-fit:contain;
+  border-radius:10px;
+  background:#fff;
+  padding:8px;
+  box-sizing:border-box;
+}
+
+.qrModalClose{
+  position:absolute;
+  top:10px;
+  right:12px;
+  width:30px;
+  height:30px;
+  border:0;
+  background:transparent;
+  color:var(--ink-soft);
+  font-size:22px;
+  line-height:1;
+  cursor:pointer;
+}
+
+.qrModalClose:hover{
+  color:var(--ink);
+}
+
 /* Floating controls */
 .themeToggle,
 .colorThemeFab{
@@ -1294,6 +1390,24 @@ textarea:focus {
     <input type="password" id="loginPass" autocomplete="current-password">
     <div id="loginError" class="loginError"></div>
     <button type="button" class="accent" id="loginBtn" style="width:100%; margin-top:12px;">Sign In</button>
+    <div class="registerPrompt">
+      Don't have an account? <button type="button" class="registerLink" id="registerBtn">Register</button>
+    </div>
+  </div>
+</div>
+
+<div id="qrModal" class="qrModal" aria-hidden="true">
+  <div class="qrModalCard" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+    <button type="button" class="qrModalClose" id="qrModalClose" aria-label="Close">&times;</button>
+    <div class="qrModalTitle" id="qrModalTitle">Register</div>
+    <div class="qrModalSub">Please scan the QR code below to register your account.</div>
+    <!-- REGISTRATION QR: replace the URL below with your QR code image link -->
+    <img
+      class="qrCodeImage"
+      id="registrationQr"
+      src="https://example.com/your-registration-qr.png"
+      alt="Registration QR code"
+    >
   </div>
 </div>
 <div class="wrap">
@@ -1748,6 +1862,31 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     }
 
     btn.addEventListener('click', tryLogin);
+
+    // Registration QR modal
+    var registerBtn = document.getElementById('registerBtn');
+    var qrModal = document.getElementById('qrModal');
+    var qrModalClose = document.getElementById('qrModalClose');
+
+    function openQrModal(){
+      qrModal.classList.add('open');
+      qrModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeQrModal(){
+      qrModal.classList.remove('open');
+      qrModal.setAttribute('aria-hidden', 'true');
+    }
+
+    registerBtn.addEventListener('click', openQrModal);
+    qrModalClose.addEventListener('click', closeQrModal);
+    qrModal.addEventListener('click', function(e){
+      if(e.target === qrModal) closeQrModal();
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && qrModal.classList.contains('open')) closeQrModal();
+    });
+
     passInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryLogin(); });
     userInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') passInput.focus(); });
 
