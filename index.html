@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <!-- FAVICON: ganti URL di bawah dengan link icon kamu -->
-  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/256/679/679821.png">
+  <link rel="icon" type="image/png" href="https://contoh.com/favicon.png">
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
@@ -880,6 +880,143 @@ table.wide-table td input[type=number]{
   min-height:42px;
 }
 
+/* Login success modal */
+.loginSuccessModal{
+  position:fixed;
+  inset:0;
+  z-index:100001;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  padding:24px;
+  background:rgba(15,23,42,0);
+  backdrop-filter:blur(0);
+  -webkit-backdrop-filter:blur(0);
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:
+    opacity .22s ease,
+    background .22s ease,
+    backdrop-filter .22s ease,
+    visibility 0s linear .22s;
+}
+
+.loginSuccessModal.open{
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+  background:rgba(15,23,42,.52);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  transition:
+    opacity .22s ease,
+    background .22s ease,
+    backdrop-filter .22s ease,
+    visibility 0s linear 0s;
+}
+
+.loginSuccessCard{
+  position:relative;
+  width:min(360px, 100%);
+  box-sizing:border-box;
+  padding:30px 24px 24px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:var(--panel);
+  box-shadow:var(--shadow-lg);
+  text-align:center;
+  transform:translateY(8px) scale(.96);
+  opacity:0;
+  transition:
+    transform .24s ease,
+    opacity .20s ease;
+}
+
+.loginSuccessModal.open .loginSuccessCard{
+  transform:translateY(0) scale(1);
+  opacity:1;
+}
+
+.loginSuccessIcon{
+  width:48px;
+  height:48px;
+  margin:0 auto 14px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--teal-soft);
+  color:var(--teal);
+  font-size:25px;
+  font-weight:700;
+}
+
+.loginSuccessTitle{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:20px;
+  font-weight:700;
+  line-height:1.25;
+  color:var(--ink);
+}
+
+.loginSuccessMessage{
+  margin:8px 0 20px;
+  font-size:12px;
+  line-height:1.5;
+  color:var(--ink-soft);
+}
+
+.loginSuccessOk{
+  width:100%;
+  min-height:42px;
+  border:0;
+  border-radius:10px;
+  cursor:pointer;
+  font:inherit;
+  font-weight:700;
+  color:#fff;
+  background:var(--accent);
+  transition:transform .15s ease, opacity .15s ease;
+}
+
+.loginSuccessOk:hover{
+  opacity:.92;
+}
+
+.loginSuccessOk:active{
+  transform:translateY(1px);
+}
+
+@media (max-width:480px){
+  .loginSuccessModal{
+    padding:16px;
+  }
+
+  .loginSuccessCard{
+    width:100%;
+    max-width:340px;
+    padding:28px 18px 18px;
+    border-radius:18px;
+  }
+
+  .loginSuccessTitle{
+    font-size:18px;
+  }
+
+  .loginSuccessMessage{
+    font-size:11.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .loginSuccessModal,
+  .loginSuccessCard{
+    transition:none;
+  }
+}
+
 /* Registration QR modal */
 .registerPrompt{
   margin-top:14px;
@@ -1136,12 +1273,22 @@ table.wide-table td input[type=number]{
   border-color:color-mix(in srgb, var(--amber) 70%, var(--line));
 }
 
+/* Item colors are data-driven: never derive them from the active UI theme. */
+.colorSwatch{
+  background-image:none !important;
+}
+
 /* Color picker */
 .colorPopover{
   padding:15px;
 }
 
-.presetSwatch,
+.presetSwatch{
+  background-image:none !important;
+  background-color:transparent;
+  box-shadow:0 1px 2px rgba(15,23,42,.08);
+}
+
 .colorSwatch{
   box-shadow:0 1px 2px rgba(15,23,42,.08);
 }
@@ -1510,9 +1657,18 @@ textarea:focus {
     <img
       class="qrCodeImage"
       id="registrationQr"
-      src="https://pub-e6e58aeeeb9c474fb0d35a5f6f05b8ca.r2.dev/uploads/main/31-01-2023-12-12-11bj2tx-custom_1675166730.webp"
+      src="https://example.com/your-registration-qr.png"
       alt="Registration QR code"
     >
+  </div>
+</div>
+
+<div id="loginSuccessModal" class="loginSuccessModal" aria-hidden="true">
+  <div class="loginSuccessCard" role="dialog" aria-modal="true" aria-labelledby="loginSuccessTitle">
+    <div class="loginSuccessIcon" aria-hidden="true">✓</div>
+    <div class="loginSuccessTitle" id="loginSuccessTitle">Login Successful</div>
+    <div class="loginSuccessMessage" id="loginSuccessMessage">Welcome, username.</div>
+    <button type="button" class="loginSuccessOk" id="loginSuccessOk">OK</button>
   </div>
 </div>
 </div>
@@ -1952,6 +2108,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         setFailCount(0); setLockUntil(0);
         try{ sessionStorage.setItem('lpb_authed','1'); }catch(e){}
         hideGate(true);
+        openLoginSuccessModal(userInput.value);
       } else {
         var fails = getFailCount() + 1;
         if(fails >= MAX_ATTEMPTS){
@@ -1968,6 +2125,28 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     }
 
     btn.addEventListener('click', tryLogin);
+
+    // Login success modal
+    var loginSuccessModal = document.getElementById('loginSuccessModal');
+    var loginSuccessMessage = document.getElementById('loginSuccessMessage');
+    var loginSuccessOk = document.getElementById('loginSuccessOk');
+
+    function openLoginSuccessModal(username){
+      loginSuccessMessage.textContent = 'Welcome, ' + username + '.';
+      loginSuccessModal.classList.add('open');
+      loginSuccessModal.setAttribute('aria-hidden', 'false');
+      setTimeout(function(){ loginSuccessOk.focus(); }, 220);
+    }
+
+    function closeLoginSuccessModal(){
+      loginSuccessModal.classList.remove('open');
+      loginSuccessModal.setAttribute('aria-hidden', 'true');
+    }
+
+    loginSuccessOk.addEventListener('click', closeLoginSuccessModal);
+    loginSuccessModal.addEventListener('click', function(e){
+      if(e.target === loginSuccessModal) closeLoginSuccessModal();
+    });
 
     // Registration QR modal
     var registerBtn = document.getElementById('registerBtn');
@@ -1993,7 +2172,10 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       if(e.target === qrModal) closeQrModal();
     });
     document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape' && qrModal.classList.contains('open')) closeQrModal();
+      if(e.key === 'Escape'){
+        if(qrModal.classList.contains('open')) closeQrModal();
+        if(loginSuccessModal.classList.contains('open')) closeLoginSuccessModal();
+      }
     });
 
     passInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryLogin(); });
@@ -2522,13 +2704,14 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
 
   function bulkAddItems(list){
     list.forEach(function(it){
-      if(!it.color){
+      var normalizedColor = normalizeItemHexColor(it.color);
+      if(normalizedColor){
+        it.color = normalizedColor;
+      } else if(typeof it.hue === 'number' && !isNaN(it.hue)){
         // migrate items saved by an older version that stored a bare hue number
-        if(typeof it.hue === 'number' && !isNaN(it.hue)){
-          it.color = rgbToHex(hsvToRgb(it.hue, 0.62, 0.85));
-        } else {
-          it.color = nextColor();
-        }
+        it.color = rgbToHex(hsvToRgb(it.hue, 0.62, 0.85));
+      } else {
+        it.color = nextColor();
       }
       delete it.hue;
       it.id = 'it' + (itemIdSeq++);
@@ -2539,6 +2722,11 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     scheduleRecompute();
   }
 
+  function normalizeItemHexColor(color){
+    var rgb = hexToRgb(color);
+    return rgb ? rgbToHex(rgb) : null;
+  }
+
   function renderItemsTable(){
     els.itemCount.textContent = items.length + ' item' + (items.length===1?'':'s');
     els.itemsEmptyHint.style.display = items.length ? 'none' : 'block';
@@ -2547,7 +2735,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<td><input type="text" class="cellEdit" data-field="name" data-id="' + it.id + '" value="' + escapeHtml(it.name) + '"></td>' +
-        '<td><button type="button" class="colorSwatch" data-swatch-id="' + it.id + '" style="background:' + it.color + '" title="Click to change color"></button></td>' +
+        '<td><button type="button" class="colorSwatch" data-swatch-id="' + it.id + '" style="background-color:' + it.color + ' !important" title="Click to change color"></button></td>' +
         '<td><input type="number" class="cellEdit" data-field="L" data-id="' + it.id + '" value="' + it.L + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="W" data-id="' + it.id + '" value="' + it.W + '"></td>' +
         '<td><input type="number" class="cellEdit" data-field="H" data-id="' + it.id + '" value="' + it.H + '"></td>' +
@@ -2608,7 +2796,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
   var PRESET_COLORS = ['#EF4444','#F97316','#F59E0B','#EAB308','#84CC16','#22C55E','#14B8A6','#06B6D4','#3B82F6','#6366F1','#A855F7','#EC4899','#78716C','#1F2937'];
 
   els.presetRow.innerHTML = PRESET_COLORS.map(function(hex){
-    return '<button type="button" class="presetSwatch" style="background:' + hex + '" data-hex="' + hex + '"></button>';
+    return '<button type="button" class="presetSwatch" style="background-color:' + hex + ' !important; background-image:none !important;" data-hex="' + hex + '"></button>';
   }).join('');
 
   function drawColorWheel(){
@@ -2654,7 +2842,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       if(it){
         it.color = hex;
         var sw = els.itemsBody.querySelector('.colorSwatch[data-swatch-id="' + pickerEditingId + '"]');
-        if(sw) sw.style.background = hex;
+        if(sw) sw.style.setProperty('background-color', hex, 'important');
         if(commit){ persistItems(); }
         scheduleColorRefresh(it.id, hex);
       }
