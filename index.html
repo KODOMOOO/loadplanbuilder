@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- FAVICON: ganti URL di bawah dengan link icon kamu -->
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/256/34/34581.png">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
 <title>LPB Beta 1.2</title>
@@ -1186,6 +1189,27 @@ input[type="reset"] {
     filter .2s ease !important;
 }
 
+/* Visible animated shine. */
+button::before,
+.btn::before,
+input[type="button"]::before,
+input[type="submit"]::before,
+input[type="reset"]::before {
+  content: "";
+  position: absolute;
+  inset: -80% auto -80% -65%;
+  width: 32%;
+  transform: skewX(-22deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.42),
+    transparent
+  );
+  transition: left .6s ease;
+  pointer-events: none;
+}
+
 button:hover,
 .btn:hover,
 input[type="button"]:hover,
@@ -1198,6 +1222,14 @@ input[type="reset"]:hover {
     0 14px 30px color-mix(in srgb, var(--theme-c2) 40%, transparent),
     0 4px 12px color-mix(in srgb, var(--theme-c3) 25%, transparent),
     inset 0 1px 0 rgba(255,255,255,.28) !important;
+}
+
+button:hover::before,
+.btn:hover::before,
+input[type="button"]:hover::before,
+input[type="submit"]:hover::before,
+input[type="reset"]:hover::before {
+  left: 135%;
 }
 
 button:active,
