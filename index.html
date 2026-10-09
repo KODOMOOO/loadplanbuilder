@@ -6,7 +6,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
-<title>LOAD PLAN BUILDER 1.3</title>
+<title>LOAD PLAN BUILDER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1849,6 +1849,66 @@ textarea:focus {
      min-height:40px;
    }
  }
+/* Button vertical layout refinement */
+.btnStack{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:100%;
+  margin-top:8px;
+}
+
+.btnStack button{
+  width:100%;
+  min-height:42px;
+  justify-content:center;
+}
+
+.logoActions{
+  margin-top:8px;
+}
+
+@media (max-width:600px){
+  .btnStack{
+    gap:10px;
+  }
+
+  .btnStack button{
+    width:100%;
+    min-height:44px;
+    font-size:13px;
+  }
+}
+
+
+/* Additional button groups: upload/import and save/clear actions */
+.actionVertical,
+#itemsPanel .btnrow{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:100%;
+}
+
+.actionVertical button,
+#itemsPanel .btnrow button{
+  width:100%;
+  min-height:42px;
+}
+
+@media (max-width:600px){
+  .actionVertical,
+  #itemsPanel .btnrow{
+    gap:10px;
+  }
+
+  .actionVertical button,
+  #itemsPanel .btnrow button{
+    min-height:44px;
+    width:100%;
+  }
+}
+
 </style>
 <style>
 /* UI FONT REFINEMENT - PDF EXPORT SECTION UNTOUCHED */
@@ -2077,7 +2137,7 @@ button{
         <textarea id="companyAddress" placeholder="Street address, city, country&#10;Phone / email / website" style="min-height:52px;"></textarea>
         <div class="hint"></div>
         <label style="margin-top:12px;">Company logo</label>
-        <div class="btnrow">
+        <div class="btnStack logoActions">
           <button type="button" class="secondary" id="uploadLogoBtn">Upload Logo</button>
           <input type="file" id="logoInput" accept="image/png,image/jpeg" style="display:none;">
           <button type="button" class="secondary" id="removeLogoBtn" style="display:none;">Remove</button>
@@ -2230,7 +2290,7 @@ button{
           <option value="pallets">Palletized Goods</option>
           <option value="furniture">Furniture Shipment</option>
         </select>
-        <div class="btnrow" style="margin-top:8px;">
+        <div class="btnStack">
           <button type="button" class="secondary" id="downloadSampleBtn">Download Example (CSV)</button>
           <button type="button" class="secondary" id="sampleBtn">Add Sample Data</button>
         </div>
@@ -2238,7 +2298,7 @@ button{
         <label for="csvInput" style="margin-top:12px;">Paste CSV data</label>
         <textarea id="csvInput" placeholder="Product Name,Length cm,Width cm,Height cm,Unit Weight kg,Quantity,Cylinder,Upright Only,Max Stack,Priority,Tolerance cm
 Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
-        <div class="btnrow">
+        <div class="btnrow actionVertical">
           <button type="button" class="secondary" id="uploadCsvBtn">Upload File (CSV)</button>
           <input type="file" id="fileInput" accept=".csv,text/csv" style="display:none;">
           <button type="button" class="secondary" id="importCsvBtn">Import to List</button>
@@ -2280,7 +2340,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         <div class="panel" style="margin-top:18px;">
           <h2>Breakdown per container <span class="n" id="detailN"></span></h2>
           <div class="tablewrap"><table id="detailTable"><thead></thead><tbody></tbody></table></div>
-          <div class="btnrow">
+          <div class="btnrow actionVertical">
             <button type="button" class="secondary" id="exportBtn">Export Breakdown (CSV)</button>
             <button type="button" class="accent" id="exportPdfBtn">Export Report (PDF)</button>
           </div>
@@ -2306,7 +2366,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       <tbody id="itemsBody"></tbody>
     </table></div>
     <div class="hint" id="itemsEmptyHint">No items added yet — use the form on the left or import a CSV.</div>
-    <div class="btnrow">
+    <div class="btnrow actionVertical">
       <button type="button" class="secondary" id="saveListBtn">Save Item List (CSV)</button>
       <button type="button" class="secondary" id="clearAllBtn" style="color:var(--red); border-color:var(--red);">Clear All</button>
     </div>
