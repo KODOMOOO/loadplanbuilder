@@ -1922,6 +1922,30 @@ textarea:focus {
   }
 }
 
+
+
+/* FIXED SQUARE IMAGE SIZE FOR REGISTER + WELCOME */
+.qrCodeImage,
+.loginSuccessImage{
+  display:block;
+  width:220px;
+  height:220px;
+  aspect-ratio:1 / 1;
+  max-width:100%;
+  object-fit:cover;
+  object-position:center;
+  margin:0 auto;
+  border-radius:12px;
+}
+
+@media (max-width:480px){
+  .qrCodeImage,
+  .loginSuccessImage{
+    width:180px;
+    height:180px;
+  }
+}
+
 </style>
 <style>
 /* UI FONT REFINEMENT - PDF EXPORT SECTION UNTOUCHED */
