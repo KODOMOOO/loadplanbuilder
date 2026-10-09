@@ -1884,6 +1884,107 @@ button{
   font-family:var(--ui-font);
   font-weight:600;
 }
+
+
+/* ============================================================
+   FUN BUTTON MICRO ANIMATIONS
+   CSS ONLY - logic and existing systems untouched
+   ============================================================ */
+
+@media (prefers-reduced-motion: no-preference){
+
+  button{
+    position:relative;
+    overflow:hidden;
+    transform:translateZ(0);
+    transition:
+      transform .18s cubic-bezier(.2,.8,.2,1),
+      box-shadow .18s ease,
+      filter .18s ease,
+      background-color .18s ease;
+  }
+
+  /* cute floating effect */
+  button:hover{
+    animation: buttonWiggle .35s ease;
+    transform:translateY(-3px) scale(1.03);
+  }
+
+  button:active{
+    transform:scale(.94) translateY(1px);
+    animation:none;
+  }
+
+  /* shine sweep */
+  button::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-120%;
+    width:70%;
+    height:100%;
+    background:linear-gradient(
+      120deg,
+      transparent,
+      rgba(255,255,255,.45),
+      transparent
+    );
+    transform:skewX(-25deg);
+    transition:left .45s ease;
+    pointer-events:none;
+  }
+
+  button:hover::before{
+    left:140%;
+  }
+
+  /* tiny bounce when clicked */
+  button:focus-visible{
+    animation: buttonPop .45s ease;
+  }
+
+  .tab:hover,
+  .ctpOption:hover,
+  .colorSwatch:hover,
+  .presetSwatch:hover{
+    transform:translateY(-2px) scale(1.04);
+    transition:transform .18s ease;
+  }
+
+  .rmBtn:hover{
+    animation: shakeSoft .35s ease;
+  }
+
+  .themeToggle:hover,
+  .colorThemeFab:hover{
+    animation: rotateCute .45s ease;
+  }
+}
+
+@keyframes buttonWiggle{
+  0%,100%{transform:translateY(-3px) rotate(0deg) scale(1.03);}
+  25%{transform:translateY(-3px) rotate(-2deg) scale(1.03);}
+  75%{transform:translateY(-3px) rotate(2deg) scale(1.03);}
+}
+
+@keyframes buttonPop{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.08);}
+  100%{transform:scale(1);}
+}
+
+@keyframes shakeSoft{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-3px);}
+  75%{transform:translateX(3px);}
+}
+
+@keyframes rotateCute{
+  0%{transform:rotate(0deg);}
+  50%{transform:rotate(12deg) scale(1.08);}
+  100%{transform:rotate(0deg);}
+}
+
 </style>
 </head>
 <body>
@@ -2131,6 +2232,7 @@ button{
         </select>
         <div class="btnrow" style="margin-top:8px;">
           <button type="button" class="secondary" id="downloadSampleBtn">Download Example (CSV)</button>
+          <button type="button" class="secondary" id="sampleBtn">Add Sample Data</button>
         </div>
         <div class="hint" style="margin-top:2px;"></div>
         <label for="csvInput" style="margin-top:12px;">Paste CSV data</label>
@@ -2140,7 +2242,7 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
           <button type="button" class="secondary" id="uploadCsvBtn">Upload File (CSV)</button>
           <input type="file" id="fileInput" accept=".csv,text/csv" style="display:none;">
           <button type="button" class="secondary" id="importCsvBtn">Import to List</button>
-          <button type="button" class="secondary" id="sampleBtn">Add Sample Data</button>
+          
         </div>
         <div id="parseMsg"></div>
       </div>
