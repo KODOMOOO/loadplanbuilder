@@ -1809,6 +1809,81 @@ textarea:focus {
     width:min(170px, 58vw) !important;
   }
 }
+
+
+ /* Project name field in Letterhead — match the other Letterhead inputs */
+ #projectName.projectNameInput{
+   width:100%;
+   max-width:none;
+   min-height:40px;
+   height:auto;
+   padding:9px 12px;
+   font-family:'IBM Plex Mono', monospace;
+   font-size:13px;
+   font-weight:400;
+   line-height:1.5;
+   background:var(--panel-2);
+   color:var(--ink);
+   border:1px solid var(--line);
+   border-radius:var(--radius-sm);
+   border-bottom:1px solid var(--line);
+   box-sizing:border-box;
+ }
+
+ #projectName.projectNameInput::placeholder{
+   color:var(--ink-soft);
+   opacity:0.5;
+ }
+
+ #projectName.projectNameInput:focus{
+   outline:none;
+   border-color:var(--amber);
+   border-bottom:1px solid var(--amber);
+   box-shadow:0 0 0 4px color-mix(in srgb, var(--amber) 13%, transparent);
+ }
+
+ @media(max-width:600px){
+   #projectName.projectNameInput{
+     width:100%;
+     font-size:13px;
+     min-height:40px;
+   }
+ }
+</style>
+<style>
+/* UI FONT REFINEMENT - PDF EXPORT SECTION UNTOUCHED */
+:root{
+  --ui-font:'Inter','Segoe UI',Arial,sans-serif;
+  --ui-mono:'IBM Plex Mono','Consolas',monospace;
+}
+body, button, input, select, textarea{
+  font-family:var(--ui-font);
+}
+body{
+  font-size:14px;
+  letter-spacing:-0.01em;
+}
+h1,h2,h3,.projectNameInput{
+  font-family:var(--ui-font);
+  font-weight:700;
+  letter-spacing:-0.025em;
+}
+label,.hint,.tag,.stamp,.stat .l,th{
+  font-family:var(--ui-font);
+}
+input,select,textarea,table,.mono,.stamp,.n,.flagbadge{
+  font-family:var(--ui-mono);
+}
+table{
+  font-size:12.5px;
+}
+th{
+  font-weight:700;
+}
+button{
+  font-family:var(--ui-font);
+  font-weight:600;
+}
 </style>
 </head>
 <body>
@@ -1882,8 +1957,8 @@ textarea:focus {
 
   <header class="top">
     <div>
-      <div class="tag">Project Name</div>
-      <input type="text" id="projectName" class="projectNameInput" placeholder="Untitled Project" maxlength="80">
+      <div class="tag">WELCOME BACK</div>
+      <h1 id="userGreeting">Hi, User!</h1>
     </div>
     <div class="stamp"><b>LOAD PLAN BUILDER by KODOMOOO</b></div>
   </header>
@@ -1893,6 +1968,8 @@ textarea:focus {
     <div>
       <div class="panel">
         <h2>Letterhead <span class="n">for PDF report</span></h2>
+        <label for="projectName">Project name</label>
+        <input type="text" id="projectName" class="projectNameInput" placeholder="Untitled Project" maxlength="80">
         <label for="companyName">Company name</label>
         <input type="text" id="companyName" placeholder="Your Company Name">
         <label for="companyAddress">Company address</label>
@@ -2329,7 +2406,12 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
       var validUser = APP_USERS.some(function(u){ return u.username === userInput.value && u.password === passInput.value; });
       if(validUser){
         setFailCount(0); setLockUntil(0);
-        try{ sessionStorage.setItem('lpb_authed','1'); }catch(e){}
+        try{
+          sessionStorage.setItem('lpb_authed','1');
+          sessionStorage.setItem('lpb_username', userInput.value);
+        }catch(e){}
+        var greeting = document.getElementById('userGreeting');
+        if(greeting) greeting.textContent = 'Hi, ' + userInput.value + '!';
         hideGate(true);
         openLoginSuccessModal(userInput.value);
       } else {
@@ -2500,6 +2582,15 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
     exportBtn: document.getElementById('exportBtn'),
     exportPdfBtn: document.getElementById('exportPdfBtn')
   };
+
+  // ---------- Logged-in user greeting ----------
+  try{
+    var loggedInUser = sessionStorage.getItem('lpb_username');
+    if(loggedInUser){
+      var greeting = document.getElementById('userGreeting');
+      if(greeting) greeting.textContent = 'Hi, ' + loggedInUser + '!';
+    }
+  }catch(e){}
 
   // ---------- Project name ----------
   try{
@@ -4232,17 +4323,20 @@ Wooden Crate A,120,80,100,150,20,FALSE,TRUE,3,1,2"></textarea>
         textX = margin + logoMax + 7;
       }
 
-      // Measure the text block first so name+address can be vertically
-      // centered as a group against the logo, rather than hugging the top.
+      // Keep the letterhead focused on the company identity only.
+      // The project name is displayed once below in the report title section.
+      var projectLines = [];
       var addrLines = [];
       if(companyAddressVal){
         doc.setFont('helvetica','normal'); doc.setFontSize(9);
         addrLines = doc.splitTextToSize(companyAddressVal, pageW - margin - textX);
       }
+      // Keep the project name typography consistent with the original letterhead company-name styling.
+      var projectH = 0;
       var nameH = companyNameVal ? 6.2 : 0;
       var addrH = addrLines.length * 4.2;
-      var textBlockH = nameH + addrH;
-      var textY = blockTop + Math.max(2, (blockH - textBlockH) / 2) + 4.5;
+      var textBlockH = projectH + nameH + addrH;
+      var textY = blockTop + Math.max(1, (blockH - textBlockH) / 2) + 3.5;
 
       if(companyNameVal){
         doc.setFont('helvetica','bold'); doc.setFontSize(14.5); doc.setTextColor(20,26,28);
